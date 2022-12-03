@@ -20,6 +20,7 @@ abstract contract UniswapTest is Test {
     address deployer = makeAddr("deployer");
     address oracleLiquidityDepositor = makeAddr("oracleLiquidityDepositor");
     address user1 = 0x7C28C02aF52c1Ddf7Ae6f3892cCC8451a17f2842; //	tokenID = 549666
+    address user2 = 0x95BF9205341e9b3bC7aD426C44e80f5455DAC1cE; // tokenID = 549638
 
     address public constant wethAddr =
         0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
@@ -70,10 +71,19 @@ abstract contract UniswapTest is Test {
         );
 
         vm.stopPrank();
-        console.log(uniswapPositionsNFT.balanceOf(user1));
+
         vm.startPrank(user1);
-        uniswapPositionsNFT.approve(address(borrowerOperation), 68813);
-        borrowerOperation.openPosition(374478);
+        uniswapPositionsNFT.approve(address(borrowerOperation), 549666);
+        borrowerOperation.openPosition(549666);
         vm.stopPrank();
+
+        vm.startPrank(user2);
+        uniswapPositionsNFT.approve(address(borrowerOperation), 549638);
+        borrowerOperation.openPosition(549638);
+        vm.stopPrank();
+
+        console.log(lpPositionsManager.getPosition(549666).user);
+
     }
+
 }
