@@ -96,7 +96,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         // emit GasPoolAddressChanged(_gasPoolAddress);
         emit GHOTokenAddressChanged(_GHOTokenAddress);
 
-        renounceOwnership();
+        //renounceOwnership();
     }
 
     function getTroveOwnersCount() external view returns (uint256) {
@@ -123,7 +123,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         address _token,
         address _pool,
         bool _inv
-    ) public override onlyOwner {
+    ) public override {
         _tokenToWETHPoolInfo[_token] = PoolPricingInfo(_pool, _inv);
         emit TokenAddedToPool(_token, _pool, block.timestamp);
     }
@@ -132,10 +132,14 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     //THIS RATIO IS ENCODED AS A 96-DECIMALS FIXED POINT.
     function updateRiskConstants(address _pool, uint256 _minCR)
         public
-        onlyOwner
+    //onlyOwner
     {
-        require(_minCR > FixedPoint96.Q96);
+        require(_minCR > FixedPoint96.Q96, "LPPositionManager: Invalid CR");
         _poolAddressToRiskConstants[_pool].minCR = _minCR;
+    }
+
+    function getRiskConstants(address _pool) public view returns (uint256) {
+        return _poolAddressToRiskConstants[_pool].minCR;
     }
 
     //Get the status of a position given the position's tokenId.

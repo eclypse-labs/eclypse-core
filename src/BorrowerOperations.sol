@@ -61,7 +61,7 @@ contract BorrowerOperations is
         //emit GasPoolAddressChanged(_gasPoolAddress);
         emit GHOTokenAddressChanged(_GHOTokenAddress);
 
-        renounceOwnership();
+        //renounceOwnership();
     }
 
     // --- Borrower Position Operations ---
