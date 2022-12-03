@@ -30,7 +30,7 @@ interface IBorrowerOperations {
         address _GHOTokenAddress
     ) external;
 
-    function openPosition(uint256 _tokenId) external payable;
+    function openPosition(uint256 _tokenId) external;
 
     function closePosition(uint256 _tokenId) external;
 

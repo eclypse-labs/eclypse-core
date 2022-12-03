@@ -66,7 +66,7 @@ contract BorrowerOperations is
 
     // --- Borrower Position Operations ---
 
-    function openPosition(uint256 _tokenId) external payable override {
+    function openPosition(uint256 _tokenId) external override {
         uniswapPositionsNFT.transferFrom(
             msg.sender,
             address(activePool),
