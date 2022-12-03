@@ -18,16 +18,14 @@ contract LPPositionsManagerTest is UniswapTest {
     //         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     //     IUniswapV3Pool uniPoolUsdcETH = IUniswapV3Pool(uniPoolUsdcETHAddr);
 
-    //     INonfungiblePositionManager uniswapPositionsNFT =
-    //         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-
-    //     GHOToken GHO;
     //     LPPositionsManager positionsManager;
     //     BorrowerOperations borrowerOperations;
     //     ActivePool activePool;
     //     IUniswapV3Pool uniPoolGhoEth;
 
     function setUp() public {
+        uniswapTest();
+
         //         vm.deal(deployer, 10 ether);
         //         vm.startPrank(deployer);
         //         // deploy everything
@@ -99,10 +97,7 @@ contract LPPositionsManagerTest is UniswapTest {
     }
 
     function testOpenPosition() public {
-        vm.startPrank(randomLotNFT);
-        uniswapPositionsNFT.approve(address(borrowerOperation), 374478);
-        borrowerOperation.openPosition(374478);
-        vm.stopPrank();
+
 
         //uniswapPositionsNFT.transferFrom(randomLotNFT, address(activePool), 374478);
         console.log(lpPositionsManager.getPosition(374478).user);
