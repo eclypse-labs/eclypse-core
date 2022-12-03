@@ -8,7 +8,7 @@ import "./interfaces/IGHOToken.sol";
 import "src/liquity-dependencies/EclypseBase.sol";
 import "src/liquity-dependencies/CheckContract.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
+import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
 contract BorrowerOperations is
     EclypseBase,

@@ -11,15 +11,15 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
-import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
-import "@uniswap/v3-core/contracts/libraries/FixedPoint96.sol";
+import "@uniswap-core/libraries/TickMath.sol";
+import "@uniswap-core/libraries/FullMath.sol";
+import "@uniswap-core/libraries/FixedPoint96.sol";
 
-import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
-import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
-import "@uniswap/v3-periphery/contracts/libraries/PoolAddress.sol";
-import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
-import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
+import "@uniswap-periphery/libraries/PoolAddress.sol";
+import "@uniswap-periphery/libraries/OracleLibrary.sol";
+import "@uniswap-periphery/libraries/TransferHelper.sol";
 
 contract LPPositionsManager is ILPPositionsManager, Ownable {
     using SafeMath for uint256;
