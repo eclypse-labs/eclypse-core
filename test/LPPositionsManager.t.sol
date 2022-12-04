@@ -13,94 +13,13 @@ pragma solidity <0.9.0;
 import "./UniswapTest.sol";
 
 contract LPPositionsManagerTest is UniswapTest {
-
-    //     IUniswapV3Factory uniswapFactory =
-    //         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-    //     IUniswapV3Pool uniPoolUsdcETH = IUniswapV3Pool(uniPoolUsdcETHAddr);
-
-    //     LPPositionsManager positionsManager;
-    //     BorrowerOperations borrowerOperations;
-    //     ActivePool activePool;
-    //     IUniswapV3Pool uniPoolGhoEth;
-
     function setUp() public {
-        uniswapTest();
-
-        //         vm.deal(deployer, 10 ether);
-        //         vm.startPrank(deployer);
-        //         // deploy everything
-        //         borrowerOperations = new BorrowerOperations();
-        //         positionsManager = new LPPositionsManager();
-        //         activePool = new ActivePool();
-        //         // address stabilityPoolAddress;
-        //         // address gasPoolAddress;
-        //         GHO = new GHOToken(address(borrowerOperations));
-        //         // Set addresses for everything
-        //         borrowerOperations.setAddresses(
-        //             address(positionsManager),
-        //             address(activePool),
-        //             //_stabilityPoolAddress,
-        //             //_gasPoolAddress,
-        //             address(GHO)
-        //         );
-        //         positionsManager.setAddresses(
-        //             address(borrowerOperations),
-        //             address(activePool),
-        //             //_stabilityPoolAddress,
-        //             //_gasPoolAddress,
-        //             address(GHO)
-        //         );
-        //         activePool.setAddresses(
-        //             address(positionsManager),
-        //             address(activePool),
-        //             //_stabilityPoolAddress,
-        //             //_gasPoolAddress,
-        //             address(GHO)
-        //         );
-        //         vm.stopPrank();
-        //         //deploy une pool GHO/ETH
-        //         uint24 fee = 1;
-        //         uniPoolGhoEth = IUniswapV3Pool(
-        //             uniswapFactory.createPool(address(GHO), address(WETH), fee)
-        //         );
-        //         vm.startPrank(oracleLiquidityDepositor);
-        //         //giving depositor 10 ETH
-        //         vm.deal(oracleLiquidityDepositor, 10 ether);
-        //         //giving depositor 10 WETH
-        //         deal(address(WETH), oracleLiquidityDepositor, 10 ether);
-        //         //giving depositor 10 GHO
-        //         deal(address(GHO), oracleLiquidityDepositor, 10000 ether);
-        //         //deposit de la liquidité pour l'oracle
-        //         uint128 amount = 1;
-        //         bytes memory data;
-        //         uniPoolGhoEth.mint(
-        //             oracleLiquidityDepositor,
-        //             -69082,
-        //             -73136,
-        //             amount,
-        //             data
-        //         );
-        //         vm.stopPrank();
-        //         //trouver l'addresse de univ3 pool ETH/USDC : https://info.uniswap.org/#/pools/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640
-        //         vm.startPrank(deployer);
-        //         //whitelist la pool: updateRiskConstants
-        //         uint256 _minCR = 0;
-        //         positionsManager.updateRiskConstants(address(uniPoolUsdcETH), _minCR);
-        //         //pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
-        //         bool _inv = false; //TODO: set parameter _inv
-        //         positionsManager.addTokenETHpoolAddress(
-        //             address(USDC),
-        //             address(uniPoolGhoEth),
-        //             _inv
-        //         );
-        //         vm.stopPrank();
+        // uniswapTest();
     }
 
     function testOpenPosition() public {
-
-
         //uniswapPositionsNFT.transferFrom(randomLotNFT, address(activePool), 374478);
-        console.log(lpPositionsManager.getPosition(374478).user);
+        //console.log(lpPositionsManager.getPosition(374478).user);
     }
 
     //     //TODO: test deposit

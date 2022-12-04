@@ -3,14 +3,12 @@ pragma solidity <0.9.0;
 
 import "./UniswapTest.sol";
 
-contract ActivePoolTest is UniswapTest{
+contract ActivePoolTest is UniswapTest {
+    function setUp() public {
+        uniswapTest();
+    }
 
-
-function setUp(){
-    uniswapTest();
-}
-
-function testGetCollateralValue() public{
-    
-}
+    function testGetCollateralValue() public {
+        console.log(activePool.getCollateralValue());       
+    }
 }
