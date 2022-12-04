@@ -54,6 +54,7 @@ contract LPPositionsManagerTest is UniswapTest {
         vm.startPrank(address(user1));
         borrowerOperation.borrowGHO(1, 549666);
         vm.stopPrank();
+        console.log("borrowed GHO: ", ghoToken.balanceOf(address(user1)));
     }
 
     /*function testComputeCR() public {

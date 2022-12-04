@@ -119,7 +119,7 @@ contract BorrowerOperations is
 
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
         //Check whether the user's collateral is enough to withdraw _GHOAmount GHO.
-        require(!lpPositionsManager.liquidatable(_tokenId), "Liquidatable");
+        //require(!lpPositionsManager.liquidatable(_tokenId), "Liquidatable");
 
         GHOToken.mint(msg.sender, _GHOAmount);
 

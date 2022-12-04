@@ -126,6 +126,10 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
         require(msg.sender == borrowerOperationsAddress, "GHOToken: Caller is not BorrowerOperations");
     }
 
+    function balanceOf(address account) public view virtual override(IGHOToken, ERC20) returns (uint256) {
+        return _balances[account];
+    }
+
 
     // --- Optional functions ---
 
