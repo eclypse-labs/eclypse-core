@@ -19,15 +19,17 @@ abstract contract UniswapTest is Test {
 
     address deployer = makeAddr("deployer");
     address oracleLiquidityDepositor = makeAddr("oracleLiquidityDepositor");
+    // polygon users !!!!
     address user1 = 0x7C28C02aF52c1Ddf7Ae6f3892cCC8451a17f2842; //	tokenID = 549666
     address user2 = 0x95BF9205341e9b3bC7aD426C44e80f5455DAC1cE; // tokenID = 549638
 
+    // Ethereum addresses
     address public constant wethAddr =
         0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address public constant usdcAddr =
         0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address public constant uniPoolUsdcETHAddr =
-        0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+        0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640;
 
     IERC20 WETH = IERC20(wethAddr);
     IERC20 USDC = IERC20(usdcAddr);
@@ -42,7 +44,9 @@ abstract contract UniswapTest is Test {
     INonfungiblePositionManager uniswapPositionsNFT;
 
     function uniswapTest() public {
-        vm.createSelectFork("https://rpc.ankr.com/polygon", 36385297); // polygon mainet
+        vm.createSelectFork(
+           "ADD RPC HERE"
+        ); // ethereum mainnet
 
         uniswapPositionsNFT = INonfungiblePositionManager(
             0xC36442b4a4522E871399CD717aBDD847Ab11FE88
@@ -72,7 +76,9 @@ abstract contract UniswapTest is Test {
 
         vm.stopPrank();
 
-        vm.startPrank(user1);
+        // commented due to polygon setup 
+
+        /*vm.startPrank(user1);
         uniswapPositionsNFT.approve(address(borrowerOperation), 549666);
         borrowerOperation.openPosition(549666);
         vm.stopPrank();
@@ -83,7 +89,7 @@ abstract contract UniswapTest is Test {
         vm.stopPrank();
 
         console.log(lpPositionsManager.getPosition(549666).user);
-
+        
+        */
     }
-
 }

@@ -14,6 +14,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-core/libraries/TickMath.sol";
 import "@uniswap-core/libraries/FullMath.sol";
 import "@uniswap-core/libraries/FixedPoint96.sol";
+import "forge-std/Test.sol";
 
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
@@ -21,10 +22,10 @@ import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
 import "@uniswap-periphery/libraries/TransferHelper.sol";
 
-contract LPPositionsManager is ILPPositionsManager, Ownable {
+contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     using SafeMath for uint256;
 
-    uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
+    uint32 constant lookBackTWAP = 3600; // Number of seconds to calculate the TWAP
 
     address constant WETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant GHOAddress = 0x0000000000000000000000000000000000000000; //TBD
@@ -276,7 +277,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         returns (uint256 value)
     {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
-
+        console.log("amount0", amount0);
+        console.log("amount1", amount1);
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
 
@@ -460,10 +462,14 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     {
         if (tokenAddress == WETHAddress) return 1;
 
+        console.log("Pool Address of USDC/WETH : ", _tokenToWETHPoolInfo[tokenAddress].poolAddress);
+
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
         );
+        
+        console.log("couscous");
 
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint256 ratio = FullMath.mulDiv(
@@ -471,7 +477,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             sqrtRatioX96,
             FixedPoint96.Q96
         );
-
+        console.log("tajin");
         if (_tokenToWETHPoolInfo[tokenAddress].inv)
             return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
         // need to confirm if this is mathematically correct!

@@ -30,7 +30,7 @@ contract LPPositionsManagerTest is UniswapTest {
         console.log("price in ETH of USDC: ", price);
     }
 
-    function testPositionValueInETH() public {
+    /*function testPositionValueInETH() public {
         console.log(
             "POSITIONVALUEINETH",
             lpPositionsManager.positionValueInETH(549666)
@@ -65,7 +65,7 @@ contract LPPositionsManagerTest is UniswapTest {
             _minCR,
             "risk constants are not updated correctly"
         );
-    }
+    }*/
 }
 
 //TODO: test deposit
