@@ -20,7 +20,7 @@ contract LPPositionsManagerTest is UniswapTest {
         uniswapTest();
     }
 
-    function testPriceInETH() public {
+   /* function testPriceInETH() public {
         lpPositionsManager.addTokenETHpoolAddress(
             usdcAddr,
             uniPoolUsdcETHAddr,
@@ -28,20 +28,18 @@ contract LPPositionsManagerTest is UniswapTest {
         );
         uint256 price = lpPositionsManager.priceInETH(usdcAddr);
         console.log("price in ETH of USDC: ", price);
-    }
+    }*/
 
-    /*function testPositionValueInETH() public {
+    function testPositionValueInETH() public {
+        console.log("wassssuuuupppp");
         console.log(
-            "POSITIONVALUEINETH",
+            "POSITIONVALUEINETH: ",
             lpPositionsManager.positionValueInETH(549666)
         );
-        uint256 positionValueInETH = lpPositionsManager.positionValueInETH(
-            549666
-        );
-        assertEq(positionValueInETH, 0);
+    
     }
 
-    function testComputeCR() public {
+    /*function testComputeCR() public {
         console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
     }
 

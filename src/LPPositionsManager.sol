@@ -27,7 +27,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     uint32 constant lookBackTWAP = 3600; // Number of seconds to calculate the TWAP
 
-    address constant WETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address constant WETHAddress = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
     address constant GHOAddress = 0x0000000000000000000000000000000000000000; //TBD
     address constant factoryAddress =
         0x1F98431c8aD98523631AE4a59f267346ea31F984;
@@ -192,6 +192,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             PoolAddress.getPoolKey(token0, token1, fee)
         );
 
+        console.log("TOKEN0: ", token0);
+        console.log("TOKEN1: ", token1);
+        console.log("POOL ADDRESS: ", poolAddress);
+        console.log("FEE: ", fee);
+
         Position memory position = Position(
             _owner,
             token0,
@@ -228,11 +233,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
+        console.log("_position.poolAddress", _position.poolAddress);
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
         );
-
+        console.log("WASSSUPPPPPP BITCH");
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(
             _position.tickLower
@@ -277,6 +283,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         returns (uint256 value)
     {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
+    
         console.log("amount0", amount0);
         console.log("amount1", amount1);
         address token0 = _positionFromTokenId[_tokenId].token0;
@@ -468,16 +475,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
         );
-        
-        console.log("couscous");
-
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint256 ratio = FullMath.mulDiv(
             sqrtRatioX96,
             sqrtRatioX96,
             FixedPoint96.Q96
         );
-        console.log("tajin");
         if (_tokenToWETHPoolInfo[tokenAddress].inv)
             return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
         // need to confirm if this is mathematically correct!
