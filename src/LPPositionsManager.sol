@@ -21,6 +21,7 @@ import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
 import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
 import "@uniswap-periphery/libraries/TransferHelper.sol";
+import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 
 contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     using SafeMath for uint256;
@@ -34,7 +35,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     INonfungiblePositionManager constant uniswapPositionsNFT =
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-
+    
+    IUniswapV3Factory internal uniswapFactory = IUniswapV3Factory(factoryAddress);
     address gasPoolAddress;
     address public borrowerOperationsAddress;
 
@@ -187,15 +189,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         ) = uniswapPositionsNFT.positions(_tokenId);
 
-        address poolAddress = PoolAddress.computeAddress(
-            factoryAddress,
-            PoolAddress.getPoolKey(token0, token1, fee)
-        );
-
-        console.log("TOKEN0: ", token0);
-        console.log("TOKEN1: ", token1);
-        console.log("POOL ADDRESS: ", poolAddress);
-        console.log("FEE: ", fee);
+        address poolAddress = 
+                uniswapFactory.getPool(token0, token1, fee);
 
         Position memory position = Position(
             _owner,
