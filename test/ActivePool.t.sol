@@ -1,19 +1,18 @@
-// //SPDX-License-Identifier: MIT
-// pragma solidity ^0.8.14;
+//SPDX-License-Identifier: MIT
+pragma solidity <0.9.0;
 
-// import "forge-std/Test.sol";
-// import "../src/ActivePool.sol";
-// import "./ERC20Mintable.sol";
+import "./UniswapTest.sol";
 
-// contract ActivePoolTest is Test {
-//     ActivePool activePool;
-//     ERC20Mintable token;
+contract ActivePoolTest is UniswapTest {
+    function setUp() public {
+        uniswapTest();
+    }
 
-//     function setUp() public {
-//         activePool = new ActivePool();
-//     }
+    function testGetCollateralValue() public {
+        console.log(
+            "Total collateral value: ",
+            activePool.getCollateralValue()
+        );
 
-//     function testPool() public {
-//         assertTrue(true);
-//     }
-// }
+    }
+}

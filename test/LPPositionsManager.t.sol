@@ -31,12 +31,29 @@ contract LPPositionsManagerTest is UniswapTest {
     }*/
 
     function testPositionValueInETH() public {
-        console.log("wassssuuuupppp");
-        console.log(
-            "POSITIONVALUEINETH: ",
-            lpPositionsManager.positionValueInETH(549666)
+        lpPositionsManager.addTokenETHpoolAddress(
+            usdcAddr,
+            uniPoolUsdcETHAddr,
+            false
         );
     
+    }
+
+
+    function testBorrowGHO() public {
+        uint256 _minCR = Math.mulDiv(17, 1 << 96, 10);
+        console.log("minCR calculated: ", _minCR);
+        lpPositionsManager.updateRiskConstants(
+            address(uniPoolUsdcETHAddr),
+            _minCR
+        );
+        console.log(
+            "updated risk constant: ",
+            lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
+        );
+        vm.startPrank(address(user1));
+        borrowerOperation.borrowGHO(1, 549666);
+        vm.stopPrank();
     }
 
     /*function testComputeCR() public {

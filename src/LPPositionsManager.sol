@@ -26,7 +26,7 @@ import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     using SafeMath for uint256;
 
-    uint32 constant lookBackTWAP = 3600; // Number of seconds to calculate the TWAP
+    uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
 
     address constant WETHAddress = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
     address constant GHOAddress = 0x0000000000000000000000000000000000000000; //TBD
@@ -206,6 +206,19 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             0
         );
 
+        console.log("Liquidity : ", liquidity);
+        console.log("Owner : ", _owner);
+        console.log("Token0 : ", token0);
+        console.log("Token1 : ", token1);
+        console.log("Fee : ", fee);
+
+        //console.log("TickLower : ", tickLower);
+        //console.log("TickUpper : ", tickUpper);
+
+        console.log("PoolAddress : ", poolAddress);
+        //console.log("TokenId : ", _tokenId);
+        //console.log("Status : ", position.status);
+        
         _allPositions.push(position);
         _positionsFromAddress[_owner].push(position);
         _positionFromTokenId[_tokenId] = position;
@@ -228,12 +241,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
-        console.log("_position.poolAddress", _position.poolAddress);
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
         );
-        console.log("WASSSUPPPPPP BITCH");
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(
             _position.tickLower
@@ -249,7 +260,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 sqrtRatio1X96,
                 _position.liquidity
             );
-
+        
         return (amount0, amount1);
     }
 
@@ -279,13 +290,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
     
-        console.log("amount0", amount0);
-        console.log("amount1", amount1);
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
 
         return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
     }
+
 
     //Given a user's address, computes the sum of all of its positions' values.
     function totalPositionsValueInETH(address _user)
@@ -417,6 +427,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 _poolAddressToRiskConstants[position.poolAddress].minCR,
                 FixedPoint96.Q96
             );*/
+
         return
             computeCR(_tokenId) >
             _poolAddressToRiskConstants[position.poolAddress].minCR;
@@ -462,9 +473,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         override
         returns (uint256)
     {
-        if (tokenAddress == WETHAddress) return 1;
+        if (tokenAddress == WETHAddress) return FixedPoint96.Q96;
 
-        console.log("Pool Address of USDC/WETH : ", _tokenToWETHPoolInfo[tokenAddress].poolAddress);
 
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
@@ -476,6 +486,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             sqrtRatioX96,
             FixedPoint96.Q96
         );
+        
         if (_tokenToWETHPoolInfo[tokenAddress].inv)
             return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
         // need to confirm if this is mathematically correct!
@@ -636,6 +647,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     /*function priceFeed() public override view returns (IPriceFeed) {
         return priceFeed;
     }*/
+
 
     modifier onlyBorrowerOperations() {
         require(
