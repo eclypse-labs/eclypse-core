@@ -6,11 +6,12 @@ import "./UniswapTest.sol";
 contract ActivePoolTest is UniswapTest{
 
 
-function setUp(){
+function setUp() public {
     uniswapTest();
 }
 
 function testGetCollateralValue() public{
+    console.log(activePool.getCollateralValue());
     
 }
 }
