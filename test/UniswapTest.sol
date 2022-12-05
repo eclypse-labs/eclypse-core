@@ -63,6 +63,7 @@ abstract contract UniswapTest is Test {
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
         ghoToken = new GHOToken(address(borrowerOperation));
+        console.log("ghtoken address : ", address(ghoToken));
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),

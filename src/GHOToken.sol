@@ -6,7 +6,7 @@ import "./interfaces/IGHOToken.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "src/liquity-dependencies/CheckContract.sol";
 //import "Dependencies/console.sol";
-
+import "forge-std/Test.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 /*
@@ -79,7 +79,18 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
 
     function mint(address _account, uint256 _amount) external override {
         _requireCallerIsBorrowerOperations();
-        _mint(_account, _amount);
+        require(_account != address(0), "ERC20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), _account, _amount);
+
+        _totalSupply += _amount;
+        unchecked {
+            // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
+            _balances[_account] += _amount;
+        }
+        emit Transfer(address(0), _account, _amount);
+
+        _afterTokenTransfer(address(0), _account, _amount);
     }
 
     function burn(address _account, uint256 _amount) external override {
@@ -96,6 +107,10 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
         //TODO: require(msg.sender == owner)
         _transfer(_poolAddress, _receiver, _amount);
     }
+
+    function totalSupply() public view virtual override(IGHOToken, ERC20) returns (uint256) {
+        return _totalSupply;
+    } 
 
     // --- External functions ---
 

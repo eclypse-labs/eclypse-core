@@ -56,8 +56,9 @@ contract LPPositionsManagerTest is UniswapTest {
         vm.stopPrank();
         console.log("borrowed GHO of user1: ", ghoToken.balanceOf(address(user1)));
         console.log("debt of the user : ", lpPositionsManager.totalDebtOf(user1));
-        console.log("borrowed GHO of borrowerOp :" , ghoToken.balanceOf(address(borrowerOperation)));
+        //console.log("borrowed GHO of borrowerOp :" , ghoToken.balanceOf(address(borrowerOperation)));
         console.log("total supply of GHO: ", ghoToken.totalSupply());
+
     }
 
     /*function testComputeCR() public {

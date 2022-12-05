@@ -24,6 +24,8 @@ interface IGHOToken is IERC20Metadata {
 
     function sendToPool(address _sender,  address poolAddress, uint256 _amount) external;
 
+    function totalSupply() external view returns (uint256);
+
     function returnFromPool(address poolAddress, address user, uint256 _amount ) external;
 
     function balanceOf(address _account) external view returns (uint256);
