@@ -20,7 +20,7 @@ contract LPPositionsManagerTest is UniswapTest {
         uniswapTest();
     }
 
-   /* function testPriceInETH() public {
+    function testPriceInETH() public {
         lpPositionsManager.addTokenETHpoolAddress(
             usdcAddr,
             uniPoolUsdcETHAddr,
@@ -28,7 +28,8 @@ contract LPPositionsManagerTest is UniswapTest {
         );
         uint256 price = lpPositionsManager.priceInETH(usdcAddr);
         console.log("price in ETH of USDC: ", price);
-    }*/
+        // TODO : check assert eq
+    }
 
     function testPositionValueInETH() public {
         lpPositionsManager.addTokenETHpoolAddress(
@@ -36,11 +37,9 @@ contract LPPositionsManagerTest is UniswapTest {
             uniPoolUsdcETHAddr,
             false
         );
-    
     }
 
-
-    function testBorrowGHO() public {
+    function testBorrowGHOAndTotalDebtOf() public {
         uint256 _minCR = Math.mulDiv(17, 1 << 96, 10);
         console.log("minCR calculated: ", _minCR);
         lpPositionsManager.updateRiskConstants(
@@ -54,17 +53,41 @@ contract LPPositionsManagerTest is UniswapTest {
         vm.startPrank(address(user1));
         borrowerOperation.borrowGHO(10, 549666);
         vm.stopPrank();
-        console.log("borrowed GHO of user1: ", ghoToken.balanceOf(address(user1)));
-        console.log("debt of the user : ", lpPositionsManager.totalDebtOf(user1));
+        console.log(
+            "borrowed GHO of user1: ",
+            ghoToken.balanceOf(address(user1))
+        );
+        console.log(
+            "debt of the user : ",
+            lpPositionsManager.totalDebtOf(user1)
+        );
         //console.log("borrowed GHO of borrowerOp :" , ghoToken.balanceOf(address(borrowerOperation)));
         console.log("total supply of GHO: ", ghoToken.totalSupply());
-
     }
 
-    /*function testComputeCR() public {
+    function testTotalDebtOf() public {
+        console.log(
+            "debt of the user1 before borrow : ",
+            lpPositionsManager.totalDebtOf(user1)
+        );
+        assertEq(lpPositionsManager.totalDebtOf(user1), 0);
+
+        vm.startPrank(address(user1));
+        borrowerOperation.borrowGHO(10, 549666);
+        vm.stopPrank();
+        console.log(
+            "debt of the user1 after borrow : ",
+            lpPositionsManager.totalDebtOf(user1)
+        );
+        assertEq(lpPositionsManager.totalDebtOf(user1), 10);
+    }
+
+    function testComputeCR() public {
         console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
+        // TODO : assert check with correct type conversion
     }
 
+    
     function testRiskConstantsAreCorrectlyUpdated() public {
         console.log(
             "initial risk constant: ",
@@ -85,10 +108,8 @@ contract LPPositionsManagerTest is UniswapTest {
             _minCR,
             "risk constants are not updated correctly"
         );
-    }*/
+    }
 }
-
-//TODO: test deposit
 
 //TODO: test deposit + withdraw
 
