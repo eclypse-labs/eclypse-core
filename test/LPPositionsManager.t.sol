@@ -52,9 +52,12 @@ contract LPPositionsManagerTest is UniswapTest {
             lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
         );
         vm.startPrank(address(user1));
-        borrowerOperation.borrowGHO(1, 549666);
+        borrowerOperation.borrowGHO(10, 549666);
         vm.stopPrank();
-        console.log("borrowed GHO: ", ghoToken.balanceOf(address(user1)));
+        console.log("borrowed GHO of user1: ", ghoToken.balanceOf(address(user1)));
+        console.log("debt of the user : ", lpPositionsManager.totalDebtOf(user1));
+        console.log("borrowed GHO of borrowerOp :" , ghoToken.balanceOf(address(borrowerOperation)));
+        console.log("total supply of GHO: ", ghoToken.totalSupply());
     }
 
     /*function testComputeCR() public {

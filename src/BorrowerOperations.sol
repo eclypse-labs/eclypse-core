@@ -122,7 +122,7 @@ contract BorrowerOperations is
         //require(!lpPositionsManager.liquidatable(_tokenId), "Liquidatable");
 
         GHOToken.mint(msg.sender, _GHOAmount);
-
+        
         emit WithdrawnGHO(msg.sender, _GHOAmount, block.timestamp);
     }
 
