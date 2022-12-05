@@ -10,7 +10,7 @@ contract ActivePoolTest is UniswapTest {
     }
 
 function testGetCollateralValue() public{
-   // console.log(activePool.getCollateralValue());
+   
     
 }
 }

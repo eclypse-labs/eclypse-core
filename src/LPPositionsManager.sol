@@ -20,7 +20,7 @@ import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
 import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
 import "@uniswap-periphery/libraries/TransferHelper.sol";
-
+import "forge-std/console.sol";
 contract LPPositionsManager is ILPPositionsManager, Ownable {
     using SafeMath for uint256;
 
@@ -272,10 +272,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         returns (uint256 value)
     {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
-
+        console.log("hello");
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
-
+        
         return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
     }
 
@@ -397,7 +397,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     //Given a position's tokenId, checks if this position is liquidatable.
     function liquidatable(uint256 _tokenId)
         public
-        view
         override
         returns (bool)
     {
@@ -410,8 +409,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
                 FixedPoint96.Q96
             );*/
         return
-            computeCR(_tokenId) >
-            _poolAddressToRiskConstants[position.poolAddress].minCR;
+            computeCR(_tokenId) > _poolAddressToRiskConstants[position.poolAddress].minCR;
+
     }
 
     // (soft) liquidation by a simple public liquidate function.
@@ -471,16 +470,18 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
         // need to confirm if this is mathematically correct!
         else return ratio;
+
+
+        console.log("je m'appelle antoine");
     }
 
-    function computeCR(uint256 _tokenId) public view returns (uint256) {
-        Position storage position = _positionFromTokenId[_tokenId];
+    function computeCR(uint256 _tokenId) public returns (uint256) {
+        Position memory position = _positionFromTokenId[_tokenId];
         return _computeCR(positionValueInETH(_tokenId), position.debt);
     }
 
     function _computeCR(uint256 _collValue, uint256 _debt)
         public
-        pure
         returns (uint256)
     {
         if (_debt > 0) {
@@ -496,7 +497,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.
         else {
             // if (_debt == 0)
-            return 2**256 - 1;
+            return 2**128 - 1;
         }
     }
 

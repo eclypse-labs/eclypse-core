@@ -2643,8 +2643,8 @@
       }
     },
     "src/ActivePool.sol": {
-      "lastModificationDate": 1670166158723,
-      "contentHash": "56de963dfcec83aea1073479b1b58f22",
+      "lastModificationDate": 1670182404556,
+      "contentHash": "10b4bb6646fd788f6c33f6df90a30f0f",
       "sourceName": "src/ActivePool.sol",
       "solcConfig": {
         "settings": {
@@ -2675,6 +2675,7 @@
         }
       },
       "imports": [
+        "lib/forge-std/src/console.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/interfaces/IERC2612.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
@@ -2763,6 +2764,7 @@
         }
       },
       "imports": [
+        "lib/forge-std/src/console.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/interfaces/IERC2612.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
@@ -2879,8 +2881,8 @@
       }
     },
     "src/LPPositionsManager.sol": {
-      "lastModificationDate": 1670167880462,
-      "contentHash": "2d7ad684495e99459d795dcc4f0adbb0",
+      "lastModificationDate": 1670186721585,
+      "contentHash": "3ed04b484cd3967980376b77fcffea2d",
       "sourceName": "src/LPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -2911,6 +2913,7 @@
         }
       },
       "imports": [
+        "lib/forge-std/src/console.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/interfaces/IERC2612.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
@@ -3265,8 +3268,8 @@
       }
     },
     "src/interfaces/ILPPositionsManager.sol": {
-      "lastModificationDate": 1670166158725,
-      "contentHash": "1398d5b7485f2f9a3e5f274d1da5f56e",
+      "lastModificationDate": 1670184780130,
+      "contentHash": "2541f6ca8494341177e696473bf2f647",
       "sourceName": "src/interfaces/ILPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -3848,8 +3851,8 @@
       }
     },
     "test/ActivePoolTest.t.sol": {
-      "lastModificationDate": 1670168010801,
-      "contentHash": "4224eed3e8743de652ec86e67d7e65ed",
+      "lastModificationDate": 1670170830519,
+      "contentHash": "09e8a608c93a56f8cd25db89bdfe1aac",
       "sourceName": "test/ActivePoolTest.t.sol",
       "solcConfig": {
         "settings": {
@@ -4011,8 +4014,8 @@
       }
     },
     "test/LPPositionsManager.t.sol": {
-      "lastModificationDate": 1670167884493,
-      "contentHash": "9115f511401cd5eefc601f08eabc9b06",
+      "lastModificationDate": 1670184176128,
+      "contentHash": "2676ec078ed7de939921764397081370",
       "sourceName": "test/LPPositionsManager.t.sol",
       "solcConfig": {
         "settings": {
@@ -4129,8 +4132,8 @@
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1670167884493,
-      "contentHash": "25713c8dc40bf9c04b2835e922c4d168",
+      "lastModificationDate": 1670183733669,
+      "contentHash": "99caef157a2772d64883e90952b96686",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {

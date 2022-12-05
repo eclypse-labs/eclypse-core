@@ -24,6 +24,7 @@ abstract contract UniswapTest is Test {
 
     address facticeUser1 = makeAddr("facticeUser1");
     address facticeUser2 = makeAddr("facticeUser2");
+    uint256 facticeUser1_tokenId;
 
     address public constant wethAddr =
         0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
@@ -124,7 +125,7 @@ abstract contract UniswapTest is Test {
                 fee: 500,
                 tickLower: int24(204920),
                 tickUpper: int24(204930),
-                amount0Desired: 1,
+                amount0Desired: 1000,
                 amount1Desired: 78651133592434045,
                 amount0Min: 0,
                 amount1Min: 0,
@@ -132,12 +133,12 @@ abstract contract UniswapTest is Test {
                 deadline: block.timestamp
             });
 
-        (uint256 tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
-         uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
-         borrowerOperation.openPosition(tokenId);
+        (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+         uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId);
+         borrowerOperation.openPosition(facticeUser1_tokenId);
          vm.stopPrank();
 
-        assertEq( facticeUser1,lpPositionsManager.getPosition(tokenId).user);
+        assertEq( facticeUser1,lpPositionsManager.getPosition(facticeUser1_tokenId).user);
 
     }
 
