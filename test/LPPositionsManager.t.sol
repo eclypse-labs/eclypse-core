@@ -87,7 +87,6 @@ contract LPPositionsManagerTest is UniswapTest {
         // TODO : assert check with correct type conversion
     }
 
-    
     function testRiskConstantsAreCorrectlyUpdated() public {
         console.log(
             "initial risk constant: ",
