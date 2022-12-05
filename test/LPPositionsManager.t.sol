@@ -15,6 +15,7 @@ import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 contract LPPositionsManagerTest is UniswapTest {
     using SafeMath for uint256;
+    uint256 public constant tokenIdUser1 = 549666;
 
     function setUp() public {
         uniswapTest();
@@ -65,6 +66,32 @@ contract LPPositionsManagerTest is UniswapTest {
         console.log("total supply of GHO: ", ghoToken.totalSupply());
     }
 
+    function testRepayGho() public {
+        console.log(
+            "debt of the user before borrowing operation",
+            lpPositionsManager.totalDebtOf(user1)
+        );
+        assertEq(lpPositionsManager.totalDebtOf(user1), 0);
+
+        vm.startPrank(user1);
+        borrowerOperation.borrowGHO(1 ether, tokenIdUser1);
+
+        console.log(
+            "debt after borrowing",
+            lpPositionsManager.totalDebtOf(user1)
+        );
+        console.log(ghoToken.balanceOf(user1));
+        borrowerOperation.repayGHO(1, tokenIdUser1);
+        vm.stopPrank();
+
+        assertEq(99, lpPositionsManager.totalDebtOf(user1));
+
+    }
+
+    function testLiquidatablePosition() public {
+
+    }
+
     function testTotalDebtOf() public {
         console.log(
             "debt of the user1 before borrow : ",
@@ -73,13 +100,13 @@ contract LPPositionsManagerTest is UniswapTest {
         assertEq(lpPositionsManager.totalDebtOf(user1), 0);
 
         vm.startPrank(address(user1));
-        borrowerOperation.borrowGHO(10, 549666);
+        borrowerOperation.borrowGHO(100, 549666);
         vm.stopPrank();
         console.log(
             "debt of the user1 after borrow : ",
             lpPositionsManager.totalDebtOf(user1)
         );
-        assertEq(lpPositionsManager.totalDebtOf(user1), 10);
+        assertEq(lpPositionsManager.totalDebtOf(user1), 100);
     }
 
     function testComputeCR() public {
