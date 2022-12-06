@@ -509,7 +509,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
             uint256 newCollRatio = FullMath.mulDiv(_collValue, 1, newDebt);
 
-
             return newCollRatio;
         }
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.

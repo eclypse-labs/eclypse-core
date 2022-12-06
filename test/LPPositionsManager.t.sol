@@ -74,23 +74,32 @@ contract LPPositionsManagerTest is UniswapTest {
         assertEq(lpPositionsManager.totalDebtOf(user1), 0);
 
         vm.startPrank(user1);
-        borrowerOperation.borrowGHO(1 ether, tokenIdUser1);
+        borrowerOperation.borrowGHO(100, tokenIdUser1);
 
         console.log(
             "debt after borrowing",
             lpPositionsManager.totalDebtOf(user1)
         );
-        console.log(ghoToken.balanceOf(user1));
+        console.log(
+            "User's gho balance after borrowing : ",
+            ghoToken.balanceOf(user1)
+        );
         borrowerOperation.repayGHO(1, tokenIdUser1);
+        console.log(
+            "debt after repaying",
+            lpPositionsManager.totalDebtOf(user1)
+        );
+        console.log(
+            "User's gho balance after repaying : ",
+            ghoToken.balanceOf(user1)
+        );
         vm.stopPrank();
 
         assertEq(99, lpPositionsManager.totalDebtOf(user1));
-
+        assertEq(99, ghoToken.totalSupply());
     }
 
-    function testLiquidatablePosition() public {
-
-    }
+    function testLiquidatablePosition() public {}
 
     function testTotalDebtOf() public {
         console.log(
@@ -117,7 +126,7 @@ contract LPPositionsManagerTest is UniswapTest {
         vm.startPrank(address(user1));
         borrowerOperation.borrowGHO(10, 549666);
         vm.stopPrank();
-        console.log("COLLATERAL VALUE : ", activePool.getCollateralValue() );
+        console.log("COLLATERAL VALUE : ", activePool.getCollateralValue());
 
         console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
     }
