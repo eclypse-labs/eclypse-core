@@ -99,7 +99,26 @@ contract LPPositionsManagerTest is UniswapTest {
         assertEq(99, ghoToken.totalSupply());
     }
 
-    function testLiquidatablePosition() public {}
+    function testLiquidatablePosition() public {
+
+        uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+        console.log("minCR calculated: ", _minCR);
+        lpPositionsManager.updateRiskConstants(
+            address(uniPoolUsdcETHAddr),
+            _minCR
+        );
+
+        console.log(lpPositionsManager.positionValueInETH(tokenIdUser1));
+        
+        vm.startPrank(address(user1));
+        borrowerOperation.borrowGHO(1e20 ether , tokenIdUser1);
+        vm.stopPrank();
+
+        uint256 cr = lpPositionsManager.computeCR(tokenIdUser1);
+        
+        assertTrue(cr > _minCR);
+        
+    }
 
     function testTotalDebtOf() public {
         console.log(
