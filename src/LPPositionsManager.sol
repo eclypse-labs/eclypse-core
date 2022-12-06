@@ -35,8 +35,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     INonfungiblePositionManager constant uniswapPositionsNFT =
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-    
-    IUniswapV3Factory internal uniswapFactory = IUniswapV3Factory(factoryAddress);
+
+    IUniswapV3Factory internal uniswapFactory =
+        IUniswapV3Factory(factoryAddress);
     address gasPoolAddress;
     address public borrowerOperationsAddress;
 
@@ -189,8 +190,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         ) = uniswapPositionsNFT.positions(_tokenId);
 
-        address poolAddress = 
-                uniswapFactory.getPool(token0, token1, fee);
+        address poolAddress = uniswapFactory.getPool(token0, token1, fee);
 
         Position memory position = Position(
             _owner,
@@ -218,7 +218,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         console.log("PoolAddress : ", poolAddress);
         //console.log("TokenId : ", _tokenId);
         //console.log("Status : ", position.status);
-        
+
         _allPositions.push(position);
         _positionsFromAddress[_owner].push(position);
         _positionFromTokenId[_tokenId] = position;
@@ -260,7 +260,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 sqrtRatio1X96,
                 _position.liquidity
             );
-        
+
         return (amount0, amount1);
     }
 
@@ -289,13 +289,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         returns (uint256 value)
     {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
-    
+
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
 
         return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
     }
-
 
     //Given a user's address, computes the sum of all of its positions' values.
     function totalPositionsValueInETH(address _user)
@@ -475,7 +474,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     {
         if (tokenAddress == WETHAddress) return FixedPoint96.Q96;
 
-
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
@@ -486,7 +484,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             sqrtRatioX96,
             FixedPoint96.Q96
         );
-        
+
         if (_tokenToWETHPoolInfo[tokenAddress].inv)
             return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
         // need to confirm if this is mathematically correct!
@@ -503,14 +501,15 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         pure
         returns (uint256)
     {
+        
         if (_debt > 0) {
             // uint256 newCollRatio = _collValue.div(_debt); // This is not accurate, because we are working with integers.
             // Solution : work with fixed point collateral ratios :
-            uint256 newCollRatio = FullMath.mulDiv(
-                _collValue,
-                FixedPoint96.Q96,
-                _debt
-            );
+            uint256 newDebt = FullMath.mulDiv(_debt, FixedPoint96.Q96, 1);
+
+            uint256 newCollRatio = FullMath.mulDiv(_collValue, 1, newDebt);
+
+
             return newCollRatio;
         }
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.
@@ -647,7 +646,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     /*function priceFeed() public override view returns (IPriceFeed) {
         return priceFeed;
     }*/
-
 
     modifier onlyBorrowerOperations() {
         require(

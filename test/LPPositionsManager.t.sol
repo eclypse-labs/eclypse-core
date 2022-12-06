@@ -109,9 +109,17 @@ contract LPPositionsManagerTest is UniswapTest {
         assertEq(lpPositionsManager.totalDebtOf(user1), 100);
     }
 
-    function testComputeCR() public {
+    function testComputeCRWithDebtEqual0() public {
         console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
-        // TODO : assert check with correct type conversion
+    }
+
+    function testComputeCRWithDebtNotEqual0() public {
+        vm.startPrank(address(user1));
+        borrowerOperation.borrowGHO(10, 549666);
+        vm.stopPrank();
+        console.log("COLLATERAL VALUE : ", activePool.getCollateralValue() );
+
+        console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
     }
 
     function testRiskConstantsAreCorrectlyUpdated() public {
