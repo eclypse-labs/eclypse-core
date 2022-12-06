@@ -3139,7 +3139,7 @@
       }
     },
     "src/interfaces/IDefaultPool.sol": {
-      "lastModificationDate": 1670166158725,
+      "lastModificationDate": 1670083103316,
       "contentHash": "7bbdc75d90dc5e934dab0a5ffe0b7cd6",
       "sourceName": "src/interfaces/IDefaultPool.sol",
       "solcConfig": {
@@ -3851,8 +3851,13 @@
       }
     },
     "test/ActivePoolTest.t.sol": {
+<<<<<<< Updated upstream
       "lastModificationDate": 1670170830519,
       "contentHash": "09e8a608c93a56f8cd25db89bdfe1aac",
+=======
+      "lastModificationDate": 1670168164757,
+      "contentHash": "4224eed3e8743de652ec86e67d7e65ed",
+>>>>>>> Stashed changes
       "sourceName": "test/ActivePoolTest.t.sol",
       "solcConfig": {
         "settings": {
@@ -4014,8 +4019,13 @@
       }
     },
     "test/LPPositionsManager.t.sol": {
+<<<<<<< Updated upstream
       "lastModificationDate": 1670184176128,
       "contentHash": "2676ec078ed7de939921764397081370",
+=======
+      "lastModificationDate": 1670163023424,
+      "contentHash": "9115f511401cd5eefc601f08eabc9b06",
+>>>>>>> Stashed changes
       "sourceName": "test/LPPositionsManager.t.sol",
       "solcConfig": {
         "settings": {
@@ -4132,8 +4142,13 @@
       }
     },
     "test/UniswapTest.sol": {
+<<<<<<< Updated upstream
       "lastModificationDate": 1670183733669,
       "contentHash": "99caef157a2772d64883e90952b96686",
+=======
+      "lastModificationDate": 1670170003629,
+      "contentHash": "37b8051b7914fec5783ded3550576213",
+>>>>>>> Stashed changes
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
