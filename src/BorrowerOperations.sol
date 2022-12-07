@@ -215,6 +215,8 @@ contract BorrowerOperations is
     ) public payable {
         lpPositionsManager._checkOwnership(_tokenId, msg.sender);
         lpPositionsManager._requirePositionIsActive(_tokenId);
+        require(!lpPositionsManager.liquidatable(_tokenId),
+        "position is eligible for liquidation");
         lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
     }
 }
