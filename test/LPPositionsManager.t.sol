@@ -16,13 +16,9 @@ contract LPPositionsManagerTest is UniswapTest {
 
     uint256 public fee;
     function setUp() public {
-<<<<<<< Updated upstream
         uniswapTest();
         fee = 500;
 
-=======
-         uniswapTest();
->>>>>>> Stashed changes
     }
 
 
@@ -46,14 +42,6 @@ contract LPPositionsManagerTest is UniswapTest {
 
     }
 
-<<<<<<< Updated upstream
-=======
-    
-
-    //     //TODO: test deposit
-
-    //     //TODO: test deposit + withdraw
->>>>>>> Stashed changes
 
     //     //TODO: test deposit + borrow + check health factor
 
