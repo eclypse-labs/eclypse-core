@@ -13,17 +13,13 @@ pragma solidity <0.9.0;
 import "./UniswapTest.sol";
 
 contract LPPositionsManagerTest is UniswapTest {
-
     uint256 public fee;
+
     function setUp() public {
         uniswapTest();
-        fee = 500;
-
     }
 
-
     function testDepositAndWithdraw() public {
-        
         uint256 initBalanceUsdc = USDC.balanceOf(facticeUser1);
         uint256 initBalanceWeth = WETH.balanceOf(facticeUser1);
 
@@ -38,26 +34,18 @@ contract LPPositionsManagerTest is UniswapTest {
 
         assertEq(initBalanceUsdc, endBalanceUsdc);
         assertEq(initBalanceWeth, endBalanceWeth);
-
-
     }
-
 
     //     //TODO: test deposit + borrow + check health factor
 
     // we now want to borrow GHO and check the health facto of the position
-        function testDepositWithdrawAndCheckHealthFactor() public{
+    function testDepositWithdrawAndCheckHealthFactor() public {
+        vm.startPrank(facticeUser1);
 
+        borrowerOperation.borrowGHO(1, facticeUser1_tokenId);
 
-
-            vm.startPrank(facticeUser1);
-
-            borrowerOperation.borrowGHO(1, facticeUser1_tokenId);
-
-            vm.stopPrank();
-
-        }
-
+        vm.stopPrank();
+    }
 
     //     //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
 

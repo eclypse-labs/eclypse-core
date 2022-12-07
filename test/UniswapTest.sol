@@ -60,7 +60,6 @@ abstract contract UniswapTest is Test {
         //             uniswapFactory.createPool(address(GHO), address(WETH), fee)
         //         );
 
-
         vm.startPrank(deployer);
         activePool = new ActivePool();
         borrowerOperation = new BorrowerOperations();
@@ -106,54 +105,39 @@ abstract contract UniswapTest is Test {
         deal(usdcAddr, facticeUser1, 10 ether);
         deal(wethAddr, facticeUser1, 10 ether);
 
-        //bytes memory data;
-        //uniV3PoolWeth_Usdc.mint(facticeUser1, 204920, 204930, 1, data);
+        USDC.approve(address(uniswapPositionsNFT), 3000 ether);
+        WETH.approve(address(uniswapPositionsNFT), 3000 ether);
 
         // uniswapPositionsNFT::mint((0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174,
         // 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, 500, 204920, 204930, 0,
         //78651133592434045, 0, 78651133592434045, 0xCcDA2f3B7255Fa09B963bEc26720940209E27ecd, 1670147167))
 
         //uniV3PoolWeth_Usdc::mint(uniswapPositionsNFT: [0xC36442b4a4522E871399CD717aBDD847Ab11FE88],
-         //204920, 204930, 5585850858003193, 0x0000000000000000000000002791bca1f2de4661ed88a30c99a7a9449aa8417400
-         //00000000000000000000007ceb23fd6bc0add59e62ac25578270cff1b9f619000000000000000000000000000000000000000000
-         //00000000000000000001f4000000000000000000000000ccda2f3b7255fa09b963bec26720940209e27ecd)
+        //204920, 204930, 5585850858003193, 0x0000000000000000000000002791bca1f2de4661ed88a30c99a7a9449aa8417400
+        //00000000000000000000007ceb23fd6bc0add59e62ac25578270cff1b9f619000000000000000000000000000000000000000000
+        //00000000000000000001f4000000000000000000000000ccda2f3b7255fa09b963bec26720940209e27ecd)
 
         INonfungiblePositionManager.MintParams
             memory mintParams = INonfungiblePositionManager.MintParams({
                 token0: usdcAddr,
                 token1: wethAddr,
-                fee: 0,
+                fee: 500,
                 tickLower: int24(204920),
                 tickUpper: int24(204930),
-                amount0Desired: 0,
-                amount1Desired: 0,
+                amount0Desired: 1,
+                amount1Desired: 78651133592434045,
                 amount0Min: 0,
                 amount1Min: 0,
                 recipient: facticeUser1,
                 deadline: block.timestamp
             });
 
-        uniswapPositionsNFT.mint(mintParams);
+        (uint256 tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
         console.log("couscous");
+        uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
+        borrowerOperation.openPosition(tokenId);
         vm.stopPrank();
         // facticeUser1.transfer
-
-        // (tokenId, , , , ) = uniswapPositionsNFT.mint(
-        //     MintParams({
-        //         token0: wethAddr,
-        //         token1: usdcAddr,
-        //         fee: 3000,
-        //         tickLower: 204930,
-        //         tickUpper: 204920,
-        //         amount0Desired: 2 ether,
-        //         amount1Desired: 0,
-        //         amount0Min: 1 ether,
-        //         amount1Min: 0,
-        //         recipient: facticeUser1,
-        //         deadline: block.timestamp
-        //     })
-        // );
-        // console.log("tokenId", tokenId);
 
         // console.log(uniswapPositionsNFT.getPosition(tokenId).user);
         // uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
