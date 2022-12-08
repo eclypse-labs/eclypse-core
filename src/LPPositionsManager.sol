@@ -65,6 +65,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         bool inv; // true if and only if WETH is token0 of the pool.
     }
 
+    mapping(address => address) private _acceptedPairs;
+    //Pairs accepted by the protocol
+
     mapping(address => RiskConstants) private _poolAddressToRiskConstants;
     //Retrieves a pool's data given the pool's address.
 
@@ -123,13 +126,21 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     }
 
     //Allows the owner of this contract to add a pair of (token/ETH).
-    function addTokenETHpoolAddress(
-        address _token,
-        address _pool,
-        bool _inv
-    ) public override {
-        _tokenToWETHPoolInfo[_token] = PoolPricingInfo(_pool, _inv);
-        emit TokenAddedToPool(_token, _pool, block.timestamp);
+    // function addTokenETHpoolAddress(
+    //     address _token,
+    //     address _pool,
+    //     bool _inv
+    // ) public override {
+    //     _tokenToWETHPoolInfo[_token] = PoolPricingInfo(_pool, _inv);
+    //     emit TokenAddedToPool(_token, _pool, block.timestamp);
+    // }
+
+    function addPairToProtocol(address _token0, address _token1, address _ETHpoolToken0, address _ETHpoolToken1, bool _inv0, bool _inv1) public override onlyOwner {
+        _acceptedPairs[_token0] = _token1;
+        _tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
+        _tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
+        emit TokenAddedToPool(_token0, _ETHpoolToken0, block.timestamp);
+        emit TokenAddedToPool(_token1, _ETHpoolToken1, block.timestamp);
     }
 
     //Allows the owner of this contract to add risk constants for a certain type of LP.
@@ -190,6 +201,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         ) = uniswapPositionsNFT.positions(_tokenId);
 
+        require(
+            _acceptedPairs[token0] == token1,
+            "LPPositionManager: This pair is not accepted by the protocol."
+        );
+        
         address poolAddress = uniswapFactory.getPool(token0, token1, fee);
 
         Position memory position = Position(
