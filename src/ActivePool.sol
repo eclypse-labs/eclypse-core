@@ -4,6 +4,7 @@ pragma solidity <0.9.0;
 
 import "./interfaces/IActivePool.sol";
 import "src/liquity-dependencies/CheckContract.sol";
+import "forge-std/console.sol";
 //import "Dependencies/console.sol";
 
 import "./LPPositionsManager.sol";
@@ -88,13 +89,11 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
     function sendLp(address _account, uint256 _tokenId)
         external
-        override
         onlyBOorLPPMorSP
         onlyBOorLPPM
     {
-        emit ActivePoolCollateralBalanceUpdated(getCollateralValue());
+        //emit ActivePoolCollateralBalanceUpdated(getCollateralValue());
         emit LpSent(_account, _tokenId);
-
         uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
     }
 

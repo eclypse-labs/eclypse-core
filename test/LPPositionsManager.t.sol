@@ -1,109 +1,57 @@
 //SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 
-import "forge-std/Test.sol";
-import "../src/GHOToken.sol";
-import "../src/BorrowerOperations.sol";
-import "../src/ActivePool.sol";
-import "../src/LPPositionsManager.sol";
-import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
-import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
-import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
-import "@openzeppelin/contracts/interfaces/IERC20.sol";
+// import "forge-std/Test.sol";
+// import "../src/GHOToken.sol";
+// import "../src/BorrowerOperations.sol";
+// import "../src/ActivePool.sol";
+// import "../src/LPPositionsManager.sol";
+// import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
+// import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
+// import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+// import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "./UniswapTest.sol";
 
-contract LPPositionsManagerTest is Test {
-    address deployer = makeAddr("deployer");
-    address oracleLiquidityDepositor = makeAddr("oracleLiquidityDepositor");
-    address user = makeAddr("user");
-
-    address public constant wethAddr =
-        0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address public constant usdcAddr =
-        0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    address public constant uniPoolUsdcETHAddr =
-        0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640;
-
-    IERC20 WETH = IERC20(wethAddr);
-    IERC20 USDC = IERC20(usdcAddr);
-
-    IUniswapV3Factory uniswapFactory =
-        IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-    IUniswapV3Pool uniPoolUsdcETH = IUniswapV3Pool(uniPoolUsdcETHAddr);
-
-    INonfungiblePositionManager uniswapPositionsNFT =
-        INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-
-    GHOToken GHO;
-    LPPositionsManager positionsManager;
-    BorrowerOperations borrowerOperations;
-    ActivePool activePool;
-    IUniswapV3Pool uniPoolGhoEth;
+contract LPPositionsManagerTest is UniswapTest {
+    uint256 public fee;
 
     function setUp() public {
         uniswapTest();
     }
 
-    //TODO: test deposit
-    function testDeposit() public {
-        uint256 _tokenId;
-        uint256 collateralRatio;
+    function testDepositAndWithdraw() public {
+        uint256 initBalanceUsdc = USDC.balanceOf(facticeUser1);
+        uint256 initBalanceWeth = WETH.balanceOf(facticeUser1);
 
-        INonfungiblePositionManager.MintParams
-            memory mintParams = INonfungiblePositionManager.MintParams({
-                token0: wethAddr,
-                token1: usdcAddr,
-                fee: 0,
-                tickLower: int24(69082),
-                tickUpper: int24(73136),
-                amount0Desired: 1 ether,
-                amount1Desired: 5000 ether,
-                amount0Min: 0,
-                amount1Min: 0,
-                recipient: address(this),
-                deadline: 0
-            });
+        vm.startPrank(facticeUser1);
 
-        //We set the token identifier for the given position
-        (_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
-        //we compute the colaterl ratio of the opened position
-        borrowerOperations.openPosition(_tokenId);
-        collateralRatio = positionsManager.computeCR(_tokenId);
-        //we verifity that the position is not undercollateralized.
-        assertTrue(collateralRatio > 1, "the position is undercollateralized");
+        borrowerOperation.closePosition(facticeUser1_tokenId);
+
+        vm.stopPrank();
+
+        uint256 endBalanceUsdc = USDC.balanceOf(facticeUser1);
+        uint256 endBalanceWeth = WETH.balanceOf(facticeUser1);
+
+        assertEq(initBalanceUsdc, endBalanceUsdc);
+        assertEq(initBalanceWeth, endBalanceWeth);
+    }
+
+    //     //TODO: test deposit + borrow + check health factor
+
+    // we now want to borrow GHO and check the health facto of the position
+    function testDepositWithdrawAndCheckHealthFactor() public {
+        vm.startPrank(facticeUser1);
+
+        borrowerOperation.borrowGHO(1, facticeUser1_tokenId);
 
         vm.stopPrank();
     }
 
-    //TODO: test deposit + withdraw
+    //     //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
 
-    function testDepositAndWithdraw() public {
-        uint256 _tokenId;
+    //     //TODO: test liquidation (change oracle price)
 
-        INonfungiblePositionManager.MintParams
-            memory mintParams = INonfungiblePositionManager.MintParams({
-                token0: wethAddr,
-                token1: usdcAddr,
-                fee: 0,
-                tickLower: int24(69082),
-                tickUpper: int24(73136),
-                amount0Desired: 1 ether,
-                amount1Desired: 5000 ether,
-                amount0Min: 0,
-                amount1Min: 0,
-                recipient: address(this),
-                deadline: block.timestamp
-            });
+    //     function testNumberIs42() public {}
 
-        (_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
-    }
-
-    //TODO: test deposit + borrow + check health factor
-
-    //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
-
-    //TODO: test liquidation (change oracle price)
-
-    function testNumberIs42() public {}
-
-    function testFailSubtract43() public {}
+    //     function testFailSubtract43() public {}
 }

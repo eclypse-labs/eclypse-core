@@ -116,9 +116,9 @@ interface ILPPositionsManager is IEclypseBase {
 
     function setNewLiquidity(uint256 tokenId, uint128 liquidity) external;
 
-    function liquidatable(uint256 _tokenId) external view returns (bool);
+    function liquidatable(uint256 _tokenId) external returns (bool);
 
-    function priceInETH(address tokenAddress) external view returns (uint256);
+    function priceInETH(address tokenAddress) external returns (uint256);
 
     function liquidate(uint256 _tokenId, uint256 _GHOToRepay)
         external
