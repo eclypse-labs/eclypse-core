@@ -42,7 +42,7 @@ contract LPPositionsManagerTest is UniswapTest {
     function testDepositWithdrawAndCheckHealthFactor() public {
         vm.startPrank(facticeUser1);
 
-        borrowerOperation.borrowGHO(1, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10**18 * 10, facticeUser1_tokenId);
 
         vm.stopPrank();
     }

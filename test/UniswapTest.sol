@@ -11,6 +11,7 @@ import "../src/ActivePool.sol";
 import "../src/LPPositionsManager.sol";
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
+import "@uniswap-core/libraries/FixedPoint96.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
@@ -42,13 +43,12 @@ abstract contract UniswapTest is Test {
     INonfungiblePositionManager uniswapPositionsNFT;
     IUniswapV3Pool uniV3PoolWeth_Usdc;
     IUniswapV3Pool uniPoolGhoEth;
-    
+
     IUniswapV3Factory uniswapFactory =
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
     function uniswapTest() public {
         vm.createSelectFork("https://rpc.ankr.com/polygon", 36_385_297); // polygon mainet 1_670_147_167
-
 
         vm.startPrank(deployer);
 
@@ -60,16 +60,11 @@ abstract contract UniswapTest is Test {
             0x45dDa9cb7c25131DF268515131f647d726f50608
         );
 
-        ghoToken = new GHOToken(address(borrowerOperation));
-
-        //uniswapFactory.enableFeeAmount(500, 10);
-        uniPoolGhoEth = IUniswapV3Pool(
-            uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
-        );
-
         activePool = new ActivePool();
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
+
+        ghoToken = new GHOToken(address(borrowerOperation));
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),
@@ -157,12 +152,58 @@ abstract contract UniswapTest is Test {
         // vm.stopPrank();
     }
 
+    // creates teh ghoe/eth pool, puts liquidity in it and adds it to the protocol's list of pools
     function createEthGhoPool() private {
         vm.startPrank(deployer);
+
+        //uniswapFactory.enableFeeAmount(500, 10);
+        uniPoolGhoEth = IUniswapV3Pool(
+            uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
+        );
+        
+        deal(address(ghoToken), deployer, 10**18 * 1225 * 2000);
+
+        vm.deal(deployer, 2000 ether);
+        WETH.call.value(2000 ether)(abi.encodeWithSignature("deposit()"));
+
+        INonfungiblePositionManager.MintParams memory mintParams;
+        if (uniPoolGhoEth.token0() == address(ghoToken)) {
+            uniPoolGhoEth.initialize(FullMath.mulDiv(FixedPoint96.Q96, 1, 35)); // 1 ETH = 1225 GHO
+            mintParams = INonfungiblePositionManager.MintParams({
+                token0: address(ghoToken),
+                token1: address(WETH),
+                fee: 500,
+                tickLower: -67777,
+                tickUpper: -77777,
+                amount0Desired: 10**18 * 1225 * 1000, // 1225000 GHO
+                amount1Desired: 10**18 * 1 * 1000, // 1000 ETH
+                amount0Min: 10**18 * 1225 * 1000,
+                amount1Min: 10**18 * 1 * 1000,
+                recipient: deployer,
+                deadline: block.timestamp
+            });
+        } else {
+            uniPoolGhoEth.initialize(FullMath.mulDiv(FixedPoint96.Q96, 35, 1)); // 1 ETH = 1225 GHO
+            mintParams = INonfungiblePositionManager.MintParams({
+                token0: address(WETH),
+                token1: address(ghoToken),
+                fee: 500,
+                tickLower: 67777,
+                tickUpper: 77777,
+                amount0Desired: 10**18 * 1 * 1000, // 1000 ETH
+                amount1Desired: 10**18 * 1225 * 1000, // 1225000 GHO
+                amount0Min: 10**18 * 1 * 1000,
+                amount1Min: 10**18 * 1225 * 1000,
+                recipient: deployer,
+                deadline: block.timestamp
+            });
+        }
+        uniswapPositionsNFT.mint(mintParams);
+
         lpPositionsManager.addTokenETHpoolAddress(
             address(ghoToken),
             address(uniPoolGhoEth),
-            false
+            address(ghoToken) > address(WETH) // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
         );
         vm.stopPrank();
     }
