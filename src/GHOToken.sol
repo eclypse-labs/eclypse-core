@@ -146,7 +146,7 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
         address from,
         address to,
         uint256 amount
-    ) public virtual returns (bool) {
+    ) public virtual override(IGHOToken) returns (bool) {
         from = _msgSender();
         _transfer(from, to, amount);
         return true;
@@ -156,7 +156,7 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
         address from,
         address to,
         uint256 amount
-    ) public virtual override(ERC20,IERC20) returns (bool) {
+    ) public virtual override(IGHOToken, ERC20) returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
@@ -185,7 +185,7 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
         public
         view
         virtual
-        override(ERC20,IERC20)
+        override(IGHOToken, ERC20)
         returns (uint256)
     {
         return _totalSupply;
@@ -224,7 +224,7 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
         public
         view
         virtual
-        override(ERC20,IERC20)
+        override(IGHOToken, ERC20)
         returns (uint256)
     {
         return _balances[account];
