@@ -148,7 +148,7 @@ contract LPPositionsManagerTest is UniswapTest {
     }
 
     function testLiquidatableIsFalseWhenNothingBorrowed() {
-        console.log()
+        console.log();
     }
 
     function testComputeCRWithDebtNotEqual0() public {
