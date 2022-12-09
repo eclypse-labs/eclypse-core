@@ -15,7 +15,7 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 abstract contract UniswapTest is Test {
-    ERC20Mintable token;
+    IGHOToken ghoToken;
 
     address deployer = makeAddr("deployer");
     address oracleLiquidityDepositor = makeAddr("oracleLiquidityDepositor");
@@ -38,16 +38,19 @@ abstract contract UniswapTest is Test {
 
     ActivePool activePool;
     BorrowerOperations borrowerOperation;
-    GHOToken ghoToken;
     LPPositionsManager lpPositionsManager;
     INonfungiblePositionManager uniswapPositionsNFT;
     IUniswapV3Pool uniV3PoolWeth_Usdc;
-
-    //     IUniswapV3Factory uniswapFactory =
-    //         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
+    IUniswapV3Pool uniPoolGhoEth;
+    
+    IUniswapV3Factory uniswapFactory =
+        IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
     function uniswapTest() public {
         vm.createSelectFork("https://rpc.ankr.com/polygon", 36_385_297); // polygon mainet 1_670_147_167
+
+
+        vm.startPrank(deployer);
 
         uniswapPositionsNFT = INonfungiblePositionManager(
             0xC36442b4a4522E871399CD717aBDD847Ab11FE88
@@ -56,15 +59,17 @@ abstract contract UniswapTest is Test {
         uniV3PoolWeth_Usdc = IUniswapV3Pool(
             0x45dDa9cb7c25131DF268515131f647d726f50608
         );
-        //         uniPoolGhoEth = IUniswapV3Pool(
-        //             uniswapFactory.createPool(address(GHO), address(WETH), fee)
-        //         );
 
-        vm.startPrank(deployer);
+        ghoToken = new GHOToken(address(borrowerOperation));
+
+        //uniswapFactory.enableFeeAmount(500, 10);
+        uniPoolGhoEth = IUniswapV3Pool(
+            uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
+        );
+
         activePool = new ActivePool();
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
-        ghoToken = new GHOToken(address(borrowerOperation));
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),
@@ -82,8 +87,15 @@ abstract contract UniswapTest is Test {
             address(ghoToken)
         );
 
+        //         //whitelist la pool: updateRiskConstants
+        // uint256 _minCR = 0;
+        // positionsManager.updateRiskConstants(address(uniPoolUsdcETH), _minCR);
+        // //pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
+        // bool _inv = false; //TODO: set parameter _inv
+
         vm.stopPrank();
         addFacticeUser();
+        createEthGhoPool();
     }
 
     function addUserOnMainnet() private {
@@ -133,7 +145,6 @@ abstract contract UniswapTest is Test {
             });
 
         (uint256 tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
-        console.log("couscous");
         uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
         borrowerOperation.openPosition(tokenId);
         vm.stopPrank();
@@ -147,17 +158,12 @@ abstract contract UniswapTest is Test {
     }
 
     function createEthGhoPool() private {
-        //         vm.startPrank(deployer);
-        //         //whitelist la pool: updateRiskConstants
-        //         uint256 _minCR = 0;
-        //         positionsManager.updateRiskConstants(address(uniPoolUsdcETH), _minCR);
-        //         //pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
-        //         bool _inv = false; //TODO: set parameter _inv
-        //         positionsManager.addTokenETHpoolAddress(
-        //             address(USDC),
-        //             address(uniPoolGhoEth),
-        //             _inv
-        //         );
-        //         vm.stopPrank();
+        vm.startPrank(deployer);
+        lpPositionsManager.addTokenETHpoolAddress(
+            address(ghoToken),
+            address(uniPoolGhoEth),
+            false
+        );
+        vm.stopPrank();
     }
 }

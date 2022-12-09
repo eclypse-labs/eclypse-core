@@ -123,7 +123,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         address _token,
         address _pool,
         bool _inv
-    ) public override onlyOwner {
+    ) public override {
         _tokenToWETHPoolInfo[_token] = PoolPricingInfo(_pool, _inv);
         emit TokenAddedToPool(_token, _pool, block.timestamp);
     }
