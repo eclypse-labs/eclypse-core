@@ -109,13 +109,19 @@ contract LPPositionsManagerTest is UniswapTest {
         );
 
         console.log(lpPositionsManager.positionValueInETH(tokenIdUser1));
-        
+        console.log("total supply of GHO before borrow: ", ghoToken.totalSupply());
+        console.log("total debt of user1 before borrow: ", lpPositionsManager.totalDebtOf(user1));
         vm.startPrank(address(user1));
-        borrowerOperation.borrowGHO(1e20 ether , tokenIdUser1);
+        borrowerOperation.borrowGHO(10000 , tokenIdUser1);
         vm.stopPrank();
+        
+        console.log("user's cr after borrow: ", lpPositionsManager.computeCR(tokenIdUser1));
+        console.log("borrowed GHO : ", ghoToken.balanceOf(address(user1)));
+        console.log("total supply of GHO after borrow: ", ghoToken.totalSupply());
+        console.log("total debt of user1 after borrow: ", lpPositionsManager.totalDebtOf(user1));
+        
 
         uint256 cr = lpPositionsManager.computeCR(tokenIdUser1);
-        
         assertTrue(cr > _minCR);
         
     }
@@ -139,6 +145,10 @@ contract LPPositionsManagerTest is UniswapTest {
 
     function testComputeCRWithDebtEqual0() public {
         console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
+    }
+
+    function testLiquidatableIsFalseWhenNothingBorrowed() {
+        console.log()
     }
 
     function testComputeCRWithDebtNotEqual0() public {
