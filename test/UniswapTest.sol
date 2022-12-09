@@ -42,6 +42,7 @@ abstract contract UniswapTest is Test {
     INonfungiblePositionManager uniswapPositionsNFT;
     IUniswapV3Pool uniV3PoolWeth_Usdc;
     IUniswapV3Pool uniPoolGhoEth;
+    uint256 tokenId;
     
     IUniswapV3Factory uniswapFactory =
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
@@ -113,7 +114,7 @@ abstract contract UniswapTest is Test {
     function addFacticeUser() private {
         vm.startPrank(facticeUser1);
         //console.log(ILPPositionsManager.Status.closedByOwner);
-
+        console.log("couscous");
         deal(usdcAddr, facticeUser1, 10 ether);
         deal(wethAddr, facticeUser1, 10 ether);
 
@@ -144,16 +145,17 @@ abstract contract UniswapTest is Test {
                 deadline: block.timestamp
             });
 
-        (uint256 tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+        (tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
         uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
         borrowerOperation.openPosition(tokenId);
+
         vm.stopPrank();
         // facticeUser1.transfer
 
         // console.log(uniswapPositionsNFT.getPosition(tokenId).user);
         // uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
         // borrowerOperation.openPosition(tokenId);
-        // console.log(lpPositionsManager.getPosition(tokenId).user);
+        //console.log(lpPositionsManager.getPosition(tokenId).user);
         // vm.stopPrank();
     }
 

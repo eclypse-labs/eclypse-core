@@ -1,15 +1,15 @@
 //SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 
-// import "forge-std/Test.sol";
-// import "../src/GHOToken.sol";
-// import "../src/BorrowerOperations.sol";
-// import "../src/ActivePool.sol";
-// import "../src/LPPositionsManager.sol";
-// import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
-// import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
-// import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
-// import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "forge-std/Test.sol";
+import "../src/GHOToken.sol";
+import "../src/BorrowerOperations.sol";
+import "../src/ActivePool.sol";
+import "../src/LPPositionsManager.sol";
+import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
+import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
+import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "./UniswapTest.sol";
 
 contract LPPositionsManagerTest is UniswapTest {
@@ -19,7 +19,7 @@ contract LPPositionsManagerTest is UniswapTest {
         uniswapTest();
     }
 
-    function testDepositAndWithdraw() public {
+    /*function testDepositAndWithdraw() public {
         uint256 initBalanceUsdc = USDC.balanceOf(facticeUser1);
         uint256 initBalanceWeth = WETH.balanceOf(facticeUser1);
 
@@ -34,7 +34,7 @@ contract LPPositionsManagerTest is UniswapTest {
 
         assertEq(initBalanceUsdc, endBalanceUsdc);
         assertEq(initBalanceWeth, endBalanceWeth);
-    }
+    }*/
 
     //     //TODO: test deposit + borrow + check health factor
 
@@ -42,7 +42,9 @@ contract LPPositionsManagerTest is UniswapTest {
     function testDepositWithdrawAndCheckHealthFactor() public {
         vm.startPrank(facticeUser1);
 
-        borrowerOperation.borrowGHO(1, facticeUser1_tokenId);
+        console.log(address(facticeUser1));
+        console.log(lpPositionsManager.getPosition(tokenId).user);
+        borrowerOperation.borrowGHO(1, tokenId);
 
         vm.stopPrank();
     }
