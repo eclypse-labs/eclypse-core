@@ -28,9 +28,9 @@ abstract contract UniswapTest is Test {
     uint256 facticeUser1_tokenId;
 
     address public constant wethAddr =
-        0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+        0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address public constant usdcAddr =
-        0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
+        0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address public constant uniPoolUsdcETHAddr =
         0x45dDa9cb7c25131DF268515131f647d726f50608;
 
@@ -49,7 +49,7 @@ abstract contract UniswapTest is Test {
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
     function uniswapTest() public {
-        vm.createSelectFork("https://rpc.ankr.com/polygon", 36_385_297); // polygon mainet 1_670_147_167
+        vm.createSelectFork("https://rpc.ankr.com/eth", 16_153_817); // eth mainet at block 16_153_817
 
         vm.startPrank(deployer);
 
@@ -58,7 +58,7 @@ abstract contract UniswapTest is Test {
         );
 
         uniV3PoolWeth_Usdc = IUniswapV3Pool(
-            0x45dDa9cb7c25131DF268515131f647d726f50608
+            0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640
         );
 
         activePool = new ActivePool();
@@ -165,8 +165,8 @@ abstract contract UniswapTest is Test {
         
         deal(address(ghoToken), deployer, 10**18 * 1225 * 2000);
 
-        vm.deal(deployer, 2000 ether);
-        address(WETH).call.value(2000 ether)(abi.encodeWithSignature("deposit()"));
+        vm.deal(deployer, 3000 ether);
+        address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
 
         INonfungiblePositionManager.MintParams memory mintParams;
         if (uniPoolGhoEth.token0() == address(ghoToken)) {
@@ -177,10 +177,10 @@ abstract contract UniswapTest is Test {
                 fee: 500,
                 tickLower: -67777,
                 tickUpper: -77777,
-                amount0Desired: 10**18 * 1225 * 1000, // 1225000 GHO
-                amount1Desired: 10**18 * 1 * 1000, // 1000 ETH
-                amount0Min: 10**18 * 1225 * 1000,
-                amount1Min: 10**18 * 1 * 1000,
+                amount0Desired: 10**18 * 1225 * 100, // 1225000 GHO
+                amount1Desired: 10**18 * 1 * 100, // 1000 ETH
+                amount0Min: 0,
+                amount1Min: 0,
                 recipient: deployer,
                 deadline: block.timestamp
             });
@@ -192,10 +192,10 @@ abstract contract UniswapTest is Test {
                 fee: 500,
                 tickLower: 67777,
                 tickUpper: 77777,
-                amount0Desired: 10**18 * 1 * 1000, // 1000 ETH
-                amount1Desired: 10**18 * 1225 * 1000, // 1225000 GHO
-                amount0Min: 10**18 * 1 * 1000,
-                amount1Min: 10**18 * 1225 * 1000,
+                amount0Desired: 10**18 * 1 * 100, // 1000 ETH
+                amount1Desired: 10**18 * 1225 * 100, // 1225000 GHO
+                amount0Min: 0,
+                amount1Min: 0,
                 recipient: deployer,
                 deadline: block.timestamp
             });
