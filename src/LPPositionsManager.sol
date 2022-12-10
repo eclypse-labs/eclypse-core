@@ -132,9 +132,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     //THIS RATIO IS ENCODED AS A 96-DECIMALS FIXED POINT.
     function updateRiskConstants(address _pool, uint256 _minCR)
         public
-        onlyOwner
+        
     {
-        require(_minCR > FixedPoint96.Q96);
+        require(_minCR > FixedPoint96.Q96, "WRONG");
         _poolAddressToRiskConstants[_pool].minCR = _minCR;
     }
 
@@ -223,11 +223,15 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
+        
+        console.log(_position.token0);
+        console.log(_position.token1);
+        console.log(_position.poolAddress);
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
-        );
-
+            );
+        console.log("Passed TWAP");
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(
             _position.tickLower
@@ -235,7 +239,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         uint160 sqrtRatio1X96 = TickMath.getSqrtRatioAtTick(
             _position.tickUpper
         );
-
         (uint256 amount0, uint256 amount1) = LiquidityAmounts
             .getAmountsForLiquidity(
                 sqrtRatioX96,
@@ -256,6 +259,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     {
         _requirePositionIsActive(_tokenId);
         Position memory _position = _positionFromTokenId[_tokenId];
+        console.log("Passed");
         return computePositionAmounts(_position);
     }
 
@@ -271,11 +275,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256 value)
     {
+        
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
-        console.log("hello");
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
-        
         return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
     }
 
@@ -470,14 +473,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
         // need to confirm if this is mathematically correct!
         else return ratio;
-
-
-        console.log("je m'appelle antoine");
     }
 
     function computeCR(uint256 _tokenId) public returns (uint256) {
         Position memory position = _positionFromTokenId[_tokenId];
-        return _computeCR(positionValueInETH(_tokenId), position.debt);
+        return _computeCR(positionValueInETH(_tokenId), debtOfInETH(_tokenId));
     }
 
     function _computeCR(uint256 _collValue, uint256 _debt)
@@ -489,7 +489,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             // Solution : work with fixed point collateral ratios :
             uint256 newCollRatio = FullMath.mulDiv(
                 _collValue,
-                FixedPoint96.Q96,
+                1,
                 _debt
             );
             return newCollRatio;

@@ -103,6 +103,127 @@ contract LPPositionsManagerTest is UniswapTest{
     }
 
 
+    function testUpdateRisk() public {
+
+        uint256 _minCR = FullMath.mulDiv(FixedPoint96.Q96, 15, 1);
+
+
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        vm.stopPrank();
+        (uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+        console.log(amount0);
+        console.log(amount1);
+        uint256 facticeUser1BaseCR = lpPositionsManager.computeCR(facticeUser1_tokenId);
+
+        
+        lpPositionsManager.updateRiskConstants(address(uniPoolGhoEth), _minCR);
+
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        vm.stopPrank();
+
+        uint256 facticeUser1NewCR = lpPositionsManager.computeCR(facticeUser1_tokenId);
+
+        assertLt(facticeUser1NewCR, facticeUser1BaseCR, "borrowing GHO should decrease the CR");
+    }
+    // function testLiquidatablePosition() public {
+    //     uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+    //     lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(10000, 549666);
+    //     vm.stopPrank();
+    //     assertTrue(lpPositionsManager.computeCR(549666) > _minCR);
+    // }
+
+    // function testLiquidatablePosition() public {
+    //     uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+    //     lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr),_minCR);
+
+    //     console.log(lpPositionsManager.positionValueInETH(tokenIdUser1));
+    //     console.log(
+    //         "total supply of GHO before borrow: ",
+    //         ghoToken.totalSupply()
+    //     );
+    //     console.log(
+    //         "total debt of user1 before borrow: ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(10000, tokenIdUser1);
+    //     vm.stopPrank();
+
+    //     console.log(
+    //         "user's cr after borrow: ",
+    //         lpPositionsManager.computeCR(tokenIdUser1)
+    //     );
+    //     console.log("borrowed GHO : ", ghoToken.balanceOf(address(user1)));
+    //     console.log(
+    //         "total supply of GHO after borrow: ",
+    //         ghoToken.totalSupply()
+    //     );
+    //     console.log(
+    //         "total debt of user1 after borrow: ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+
+    //     uint256 cr = lpPositionsManager.computeCR(tokenIdUser1);
+    //     assertTrue(cr > _minCR);
+    // }
+
+    // function testTotalDebtOf() public {
+    //     console.log(
+    //         "debt of the user1 before borrow : ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+    //     assertEq(lpPositionsManager.totalDebtOf(user1), 0);
+
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(100, 549666);
+    //     vm.stopPrank();
+    //     console.log(
+    //         "debt of the user1 after borrow : ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+    //     assertEq(lpPositionsManager.totalDebtOf(user1), 100);
+    // }
+
+    // function testComputeCRWithDebtEqual0() public {
+    //     console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
+    // }
+
+    // function testComputeCRWithDebtNotEqual0() public {
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(10, 549666);
+    //     vm.stopPrank();
+    //     console.log("COLLATERAL VALUE : ", activePool.getCollateralValue());
+
+    //     console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
+    // }
+
+    // function testRiskConstantsAreCorrectlyUpdated() public {
+    //     console.log(
+    //         "initial risk constant: ",
+    //         lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
+    //     );
+    //     uint256 _minCR = Math.mulDiv(17, 1 << 96, 10);
+    //     console.log("minCR calculated: ", _minCR);
+    //     lpPositionsManager.updateRiskConstants(
+    //         address(uniPoolUsdcETHAddr),
+    //         _minCR
+    //     );
+    //     console.log(
+    //         "updated risk constant: ",
+    //         lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
+    //     );
+    //     assertEq(
+    //         lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)),
+    //         _minCR,
+    //         "risk constants are not updated correctly"
+    //     );
+    // }
+
+
     //     //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
 
     //     //TODO: test liquidation (change oracle price)

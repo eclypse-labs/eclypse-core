@@ -109,7 +109,6 @@ abstract contract UniswapTest is Test {
     function addFacticeUser() private {
         vm.startPrank(facticeUser1);
         //console.log(ILPPositionsManager.Status.closedByOwner);
-        console.log("couscous");
         deal(usdcAddr, facticeUser1, 10 ether);
         deal(wethAddr, facticeUser1, 10 ether);
 
