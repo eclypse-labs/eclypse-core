@@ -203,8 +203,6 @@ abstract contract UniswapTest is Test {
                 deadline: block.timestamp
             });
         }
-        console.log("gho balance", ghoToken.balanceOf(deployer));
-        console.log("weth balance", WETH.balanceOf(deployer));
         uniswapPositionsNFT.mint{value: 1000 ether}(mintParams);
 
         lpPositionsManager.addTokenETHpoolAddress(
@@ -212,6 +210,8 @@ abstract contract UniswapTest is Test {
             address(uniPoolGhoEth),
             address(ghoToken) > address(WETH) // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
         );
+        console.log("gho balance", ghoToken.balanceOf(deployer));
+        console.log("eth balance", deployer.balance);
         vm.stopPrank();
     }
 }
