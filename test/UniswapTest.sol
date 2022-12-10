@@ -166,11 +166,11 @@ abstract contract UniswapTest is Test {
         deal(address(ghoToken), deployer, 10**18 * 1225 * 2000);
 
         vm.deal(deployer, 2000 ether);
-        WETH.call.value(2000 ether)(abi.encodeWithSignature("deposit()"));
+        address(WETH).call.value(2000 ether)(abi.encodeWithSignature("deposit()"));
 
         INonfungiblePositionManager.MintParams memory mintParams;
         if (uniPoolGhoEth.token0() == address(ghoToken)) {
-            uniPoolGhoEth.initialize(FullMath.mulDiv(FixedPoint96.Q96, 1, 35)); // 1 ETH = 1225 GHO
+            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 35, 1))); // 1 ETH = 1225 GHO
             mintParams = INonfungiblePositionManager.MintParams({
                 token0: address(ghoToken),
                 token1: address(WETH),
@@ -185,7 +185,7 @@ abstract contract UniswapTest is Test {
                 deadline: block.timestamp
             });
         } else {
-            uniPoolGhoEth.initialize(FullMath.mulDiv(FixedPoint96.Q96, 35, 1)); // 1 ETH = 1225 GHO
+            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 35, 1))); // 1 ETH = 1225 GHO
             mintParams = INonfungiblePositionManager.MintParams({
                 token0: address(WETH),
                 token1: address(ghoToken),
