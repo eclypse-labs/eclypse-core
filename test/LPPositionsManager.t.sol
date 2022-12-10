@@ -12,7 +12,7 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "./UniswapTest.sol";
 
-contract LPPositionsManagerTest is UniswapTest {
+contract LPPositionsManagerTest is UniswapTest{
     uint256 public fee;
 
     function setUp() public {
@@ -39,15 +39,69 @@ contract LPPositionsManagerTest is UniswapTest {
     //     //TODO: test deposit + borrow + check health factor
 
     // we now want to borrow GHO and check the health facto of the position
-    function testDepositWithdrawAndCheckHealthFactor() public {
-        vm.startPrank(facticeUser1);
+    // function testDepositWithdrawAndCheckHealthFactor() public {
+    //     vm.startPrank(facticeUser1);
 
-        console.log(address(facticeUser1));
-        console.log(lpPositionsManager.getPosition(tokenId).user);
-        borrowerOperation.borrowGHO(10**18 * 10, tokenId);
+    //     console.log(address(facticeUser1));
+    //     console.log(lpPositionsManager.getPosition(tokenId).user);
+    //     borrowerOperation.borrowGHO(10**18 * 10, tokenId);
 
+    //     vm.stopPrank();
+    // }
+
+    function testBorrowAndRepayGHO_wrongUserBorrow() public {
+        vm.startPrank(address(facticeUser2));
+        vm.expectRevert(bytes("You are not the owner of this position.")); 
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
         vm.stopPrank();
     }
+
+    function testBorrowAndRepayGHO_wrongUserRepay() public {
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        vm.stopPrank();
+        vm.startPrank(address(facticeUser2));
+        vm.expectRevert(bytes("You are not the owner of this position.")); 
+        borrowerOperation.repayGHO(10, facticeUser1_tokenId);
+        vm.stopPrank();
+    }
+
+    function testBorrowAndRepayGHO_checkDebtEvolution() public {
+        vm.startPrank(address(facticeUser1));
+        uint256 initialDebt = lpPositionsManager.getPosition(facticeUser1_tokenId).debt;
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        uint256 currentDebt = lpPositionsManager.getPosition(facticeUser1_tokenId).debt;
+        assertGt(currentDebt, initialDebt, "borrowing GHO should increase the debt");
+        borrowerOperation.repayGHO(10, facticeUser1_tokenId);
+        uint256 finalDebt = lpPositionsManager.getPosition(facticeUser1_tokenId).debt;
+        assertLt(finalDebt, currentDebt, "repaying GHO should decrease the debt");
+        assertEq(finalDebt, initialDebt, "repaying GHO should decrease the debt to the initial debt");
+        vm.stopPrank();
+    }
+
+    function testBorrowAndRepayGHO_borrow0GHO() public {
+        vm.startPrank(address(facticeUser1));
+        vm.expectRevert(bytes("Cannot withdraw 0 GHO."));
+        borrowerOperation.borrowGHO(0, facticeUser1_tokenId);
+        vm.stopPrank();
+    }
+
+    function testBorrowAndRepayGHO_repay0GHO() public {
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        vm.expectRevert(bytes("Cannot repay 0 GHO."));
+        borrowerOperation.repayGHO(0, facticeUser1_tokenId);
+        vm.stopPrank();
+    }
+
+    function testBorrowAndRepayGHO_repayMoreThanDebt() public {
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        vm.expectRevert(bytes("Cannot repay more GHO than the position's debt."));
+        borrowerOperation.repayGHO(11, facticeUser1_tokenId);
+        vm.stopPrank();
+    }
+
 
     //     //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
 

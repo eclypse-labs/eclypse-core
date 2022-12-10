@@ -140,9 +140,9 @@ abstract contract UniswapTest is Test {
                 deadline: block.timestamp
             });
 
-        (tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
-        uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
-        borrowerOperation.openPosition(tokenId);
+        (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+        uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId);
+        borrowerOperation.openPosition(facticeUser1_tokenId);
 
         vm.stopPrank();
         // facticeUser1.transfer
