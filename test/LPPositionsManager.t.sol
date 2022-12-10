@@ -102,31 +102,45 @@ contract LPPositionsManagerTest is UniswapTest{
         vm.stopPrank();
     }
 
+    function testPositionStatus_closeByOwner() public {
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.closePosition(facticeUser1_tokenId);
+        vm.stopPrank();
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 2, "Position should be closed by owner");
+    }
 
-    function testUpdateRisk() public {
-
-        uint256 _minCR = FullMath.mulDiv(FixedPoint96.Q96, 15, 1);
-
-
+    function testPositionStatus_closeByOwnerDebtNotRepaid() public {
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        vm.expectRevert(bytes("you have to repay your debt"));
+        borrowerOperation.closePosition(facticeUser1_tokenId);
         vm.stopPrank();
-        (uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
+    }
+
+    function testPositionStatus_closeByOwnerDebtRepaid() public {
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        borrowerOperation.repayGHO(10, facticeUser1_tokenId);
+        borrowerOperation.closePosition(facticeUser1_tokenId);
+        vm.stopPrank();
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 2, "Position should be closed by owner");
+    }
+
+    function testPositionStatus_notExistent() public {
+        assertEq(uint(lpPositionsManager.getPosition(0).status), 0, "Position should not exist");
+    }
+
+    function testComputePositionAmounts() public {
+        (uint256 amount0, uint256 amount1) = lpPositionsManager.computePositionAmounts(lpPositionsManager.getPosition(facticeUser1_tokenId));
         console.log(amount0);
         console.log(amount1);
-        uint256 facticeUser1BaseCR = lpPositionsManager.computeCR(facticeUser1_tokenId);
-
         
-        lpPositionsManager.updateRiskConstants(address(uniPoolGhoEth), _minCR);
-
-        vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
-        vm.stopPrank();
-
-        uint256 facticeUser1NewCR = lpPositionsManager.computeCR(facticeUser1_tokenId);
-
-        assertLt(facticeUser1NewCR, facticeUser1BaseCR, "borrowing GHO should decrease the CR");
     }
+
     // function testLiquidatablePosition() public {
     //     uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
     //     lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);

@@ -21,6 +21,9 @@ import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
 import "@uniswap-periphery/libraries/TransferHelper.sol";
 import "forge-std/console.sol";
+
+import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
+
 contract LPPositionsManager is ILPPositionsManager, Ownable {
     using SafeMath for uint256;
 
@@ -33,6 +36,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
 
     INonfungiblePositionManager constant uniswapPositionsNFT =
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
+
+    IUniswapV3Factory internal uniswapFactory =
+            IUniswapV3Factory(factoryAddress);
 
     address gasPoolAddress;
     address public borrowerOperationsAddress;
@@ -182,10 +188,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
 
         ) = uniswapPositionsNFT.positions(_tokenId);
 
-        address poolAddress = PoolAddress.computeAddress(
-            factoryAddress,
-            PoolAddress.getPoolKey(token0, token1, fee)
-        );
+        address poolAddress = uniswapFactory.getPool(token0, token1, fee);
 
         Position memory position = Position(
             _owner,
@@ -223,15 +226,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
-        
-        console.log(_position.token0);
-        console.log(_position.token1);
-        console.log(_position.poolAddress);
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
             );
-        console.log("Passed TWAP");
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(
             _position.tickLower
@@ -259,7 +257,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     {
         _requirePositionIsActive(_tokenId);
         Position memory _position = _positionFromTokenId[_tokenId];
-        console.log("Passed");
         return computePositionAmounts(_position);
     }
 
@@ -456,13 +453,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256)
     {
-        if (tokenAddress == ETHAddress) return 1;
-
+        if (tokenAddress == ETHAddress) return 10**18;
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
         );
-
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint256 ratio = FullMath.mulDiv(
             sqrtRatioX96,
