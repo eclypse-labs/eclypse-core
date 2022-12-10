@@ -166,21 +166,24 @@ abstract contract UniswapTest is Test {
         deal(address(ghoToken), deployer, 10**18 * 1225 * 2000);
 
         vm.deal(deployer, 3000 ether);
-        address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
+        //address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
+
+        ghoToken.approve(address(uniswapPositionsNFT), 10**18 * 1225 * 2000);
+        
 
         INonfungiblePositionManager.MintParams memory mintParams;
         if (uniPoolGhoEth.token0() == address(ghoToken)) {
-            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 35, 1))); // 1 ETH = 1225 GHO
+            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 1, 35))); // 1 ETH = 1225 GHO
             mintParams = INonfungiblePositionManager.MintParams({
                 token0: address(ghoToken),
                 token1: address(WETH),
                 fee: 500,
-                tickLower: -67777,
-                tickUpper: -77777,
-                amount0Desired: 10**18 * 1225 * 100, // 1225000 GHO
-                amount1Desired: 10**18 * 1 * 100, // 1000 ETH
-                amount0Min: 0,
-                amount1Min: 0,
+                tickLower: -72000,
+                tickUpper: -70000,
+                amount0Desired: 10**18 * 1000 * 1225, // 12250 GHO
+                amount1Desired: 10**18 * 1000, // 10 ETH
+                amount0Min: 10**18 * 500 * 1225,
+                amount1Min: 10**18 * 500,
                 recipient: deployer,
                 deadline: block.timestamp
             });
@@ -190,17 +193,19 @@ abstract contract UniswapTest is Test {
                 token0: address(WETH),
                 token1: address(ghoToken),
                 fee: 500,
-                tickLower: 67777,
-                tickUpper: 77777,
-                amount0Desired: 10**18 * 1 * 100, // 1000 ETH
-                amount1Desired: 10**18 * 1225 * 100, // 1225000 GHO
-                amount0Min: 0,
-                amount1Min: 0,
+                tickLower: 70000,
+                tickUpper: 72000,
+                amount0Desired: 10**18 * 1000, // 1000 ETH
+                amount1Desired: 10**18 * 1000 * 1225, // 1225000 GHO
+                amount0Min: 10**18 * 500,
+                amount1Min: 10**18 * 500 * 1225,
                 recipient: deployer,
                 deadline: block.timestamp
             });
         }
-        uniswapPositionsNFT.mint(mintParams);
+        console.log("gho balance", ghoToken.balanceOf(deployer));
+        console.log("weth balance", WETH.balanceOf(deployer));
+        uniswapPositionsNFT.mint{value: 1000 ether}(mintParams);
 
         lpPositionsManager.addTokenETHpoolAddress(
             address(ghoToken),
