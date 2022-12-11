@@ -61,11 +61,7 @@ interface ILPPositionsManager is IEclypseBase {
 
     function _requirePositionIsActive(uint256 _tokenId) external view;
 
-    function addTokenETHpoolAddress(
-        address _token,
-        address _pool,
-        bool _inv
-    ) external;
+    function addPairToProtocol(address _poolAddress, address _token0, address _token1, address _ETHpoolToken0, address _ETHpoolToken1, bool _inv0, bool _inv1) external;
 
     function getPositionStatus(uint256 _tokenId)
         external

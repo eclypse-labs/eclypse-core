@@ -66,6 +66,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         bool inv; // true if and only if WETH is token0 of the pool.
     }
 
+    mapping(address => bool) private _acceptedPoolAddresses;
+
     mapping(address => RiskConstants) private _poolAddressToRiskConstants;
     //Retrieves a pool's data given the pool's address.
 
@@ -124,13 +126,21 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     }
 
     //Allows the owner of this contract to add a pair of (token/ETH).
-    function addTokenETHpoolAddress(
-        address _token,
-        address _pool,
-        bool _inv
-    ) public override {
-        _tokenToWETHPoolInfo[_token] = PoolPricingInfo(_pool, _inv);
-        emit TokenAddedToPool(_token, _pool, block.timestamp);
+    // function addTokenETHpoolAddress(
+    //     address _token,
+    //     address _pool,
+    //     bool _inv
+    // ) public override {
+    //     _tokenToWETHPoolInfo[_token] = PoolPricingInfo(_pool, _inv);
+    //     emit TokenAddedToPool(_token, _pool, block.timestamp);
+    // }
+
+    function addPairToProtocol(address _poolAddress, address _token0, address _token1, address _ETHpoolToken0, address _ETHpoolToken1, bool _inv0, bool _inv1) public override {
+        _acceptedPoolAddresses[_poolAddress] = true;
+        _tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
+        _tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
+        emit TokenAddedToPool(_token0, _ETHpoolToken0, block.timestamp);
+        emit TokenAddedToPool(_token1, _ETHpoolToken1, block.timestamp);
     }
 
     //Allows the owner of this contract to add risk constants for a certain type of LP.
@@ -196,6 +206,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         ) = uniswapPositionsNFT.positions(_tokenId);
 
         address poolAddress = uniswapFactory.getPool(token0, token1, fee);
+        
+        require(_acceptedPoolAddresses[poolAddress], "This pool is not accepted by the protocol.");
 
         Position memory position = Position(
             _owner,
@@ -320,12 +332,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256)
     {
-        return
+
             FullMath.mulDiv(
                 debtOf(_tokenId),
                 priceInETH(address(GHOToken)),
                 FixedPoint96.Q96
             );
+
     }
 
     //Given a user's address, computes the sum of all of its positions' debt.
@@ -489,9 +502,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         pure
         returns (uint256)
     {
+
+        console.log("Coll:", _collValue);
+        console.log("Debt:", _debt);
         if (_debt > 0) {
             // uint256 newCollRatio = _collValue.div(_debt); // This is not accurate, because we are working with integers.
             // Solution : work with fixed point collateral ratios :
+            
             uint256 newCollRatio = FullMath.mulDiv(
                 _collValue,
                 FixedPoint96.Q96,
