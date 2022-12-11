@@ -71,7 +71,7 @@ abstract contract UniswapTest is Test {
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
 
-        ghoToken = new GHOToken(address(borrowerOperation)); // we assume gho is DAI, for simplicity
+        ghoToken = new GHOToken(address(borrowerOperation), address(lpPositionsManager)); // we assume gho is DAI, for simplicity
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),
@@ -164,9 +164,14 @@ abstract contract UniswapTest is Test {
             address(borrowerOperation),
             facticeUser1_tokenId
         );
+
+        
         borrowerOperation.openPosition(facticeUser1_tokenId);
 
+        
+
         vm.stopPrank();
+
         // facticeUser1.transfer
 
         // console.log(uniswapPositionsNFT.getPosition(tokenId).user);

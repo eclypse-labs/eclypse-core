@@ -320,7 +320,7 @@ contract LPPositionsManagerTest is UniswapTest{
 
 
         vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10**18, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10**16, facticeUser1_tokenId);
         vm.stopPrank();
         
         vm.startPrank(deployer);
@@ -334,17 +334,16 @@ contract LPPositionsManagerTest is UniswapTest{
 
         //TODO: Create a factice user with a handful of GHO. 
 
-        /*
-        vm.startPrank(address(user));
+        console.log("facticeUser2 balance before liquidation: ", ghoToken.balanceOf(facticeUser2));
+        vm.startPrank(address(facticeUser2));
         uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
-        assertGe(ghoToken.balanceOf(user), amountToRepay);
+        assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
         vm.stopPrank();
 
-        assertEq(lpPositionsManager.totalDebtOf(facticeUser1), 0, "Debt should be 0");
-        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 3, "Position should be closed by liquidation");
-        assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), user, "Position should be transferred to liquidator");
-        */
+        assertEq(uint(lpPositionsManager.getPositionStatus(facticeUser1_tokenId)), 3, "Position should be closed by liquidation");
+        assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2, "Position should be transferred to liquidator");
+        
         
     }
 

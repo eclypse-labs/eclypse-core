@@ -2725,7 +2725,7 @@
       }
     },
     "src/ActivePool.sol": {
-      "lastModificationDate": 1670767108927,
+      "lastModificationDate": 1670771486451,
       "contentHash": "1271081f0cb82e7ca62a59204adfaa97",
       "sourceName": "src/ActivePool.sol",
       "solcConfig": {
@@ -2815,8 +2815,8 @@
       }
     },
     "src/BorrowerOperations.sol": {
-      "lastModificationDate": 1670757730574,
-      "contentHash": "c10e34df16f01bf24fdff8ea251b7d8d",
+      "lastModificationDate": 1670772656016,
+      "contentHash": "100e57fcf050467f79dadcc493bfc0e1",
       "sourceName": "src/BorrowerOperations.sol",
       "solcConfig": {
         "settings": {
@@ -2909,8 +2909,8 @@
       }
     },
     "src/GHOToken.sol": {
-      "lastModificationDate": 1670688333048,
-      "contentHash": "3c41f60771a3cec6b825ec7434d666ef",
+      "lastModificationDate": 1670773014538,
+      "contentHash": "b992acffa225d1d685a24cab0ae35102",
       "sourceName": "src/GHOToken.sol",
       "solcConfig": {
         "settings": {
@@ -2980,8 +2980,8 @@
       }
     },
     "src/LPPositionsManager.sol": {
-      "lastModificationDate": 1670767108927,
-      "contentHash": "efabfb41a6a3760e1669b531aff90e1e",
+      "lastModificationDate": 1670772615512,
+      "contentHash": "68988100a8815e6b8065a07f42a66bb6",
       "sourceName": "src/LPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -4116,8 +4116,8 @@
       }
     },
     "test/LPPositionsManager.t.sol": {
-      "lastModificationDate": 1670768793883,
-      "contentHash": "ba1d19c042fe12eb754aecc5a59d88de",
+      "lastModificationDate": 1670772681242,
+      "contentHash": "75c0211ff9a2ee62bb8f0522fb5e33c2",
       "sourceName": "test/LPPositionsManager.t.sol",
       "solcConfig": {
         "settings": {
@@ -4236,8 +4236,8 @@
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1670767108928,
-      "contentHash": "a846c43f1342970b10a929d6084b70bf",
+      "lastModificationDate": 1670772918043,
+      "contentHash": "41b6cdb9d970b4448f171487977da272",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
