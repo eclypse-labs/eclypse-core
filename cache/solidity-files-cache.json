@@ -2643,7 +2643,7 @@
       }
     },
     "src/ActivePool.sol": {
-      "lastModificationDate": 1670678281372,
+      "lastModificationDate": 1670691429432,
       "contentHash": "10b4bb6646fd788f6c33f6df90a30f0f",
       "sourceName": "src/ActivePool.sol",
       "solcConfig": {
@@ -2694,6 +2694,7 @@
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
+        "lib/v3-core/contracts/interfaces/IUniswapV3Factory.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
@@ -2732,7 +2733,7 @@
       }
     },
     "src/BorrowerOperations.sol": {
-      "lastModificationDate": 1670678281372,
+      "lastModificationDate": 1670691429433,
       "contentHash": "100e57fcf050467f79dadcc493bfc0e1",
       "sourceName": "src/BorrowerOperations.sol",
       "solcConfig": {
@@ -2783,6 +2784,7 @@
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
+        "lib/v3-core/contracts/interfaces/IUniswapV3Factory.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
@@ -2896,8 +2898,8 @@
       }
     },
     "src/LPPositionsManager.sol": {
-      "lastModificationDate": 1670678281373,
-      "contentHash": "c5da75cebb43f66f76be7b6362958af4",
+      "lastModificationDate": 1670749179637,
+      "contentHash": "f132209899e0237599bc6ca13ee5a7d9",
       "sourceName": "src/LPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -2947,6 +2949,7 @@
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
+        "lib/v3-core/contracts/interfaces/IUniswapV3Factory.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
@@ -3866,7 +3869,7 @@
       }
     },
     "test/ActivePoolTest.t.sol": {
-      "lastModificationDate": 1670678281374,
+      "lastModificationDate": 1670691429435,
       "contentHash": "09e8a608c93a56f8cd25db89bdfe1aac",
       "sourceName": "test/ActivePoolTest.t.sol",
       "solcConfig": {
@@ -4029,8 +4032,8 @@
       }
     },
     "test/LPPositionsManager.t.sol": {
-      "lastModificationDate": 1670678296505,
-      "contentHash": "1642ecaaa1cc0e82ced5e418b96f7cd6",
+      "lastModificationDate": 1670749298924,
+      "contentHash": "812e6e0e3fa5e5fcd443f8dde9f14208",
       "sourceName": "test/LPPositionsManager.t.sol",
       "solcConfig": {
         "settings": {
@@ -4147,8 +4150,8 @@
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1670678337779,
-      "contentHash": "53b1d21923a6ffc843ad5a4d64b86a75",
+      "lastModificationDate": 1670748668020,
+      "contentHash": "f8f7b854df85c4445da7441205fd6c75",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {

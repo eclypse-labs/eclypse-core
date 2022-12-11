@@ -165,6 +165,155 @@ contract LPPositionsManagerTest is UniswapTest {
         uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
         assertTrue(cr > _minCR);
     }
+    function testPositionStatus_closeByOwner() public {
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.closePosition(facticeUser1_tokenId);
+        vm.stopPrank();
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 2, "Position should be closed by owner");
+    }
+
+    function testPositionStatus_closeByOwnerDebtNotRepaid() public {
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        vm.expectRevert(bytes("you have to repay your debt"));
+        borrowerOperation.closePosition(facticeUser1_tokenId);
+        vm.stopPrank();
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
+    }
+
+    function testPositionStatus_closeByOwnerDebtRepaid() public {
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 1, "Position should be active");
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        borrowerOperation.repayGHO(10, facticeUser1_tokenId);
+        borrowerOperation.closePosition(facticeUser1_tokenId);
+        vm.stopPrank();
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 2, "Position should be closed by owner");
+    }
+
+    function testPositionStatus_notExistent() public {
+        assertEq(uint(lpPositionsManager.getPosition(0).status), 0, "Position should not exist");
+    }
+
+    function testRiskConstant_increase() public {
+        uint256 initialRC = lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr));
+        uint256 newMinRC = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
+        assertEq(lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)), newMinRC, "Risk constant should be updated");
+    }
+
+    function testRiskConstant_setTo1OrLess() public {
+        vm.expectRevert(bytes("The minimum collateral ratio must be greater than 1."));
+        uint256 newMinRC = FullMath.mulDiv(1, FixedPoint96.Q96, 1);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
+    }
+
+    function testPositionAmounts() public {
+        (uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+        console.log("Amount 0: ", amount0);
+        console.log("Amount 1: ", amount1);
+    }
+
+
+
+    // function testLiquidatablePosition() public {
+    //     uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+    //     lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(10000, 549666);
+    //     vm.stopPrank();
+    //     assertTrue(lpPositionsManager.computeCR(549666) > _minCR);
+    // }
+
+    // function testLiquidatablePosition() public {
+    //     uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+    //     lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr),_minCR);
+
+    //     console.log(lpPositionsManager.positionValueInETH(tokenIdUser1));
+    //     console.log(
+    //         "total supply of GHO before borrow: ",
+    //         ghoToken.totalSupply()
+    //     );
+    //     console.log(
+    //         "total debt of user1 before borrow: ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(10000, tokenIdUser1);
+    //     vm.stopPrank();
+
+    //     console.log(
+    //         "user's cr after borrow: ",
+    //         lpPositionsManager.computeCR(tokenIdUser1)
+    //     );
+    //     console.log("borrowed GHO : ", ghoToken.balanceOf(address(user1)));
+    //     console.log(
+    //         "total supply of GHO after borrow: ",
+    //         ghoToken.totalSupply()
+    //     );
+    //     console.log(
+    //         "total debt of user1 after borrow: ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+
+    //     uint256 cr = lpPositionsManager.computeCR(tokenIdUser1);
+    //     assertTrue(cr > _minCR);
+    // }
+
+    // function testTotalDebtOf() public {
+    //     console.log(
+    //         "debt of the user1 before borrow : ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+    //     assertEq(lpPositionsManager.totalDebtOf(user1), 0);
+
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(100, 549666);
+    //     vm.stopPrank();
+    //     console.log(
+    //         "debt of the user1 after borrow : ",
+    //         lpPositionsManager.totalDebtOf(user1)
+    //     );
+    //     assertEq(lpPositionsManager.totalDebtOf(user1), 100);
+    // }
+
+    // function testComputeCRWithDebtEqual0() public {
+    //     console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
+    // }
+
+    // function testComputeCRWithDebtNotEqual0() public {
+    //     vm.startPrank(address(user1));
+    //     borrowerOperation.borrowGHO(10, 549666);
+    //     vm.stopPrank();
+    //     console.log("COLLATERAL VALUE : ", activePool.getCollateralValue());
+
+    //     console.log("CR of user1 is ", lpPositionsManager.computeCR(549666));
+    // }
+
+    // function testRiskConstantsAreCorrectlyUpdated() public {
+    //     console.log(
+    //         "initial risk constant: ",
+    //         lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
+    //     );
+    //     uint256 _minCR = Math.mulDiv(17, 1 << 96, 10);
+    //     console.log("minCR calculated: ", _minCR);
+    //     lpPositionsManager.updateRiskConstants(
+    //         address(uniPoolUsdcETHAddr),
+    //         _minCR
+    //     );
+    //     console.log(
+    //         "updated risk constant: ",
+    //         lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
+    //     );
+    //     assertEq(
+    //         lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)),
+    //         _minCR,
+    //         "risk constants are not updated correctly"
+    //     );
+    // }
+
 
     //     //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
 

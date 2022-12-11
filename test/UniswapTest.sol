@@ -100,7 +100,6 @@ abstract contract UniswapTest is Test {
     function addFacticeUser() private {
         vm.startPrank(facticeUser1);
         //console.log(ILPPositionsManager.Status.closedByOwner);
-        console.log("couscous");
         deal(usdcAddr, facticeUser1, 10 ether);
         deal(wethAddr, facticeUser1, 10 ether);
 
@@ -207,16 +206,14 @@ abstract contract UniswapTest is Test {
             address(uniPoolGhoEth),
             address(ghoToken) > address(WETH) // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
         );
-        console.log("gho balance", ghoToken.balanceOf(deployer));
-        console.log("eth balance", deployer.balance);
         ghoToken.approve(swapRouterAddr, 10**18 * 25);
-        uniPoolGhoEth.swap(
+        /*uniPoolGhoEth.swap(
             deployer,
             true,
             10**18 * 25,
             1 << 90, // ridiculously low price to ensure tx goes through
             abi.encode(swapRouter.uniswapV3SwapCallback.selector)
-        );
+        );*/ // still need to make this work
         vm.stopPrank();
     }
 }
