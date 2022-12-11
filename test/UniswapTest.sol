@@ -50,7 +50,7 @@ abstract contract UniswapTest is Test {
     IUniswapV3Pool uniV3PoolWeth_Usdc;
     IUniswapV3Pool uniPoolGhoEth;
     uint256 tokenId;
-    
+
     IUniswapV3Factory uniswapFactory =
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
@@ -65,15 +65,13 @@ abstract contract UniswapTest is Test {
 
         swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
-        uniV3PoolWeth_Usdc = IUniswapV3Pool(
-            uniPoolUsdcETHAddr
-        );
+        uniV3PoolWeth_Usdc = IUniswapV3Pool(uniPoolUsdcETHAddr);
 
         activePool = new ActivePool();
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
 
-        ghoToken = new GHOToken(address(borrowerOperation)); // we assume gho is DAI, for simplicity
+        ghoToken = new GHOToken(address(borrowerOperation), address(lpPositionsManager)); // we assume gho is DAI, for simplicity
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),
@@ -95,7 +93,15 @@ abstract contract UniswapTest is Test {
         // positionsManager.updateRiskConstants(address(uniPoolUsdcETH), _minCR);
         // //pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
         // bool _inv = false; //TODO: set parameter _inv
-        lpPositionsManager.addPairToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
+        lpPositionsManager.addPairToProtocol(
+            uniPoolUsdcETHAddr,
+            usdcAddr,
+            wethAddr,
+            uniPoolUsdcETHAddr,
+            address(0),
+            false,
+            true
+        );
         // lpPositionsManager.addTokenETHpoolAddress(
         //     usdcAddr,
         //     uniPoolUsdcETHAddr,
@@ -105,7 +111,6 @@ abstract contract UniswapTest is Test {
         vm.stopPrank();
         addFacticeUser();
         createEthGhoPool();
-
     }
 
     function addUserOnMainnet() private {
@@ -154,11 +159,19 @@ abstract contract UniswapTest is Test {
             });
 
         (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+
+        uniswapPositionsNFT.approve(
+            address(borrowerOperation),
+            facticeUser1_tokenId
+        );
+
         
-        uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId);
         borrowerOperation.openPosition(facticeUser1_tokenId);
 
+        
+
         vm.stopPrank();
+
         // facticeUser1.transfer
 
         // console.log(uniswapPositionsNFT.getPosition(tokenId).user);
@@ -166,6 +179,13 @@ abstract contract UniswapTest is Test {
         // borrowerOperation.openPosition(tokenId);
         //console.log(lpPositionsManager.getPosition(tokenId).user);
         // vm.stopPrank();
+        vm.startPrank(address(borrowerOperation));
+        ghoToken.mint(facticeUser2, 10**18 * 1000);
+        console.log(
+            "FACTICEUSER2 GHO BALANCE : ",
+            ghoToken.balanceOf(facticeUser2)
+        );
+        vm.stopPrank();
     }
 
     // creates teh gho/eth pool, puts liquidity in it and adds it to the protocol's list of pools
@@ -176,18 +196,19 @@ abstract contract UniswapTest is Test {
         uniPoolGhoEth = IUniswapV3Pool(
             uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
         );
-        
+
         deal(address(ghoToken), deployer, 10**18 * 1225 * 2000);
 
         vm.deal(deployer, 3000 ether);
         //address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
 
         ghoToken.approve(address(uniswapPositionsNFT), 10**18 * 1225 * 2000);
-        
 
         INonfungiblePositionManager.MintParams memory mintParams;
         if (uniPoolGhoEth.token0() == address(ghoToken)) {
-            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 1, 35))); // 1 ETH = 1225 GHO
+            uniPoolGhoEth.initialize(
+                uint160(FullMath.mulDiv(FixedPoint96.Q96, 1, 35))
+            ); // 1 ETH = 1225 GHO
             mintParams = INonfungiblePositionManager.MintParams({
                 token0: address(ghoToken),
                 token1: address(WETH),
@@ -202,7 +223,9 @@ abstract contract UniswapTest is Test {
                 deadline: block.timestamp
             });
         } else {
-            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 35, 1))); // 1 ETH = 1225 GHO
+            uniPoolGhoEth.initialize(
+                uint160(FullMath.mulDiv(FixedPoint96.Q96, 35, 1))
+            ); // 1 ETH = 1225 GHO
             mintParams = INonfungiblePositionManager.MintParams({
                 token0: address(WETH),
                 token1: address(ghoToken),
@@ -219,7 +242,15 @@ abstract contract UniswapTest is Test {
         }
         uniswapPositionsNFT.mint{value: 1000 ether}(mintParams);
 
-        lpPositionsManager.addPairToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, true);
+        lpPositionsManager.addPairToProtocol(
+            address(uniPoolGhoEth),
+            address(ghoToken),
+            wethAddr,
+            address(uniPoolGhoEth),
+            address(0),
+            false,
+            true
+        );
 
         // lpPositionsManager.addTokenETHpoolAddress(
         //     address(ghoToken),
@@ -227,23 +258,22 @@ abstract contract UniswapTest is Test {
         //     false // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
         // );
 
-
         ghoToken.approve(swapRouterAddr, 10**18 * 25 * 2);
-        ISwapRouter.ExactInputSingleParams memory params =
-            ISwapRouter.ExactInputSingleParams({
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+            .ExactInputSingleParams({
                 tokenIn: address(ghoToken),
                 tokenOut: wethAddr,
                 fee: 500,
                 recipient: deployer,
-                deadline: block.timestamp+5 minutes,
+                deadline: block.timestamp + 5 minutes,
                 amountIn: 10**18 * 25,
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
-        vm.roll(block.number+1);
+        vm.roll(block.number + 1);
         vm.warp(block.timestamp + 1 minutes);
         swapRouter.exactInputSingle(params);
-        vm.roll(block.number+2);
+        vm.roll(block.number + 2);
         vm.warp(block.timestamp + 90 seconds);
         swapRouter.exactInputSingle(params);
         vm.stopPrank();

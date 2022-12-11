@@ -471,19 +471,24 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (bool)
     {
-        require(liquidatable(_tokenId));
-        GHOToken.transferFrom(msg.sender, address(this), _GHOToRepay);
-
         Position memory position = _positionFromTokenId[_tokenId];
         position.debt -= _GHOToRepay;
-        if (position.debt == 0) {
-            position.status = Status.closedByLiquidation;
-        }
-
-        //TODO: burn the received GHO
-        GHOToken.burn(address(this), _GHOToRepay);
-        //TODO: decrease liquidity of the position such that the liquidator receives 5%
+        position.status = Status.closedByLiquidation;
         _positionFromTokenId[_tokenId] = position;
+
+        // uint128 currentLiquidity = position.liquidity;
+        // uint128 liquidityToDecrease = (currentLiquidity * 5) / 100;
+        // INonfungiblePositionManager.DecreaseLiquidityParams memory params =
+        //     INonfungiblePositionManager.DecreaseLiquidityParams({
+        //         tokenId: _tokenId,
+        //         liquidity: liquidityToDecrease,
+        //         amount0Min: 0,
+        //         amount1Min: 0,
+        //         deadline: block.timestamp
+        //     });
+        //(uint256 amount0, uint256 amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
+
+        activePool.sendLp(msg.sender, _tokenId);
 
         return true;
     }

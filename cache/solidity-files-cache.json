@@ -2725,7 +2725,7 @@
       }
     },
     "src/ActivePool.sol": {
-      "lastModificationDate": 1670766983433,
+      "lastModificationDate": 1670771486451,
       "contentHash": "1271081f0cb82e7ca62a59204adfaa97",
       "sourceName": "src/ActivePool.sol",
       "solcConfig": {
@@ -2815,7 +2815,7 @@
       }
     },
     "src/BorrowerOperations.sol": {
-      "lastModificationDate": 1670749516547,
+      "lastModificationDate": 1670757730574,
       "contentHash": "c10e34df16f01bf24fdff8ea251b7d8d",
       "sourceName": "src/BorrowerOperations.sol",
       "solcConfig": {
@@ -2909,7 +2909,7 @@
       }
     },
     "src/GHOToken.sol": {
-      "lastModificationDate": 1670615607862,
+      "lastModificationDate": 1670688333048,
       "contentHash": "3c41f60771a3cec6b825ec7434d666ef",
       "sourceName": "src/GHOToken.sol",
       "solcConfig": {
@@ -2980,8 +2980,8 @@
       }
     },
     "src/LPPositionsManager.sol": {
-      "lastModificationDate": 1670770567566,
-      "contentHash": "ae26ce5718559bdee51f738be8fbb97a",
+      "lastModificationDate": 1670772615512,
+      "contentHash": "68988100a8815e6b8065a07f42a66bb6",
       "sourceName": "src/LPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -4118,6 +4118,8 @@
     "test/LPPositionsManager.t.sol": {
       "lastModificationDate": 1670767183543,
       "contentHash": "717a6051fbd70c3ac91671d764279911",
+      "lastModificationDate": 1670772681242,
+      "contentHash": "75c0211ff9a2ee62bb8f0522fb5e33c2",
       "sourceName": "test/LPPositionsManager.t.sol",
       "solcConfig": {
         "settings": {
@@ -4236,8 +4238,8 @@
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1670766992580,
-      "contentHash": "a846c43f1342970b10a929d6084b70bf",
+      "lastModificationDate": 1670772918043,
+      "contentHash": "41b6cdb9d970b4448f171487977da272",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
