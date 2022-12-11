@@ -102,7 +102,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         // emit GasPoolAddressChanged(_gasPoolAddress);
         emit GHOTokenAddressChanged(_GHOTokenAddress);
 
-        renounceOwnership();
+        //renounceOwnership();
     }
 
     function getTroveOwnersCount() external view returns (uint256) {
@@ -234,6 +234,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
+        console.log("hello before oracle");
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
