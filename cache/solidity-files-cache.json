@@ -1797,6 +1797,46 @@
         }
       }
     },
+    "lib/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol": {
+      "lastModificationDate": 1670750518775,
+      "contentHash": "a8ba2d37b0107911ae0e3b0e123cbd83",
+      "sourceName": "lib/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.5.0",
+      "artifacts": {
+        "IUniswapV3SwapCallback": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "IUniswapV3SwapCallback.sol/IUniswapV3SwapCallback.json"
+        }
+      }
+    },
     "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol": {
       "lastModificationDate": 1670083107571,
       "contentHash": "83d338eb1394008c808a20ac7c5bab0c",
@@ -2410,6 +2450,48 @@
         }
       }
     },
+    "lib/v3-periphery/contracts/interfaces/ISwapRouter.sol": {
+      "lastModificationDate": 1670753712933,
+      "contentHash": "2b4a7abe32bdc71ba28274632011671b",
+      "sourceName": "lib/v3-periphery/contracts/interfaces/ISwapRouter.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol"
+      ],
+      "versionRequirement": ">=0.7.5",
+      "artifacts": {
+        "ISwapRouter": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "ISwapRouter.sol/ISwapRouter.json"
+        }
+      }
+    },
     "lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol": {
       "lastModificationDate": 1670083107617,
       "contentHash": "26089df25f745d56a5c5143c96700bdd",
@@ -2898,8 +2980,8 @@
       }
     },
     "src/LPPositionsManager.sol": {
-      "lastModificationDate": 1670749179637,
-      "contentHash": "f132209899e0237599bc6ca13ee5a7d9",
+      "lastModificationDate": 1670752114741,
+      "contentHash": "4f763c701d035963b29bd043f57fe3e5",
       "sourceName": "src/LPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -3941,6 +4023,7 @@
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Factory.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol",
+        "lib/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
@@ -3956,6 +4039,7 @@
         "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
         "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
         "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/interfaces/ISwapRouter.sol",
         "lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol",
         "lib/v3-periphery/contracts/libraries/OracleLibrary.sol",
         "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
@@ -4032,8 +4116,8 @@
       }
     },
     "test/LPPositionsManager.t.sol": {
-      "lastModificationDate": 1670749611483,
-      "contentHash": "a8bcc468525f776fdb28415a9d3718ba",
+      "lastModificationDate": 1670754025804,
+      "contentHash": "910e4dcf01bf0b1e0e48e644abb087d1",
       "sourceName": "test/LPPositionsManager.t.sol",
       "solcConfig": {
         "settings": {
@@ -4104,6 +4188,7 @@
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Factory.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol",
+        "lib/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
@@ -4119,6 +4204,7 @@
         "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
         "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
         "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/interfaces/ISwapRouter.sol",
         "lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol",
         "lib/v3-periphery/contracts/libraries/OracleLibrary.sol",
         "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
@@ -4150,8 +4236,8 @@
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1670749383281,
-      "contentHash": "f8f7b854df85c4445da7441205fd6c75",
+      "lastModificationDate": 1670754331971,
+      "contentHash": "c729a929ddc77b2789d28e9bcb692fb6",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
@@ -4222,6 +4308,7 @@
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Factory.sol",
         "lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol",
+        "lib/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
         "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
@@ -4237,6 +4324,7 @@
         "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
         "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
         "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/interfaces/ISwapRouter.sol",
         "lib/v3-periphery/contracts/libraries/LiquidityAmounts.sol",
         "lib/v3-periphery/contracts/libraries/OracleLibrary.sol",
         "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
