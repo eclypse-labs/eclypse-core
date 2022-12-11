@@ -216,8 +216,6 @@ contract LPPositionsManagerTest is UniswapTest {
         console.log("Amount 1: ", amount1);
     }
 
-
-
     // function testLiquidatablePosition() public {
     //     uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
     //     lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);

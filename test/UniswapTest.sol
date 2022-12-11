@@ -30,8 +30,10 @@ abstract contract UniswapTest is Test {
         0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address public constant usdcAddr =
         0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address public constant daiAddr =
+        0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address public constant uniPoolUsdcETHAddr =
-        0x45dDa9cb7c25131DF268515131f647d726f50608;
+        0xE0554a476A092703abdB3Ef35c80e0D76d32939F;
     address public constant swapRouterAddr =
         0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
@@ -61,14 +63,14 @@ abstract contract UniswapTest is Test {
         swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
         uniV3PoolWeth_Usdc = IUniswapV3Pool(
-            0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640
+            uniPoolUsdcETHAddr
         );
 
         activePool = new ActivePool();
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
 
-        ghoToken = new GHOToken(address(borrowerOperation));
+        ghoToken = new GHOToken(address(borrowerOperation)); // we assume gho is DAI, for simplicity
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),
@@ -91,6 +93,11 @@ abstract contract UniswapTest is Test {
         // positionsManager.updateRiskConstants(address(uniPoolUsdcETH), _minCR);
         // //pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
         // bool _inv = false; //TODO: set parameter _inv
+        lpPositionsManager.addTokenETHpoolAddress(
+            usdcAddr,
+            uniPoolUsdcETHAddr,
+            uniV3PoolWeth_Usdc.token1() == usdcAddr
+        );
 
         vm.stopPrank();
         addFacticeUser();
@@ -119,7 +126,7 @@ abstract contract UniswapTest is Test {
             memory mintParams = INonfungiblePositionManager.MintParams({
                 token0: usdcAddr,
                 token1: wethAddr,
-                fee: 500,
+                fee: 100,
                 tickLower: int24(204920),
                 tickUpper: int24(204930),
                 amount0Desired: 10**18 * 10,
@@ -206,14 +213,24 @@ abstract contract UniswapTest is Test {
             address(uniPoolGhoEth),
             address(ghoToken) > address(WETH) // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
         );
-        ghoToken.approve(swapRouterAddr, 10**18 * 25);
-        /*uniPoolGhoEth.swap(
-            deployer,
-            true,
-            10**18 * 25,
-            1 << 90, // ridiculously low price to ensure tx goes through
-            abi.encode(swapRouter.uniswapV3SwapCallback.selector)
-        );*/ // still need to make this work
+        ghoToken.approve(swapRouterAddr, 10**18 * 25 * 2);
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: address(ghoToken),
+                tokenOut: wethAddr,
+                fee: 500,
+                recipient: deployer,
+                deadline: block.timestamp+5 minutes,
+                amountIn: 10**18 * 25,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
+        vm.roll(block.number+1);
+        vm.warp(block.timestamp + 1 minutes);
+        swapRouter.exactInputSingle(params);
+        vm.roll(block.number+2);
+        vm.warp(block.timestamp + 90 seconds);
+        swapRouter.exactInputSingle(params);
         vm.stopPrank();
     }
 }

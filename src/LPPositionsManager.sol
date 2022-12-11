@@ -30,7 +30,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
 
     address constant ETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address constant GHOAddress = 0x0000000000000000000000000000000000000000; //TBD
     address constant factoryAddress =
         0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
@@ -322,7 +321,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         return
             FullMath.mulDiv(
                 debtOf(_tokenId),
-                priceInETH(GHOAddress),
+                priceInETH(address(GHOToken)),
                 FixedPoint96.Q96
             );
     }
