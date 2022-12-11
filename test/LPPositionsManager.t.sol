@@ -135,7 +135,7 @@ contract LPPositionsManagerTest is UniswapTest{
     }
 
     function testRiskConstant_increase() public {
-        uint256 initialRC = lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr));
+        //uint256 initialRC = lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr));
         uint256 newMinRC = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
         lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
         assertEq(lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)), newMinRC, "Risk constant should be updated");
@@ -166,8 +166,8 @@ contract LPPositionsManagerTest is UniswapTest{
         lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
     }
 
-    function testPositionAmounts() public {
-        (uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+    function testPositionAmounts() view public {
+        //(uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
         address token0 = lpPositionsManager.getPosition(facticeUser1_tokenId).token0;
         console.log("Token0: ", token0);
         address token1 = lpPositionsManager.getPosition(facticeUser1_tokenId).token1;

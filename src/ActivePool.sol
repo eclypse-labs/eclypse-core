@@ -38,8 +38,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
     function setAddresses(
         address _borrowerOperationsAddress,
-        address _lpPositionsManagerAddress,
-        address _GHOTokenAddress
+        address _lpPositionsManagerAddress
     )
         external
         //address _stabilityPoolAddress

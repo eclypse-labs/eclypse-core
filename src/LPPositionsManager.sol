@@ -37,7 +37,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
 
     IUniswapV3Factory internal uniswapFactory =
-            IUniswapV3Factory(factoryAddress);
+        IUniswapV3Factory(factoryAddress);
 
     address gasPoolAddress;
     address public borrowerOperationsAddress;
@@ -135,7 +135,15 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     //     emit TokenAddedToPool(_token, _pool, block.timestamp);
     // }
 
-    function addPairToProtocol(address _poolAddress, address _token0, address _token1, address _ETHpoolToken0, address _ETHpoolToken1, bool _inv0, bool _inv1) public override {
+    function addPairToProtocol(
+        address _poolAddress,
+        address _token0,
+        address _token1,
+        address _ETHpoolToken0,
+        address _ETHpoolToken1,
+        bool _inv0,
+        bool _inv1
+    ) public override {
         _acceptedPoolAddresses[_poolAddress] = true;
         _tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
         _tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
@@ -145,11 +153,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
 
     //Allows the owner of this contract to add risk constants for a certain type of LP.
     //THIS RATIO IS ENCODED AS A 96-DECIMALS FIXED POINT.
-    function updateRiskConstants(address _pool, uint256 _minCR)
-        public
-        
-    {
-        require(_minCR > FixedPoint96.Q96, "The minimum collateral ratio must be greater than 1.");
+    function updateRiskConstants(address _pool, uint256 _minCR) public {
+        require(
+            _minCR > FixedPoint96.Q96,
+            "The minimum collateral ratio must be greater than 1."
+        );
         _poolAddressToRiskConstants[_pool].minCR = _minCR;
     }
 
@@ -206,8 +214,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         ) = uniswapPositionsNFT.positions(_tokenId);
 
         address poolAddress = uniswapFactory.getPool(token0, token1, fee);
-        
-        require(_acceptedPoolAddresses[poolAddress], "This pool is not accepted by the protocol.");
+
+        require(
+            _acceptedPoolAddresses[poolAddress],
+            "This pool is not accepted by the protocol."
+        );
 
         Position memory position = Position(
             _owner,
@@ -248,7 +259,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
-            );
+        );
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(
             _position.tickLower
@@ -291,14 +302,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256 value)
     {
-        
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
         //return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
-        return 
-        FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) + 
-        FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
+        return
+            FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
+            FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
     }
 
     //Given a user's address, computes the sum of all of its positions' values.
@@ -332,13 +342,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256)
     {
-
+        return
             FullMath.mulDiv(
                 debtOf(_tokenId),
                 priceInETH(address(GHOToken)),
                 FixedPoint96.Q96
             );
-
     }
 
     //Given a user's address, computes the sum of all of its positions' debt.
@@ -418,11 +427,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     }
 
     //Given a position's tokenId, checks if this position is liquidatable.
-    function liquidatable(uint256 _tokenId)
-        public
-        override
-        returns (bool)
-    {
+    function liquidatable(uint256 _tokenId) public view override returns (bool) {
         Position memory position = _positionFromTokenId[_tokenId];
         /*return
             positionValueInETH(_tokenId) <
@@ -432,8 +437,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
                 FixedPoint96.Q96
             );*/
         return
-            computeCR(_tokenId) > _poolAddressToRiskConstants[position.poolAddress].minCR;
-
+            computeCR(_tokenId) >
+            _poolAddressToRiskConstants[position.poolAddress].minCR;
     }
 
     // (soft) liquidation by a simple public liquidate function.
@@ -502,13 +507,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         pure
         returns (uint256)
     {
-
-        console.log("Coll:", _collValue);
-        console.log("Debt:", _debt);
         if (_debt > 0) {
             // uint256 newCollRatio = _collValue.div(_debt); // This is not accurate, because we are working with integers.
             // Solution : work with fixed point collateral ratios :
-            
             uint256 newCollRatio = FullMath.mulDiv(
                 _collValue,
                 FixedPoint96.Q96,

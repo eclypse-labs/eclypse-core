@@ -87,8 +87,7 @@ abstract contract UniswapTest is Test {
         );
         activePool.setAddresses(
             address(borrowerOperation),
-            address(lpPositionsManager),
-            address(ghoToken)
+            address(lpPositionsManager)
         );
 
         //         //whitelist la pool: updateRiskConstants
@@ -143,7 +142,7 @@ abstract contract UniswapTest is Test {
             memory mintParams = INonfungiblePositionManager.MintParams({
                 token0: usdcAddr,
                 token1: wethAddr,
-                fee: 100,
+                fee: 500,
                 tickLower: int24(204920),
                 tickUpper: int24(204930),
                 amount0Desired: 10**6 * 1000,
