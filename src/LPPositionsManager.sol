@@ -465,12 +465,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             _poolAddressToRiskConstants[position.poolAddress].minCR;
     }
 
-    // (soft) liquidation by a simple public liquidate function.
+    // liquidation by a simple public liquidate function.
     function liquidate(uint256 _tokenId, uint256 _GHOToRepay)
         public
         override
         returns (bool)
     {
+        require(liquidatable(_tokenId), "Position is not liquidatable");
         Position memory position = _positionFromTokenId[_tokenId];
         position.debt -= _GHOToRepay;
         position.status = Status.closedByLiquidation;
