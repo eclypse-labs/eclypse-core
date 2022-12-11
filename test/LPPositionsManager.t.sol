@@ -141,9 +141,30 @@ contract LPPositionsManagerTest is UniswapTest{
         assertEq(lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)), newMinRC, "Risk constant should be updated");
     }
 
-    function testRiskConstant_setTo1OrLess() public {
+    function testRiskConstant_decrease() public {
+        uint256 setInitialRC = FullMath.mulDiv(2, FixedPoint96.Q96, 1);
+        uint256 setNewMinRC = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
+
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), setInitialRC);
+        uint256 initialRC = lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr));
+
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), setNewMinRC);
+        uint256 newMinRC = lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr));
+
+        assertLt(newMinRC, initialRC, "Risk constant should be updated and decreased");
+
+
+    }
+
+    function testRiskConstant_setTo1() public {
         vm.expectRevert(bytes("The minimum collateral ratio must be greater than 1."));
         uint256 newMinRC = FullMath.mulDiv(1, FixedPoint96.Q96, 1);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
+    }
+
+    function testRiskConstant_setToLessThan1() public {
+        vm.expectRevert(bytes("The minimum collateral ratio must be greater than 1."));
+        uint256 newMinRC = FullMath.mulDiv(1, FixedPoint96.Q96, 10);
         lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
     }
 
