@@ -35,7 +35,7 @@ abstract contract UniswapTest is Test {
     address public constant daiAddr =
         0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address public constant uniPoolUsdcETHAddr =
-        0xE0554a476A092703abdB3Ef35c80e0D76d32939F;
+        0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640;
     address public constant swapRouterAddr =
         0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
@@ -96,11 +96,12 @@ abstract contract UniswapTest is Test {
         // positionsManager.updateRiskConstants(address(uniPoolUsdcETH), _minCR);
         // //pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
         // bool _inv = false; //TODO: set parameter _inv
-        lpPositionsManager.addTokenETHpoolAddress(
-            usdcAddr,
-            uniPoolUsdcETHAddr,
-            uniV3PoolWeth_Usdc.token1() == usdcAddr
-        );
+        lpPositionsManager.addPairToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
+        // lpPositionsManager.addTokenETHpoolAddress(
+        //     usdcAddr,
+        //     uniPoolUsdcETHAddr,
+        //     uniV3PoolWeth_Usdc.token1() == usdcAddr
+        // );
 
         vm.stopPrank();
         addFacticeUser();
@@ -123,11 +124,11 @@ abstract contract UniswapTest is Test {
     function addFacticeUser() private {
         vm.startPrank(facticeUser1);
         //console.log(ILPPositionsManager.Status.closedByOwner);
-        deal(usdcAddr, facticeUser1, 10 ether);
-        deal(wethAddr, facticeUser1, 10 ether);
+        deal(usdcAddr, facticeUser1, 100_000 ether);
+        deal(wethAddr, facticeUser1, 100 ether);
 
-        USDC.approve(address(uniswapPositionsNFT), 3000 ether);
-        WETH.approve(address(uniswapPositionsNFT), 3000 ether);
+        USDC.approve(address(uniswapPositionsNFT), 100_000 ether);
+        WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
 
         // uniswapPositionsNFT::mint((0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174,
         // 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, 500, 204920, 204930, 0,
@@ -142,11 +143,11 @@ abstract contract UniswapTest is Test {
             memory mintParams = INonfungiblePositionManager.MintParams({
                 token0: usdcAddr,
                 token1: wethAddr,
-                fee: 100,
-                tickLower: int24(204920),
-                tickUpper: int24(204930),
-                amount0Desired: 10**18,
-                amount1Desired: 10**18,
+                fee: 500,
+                tickLower: int24(204610),
+                tickUpper: int24(205020),
+                amount0Desired: 109152696624,
+                amount1Desired: 95061392953024023858,
                 amount0Min: 0,
                 amount1Min: 0,
                 recipient: facticeUser1,
@@ -218,16 +219,15 @@ abstract contract UniswapTest is Test {
         }
         uniswapPositionsNFT.mint{value: 1000 ether}(mintParams);
 
-        lpPositionsManager.addTokenETHpoolAddress(
-            address(ghoToken),
-            address(uniPoolGhoEth),
-            false // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
-        );
-        lpPositionsManager.addTokenETHpoolAddress(
-            address(usdcAddr),
-            address(uniPoolUsdcETHAddr),
-            false // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
-        );
+        lpPositionsManager.addPairToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, true);
+
+        // lpPositionsManager.addTokenETHpoolAddress(
+        //     address(ghoToken),
+        //     address(uniPoolGhoEth),
+        //     false // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
+        // );
+
+
         ghoToken.approve(swapRouterAddr, 10**18 * 25 * 2);
         ISwapRouter.ExactInputSingleParams memory params =
             ISwapRouter.ExactInputSingleParams({
