@@ -474,7 +474,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         require(liquidatable(_tokenId), "Position is not liquidatable");
         require(debtOf(_tokenId) <= _GHOToRepay, "Not enough GHO to repay debt");
         //We should burn the GHO here.
-        GHOToken.burn(msg.sender, _GHOToRepay);
+        GHOToken.burn(msg.sender, debtOf(_tokenId)); // burn exactly the debt
         Position memory position = _positionFromTokenId[_tokenId];
         position.debt = 0;
         position.status = Status.closedByLiquidation;
