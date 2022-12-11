@@ -28,6 +28,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     using SafeMath for uint256;
 
     uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
+    uint256 constant interestRate = 79228162564705624056075081118; // 2% APY interest rate : fixedpoint96 value found by evaluating "1.02^(1/(12*30*24*60*60))*2^96" on https://www.mathsisfun.com/calculator-precision.html
 
     address constant ETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant factoryAddress =
@@ -231,7 +232,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             poolAddress,
             _tokenId,
             Status.active,
-            0
+            0,
+            block.timestamp
         );
 
         _allPositions.push(position);
@@ -332,8 +334,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     //Given a position's tokenId, returns the current debt of this position.
     function debtOf(uint256 _tokenId) public view override returns (uint256) {
         _requirePositionIsActive(_tokenId);
-        Position memory _position = _positionFromTokenId[_tokenId];
-        return _position.debt;
+
+        uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
+            .lastUpdateTimestamp;
+        uint256 debtPlusInterest = FullMath.mulDiv(_positionFromTokenId[_tokenId].debt, dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp), FixedPoint96.Q96);
+        
+
+        return debtPlusInterest;
     }
 
     function debtOfInETH(uint256 _tokenId)
@@ -388,7 +395,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             "A debt cannot be increased by a negative amount or by 0."
         );
 
-        _positionFromTokenId[_tokenId].debt += _amount;
+        uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
+            .lastUpdateTimestamp;
+        uint256 previousDebtPlusInterest = FullMath.mulDiv(_positionFromTokenId[_tokenId].debt, dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp), FixedPoint96.Q96);
+        _positionFromTokenId[_tokenId].debt = previousDebtPlusInterest + _amount;
+        _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
 
         emit IncreasedDebt(
             _positionFromTokenId[_tokenId].user,
@@ -404,6 +415,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         public
         override
         onlyBorrowerOperations
+        returns (uint256 leftOver)
     {
         _requirePositionIsActive(_tokenId);
         require(
@@ -411,10 +423,17 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             "A debt cannot be decreased by a negative amount or by 0."
         );
 
-        if (_positionFromTokenId[_tokenId].debt < _amount) {
+        uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
+            .lastUpdateTimestamp;
+        uint256 previousDebtPlusInterest = FullMath.mulDiv(_positionFromTokenId[_tokenId].debt, dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp), FixedPoint96.Q96);
+        
+        if (previousDebtPlusInterest < _amount) {
             _positionFromTokenId[_tokenId].debt = 0;
+            leftOver = _amount - previousDebtPlusInterest;
         } else {
-            _positionFromTokenId[_tokenId].debt -= _amount;
+            uint256 newDebt = previousDebtPlusInterest - _amount;
+            _positionFromTokenId[_tokenId].debt = newDebt;
+            _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
         }
 
         emit DecreasedDebt(
@@ -427,7 +446,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     }
 
     //Given a position's tokenId, checks if this position is liquidatable.
-    function liquidatable(uint256 _tokenId) public view override returns (bool) {
+    function liquidatable(uint256 _tokenId)
+        public
+        view
+        override
+        returns (bool)
+    {
         Position memory position = _positionFromTokenId[_tokenId];
         /*return
             positionValueInETH(_tokenId) <
@@ -599,7 +623,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             _position.poolAddress,
             _newTokenId,
             Status.active,
-            _position.debt
+            _position.debt,
+            _position.lastUpdateTimestamp
         );
 
         _allPositions.push(position);
@@ -615,8 +640,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         address _poolAddress,
         uint256 _newTokenId,
         Status _status,
-        uint256 _debt
-    ) public view returns (Position memory position) {
+        uint256 _debt,
+        uint256 _lastUpdate
+    ) public view returns (Position memory) {
         (
             ,
             ,
@@ -644,7 +670,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
                 poolAddress: _poolAddress,
                 tokenId: _newTokenId,
                 status: _status,
-                debt: _debt
+                debt: _debt,
+                lastUpdateTimestamp: _lastUpdate
             });
     }
 
@@ -658,5 +685,17 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             "This operation is restricted"
         );
         _;
+    }
+
+    // base is a fixedpoint96 number, exponent is a regular unsigned integer
+    function dumbPower(uint256 _base, uint256 _exponent)
+        public
+        pure
+        returns (uint256 result)
+    {
+        result = FixedPoint96.Q96;
+        for (uint256 i = 0; i < _exponent; i++) {
+            result = FullMath.mulDiv(result, _base, FixedPoint96.Q96);
+        }
     }
 }

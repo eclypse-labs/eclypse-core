@@ -47,6 +47,7 @@ interface ILPPositionsManager is IEclypseBase {
         uint256 tokenId;
         Status status;
         uint256 debt;
+        uint256 lastUpdateTimestamp;
     }
 
     // --- Functions ---
@@ -108,7 +109,7 @@ interface ILPPositionsManager is IEclypseBase {
 
     function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
 
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount) external;
+    function decreaseDebtOf(uint256 _tokenId, uint256 _amount) external returns(uint256);
 
     function setNewLiquidity(uint256 tokenId, uint128 liquidity) external;
 
