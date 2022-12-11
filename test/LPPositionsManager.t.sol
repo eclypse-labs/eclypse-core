@@ -316,6 +316,38 @@ contract LPPositionsManagerTest is UniswapTest{
         assertTrue(cr > _minCR);
     }
 
+    function testLiquidate() public {
+
+
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10**18, facticeUser1_tokenId);
+        vm.stopPrank();
+        
+        vm.startPrank(deployer);
+        uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
+        vm.stopPrank();
+
+        bool isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
+
+        assertTrue(isLiquidatable);
+
+        //TODO: Create a factice user with a handful of GHO. 
+
+        /*
+        vm.startPrank(address(user));
+        uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
+        assertGe(ghoToken.balanceOf(user), amountToRepay);
+        lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
+        vm.stopPrank();
+
+        assertEq(lpPositionsManager.totalDebtOf(facticeUser1), 0, "Debt should be 0");
+        assertEq(uint(lpPositionsManager.getPosition(facticeUser1_tokenId).status), 3, "Position should be closed by liquidation");
+        assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), user, "Position should be transferred to liquidator");
+        */
+        
+    }
+
 
     //     //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
 
