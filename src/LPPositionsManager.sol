@@ -461,11 +461,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256)
     {
-        if (tokenAddress == ETHAddress) return 10**18;
+        if (tokenAddress == ETHAddress) return FullMath.mulDiv(1 ether, FixedPoint96.Q96, 1);
+        console.log(_tokenToWETHPoolInfo[tokenAddress].poolAddress);
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
         );
+        console.log("Bonjour");
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint256 ratio = FullMath.mulDiv(
             sqrtRatioX96,
