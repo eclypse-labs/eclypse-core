@@ -36,7 +36,6 @@ abstract contract UniswapTest is Test {
         0x6B175474E89094C44Da98b954EedeAC495271d0F;
     address public constant uniPoolUsdcETHAddr =
         0xE0554a476A092703abdB3Ef35c80e0D76d32939F;
-        0xE0554a476A092703abdB3Ef35c80e0D76d32939F;
     address public constant swapRouterAddr =
         0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
