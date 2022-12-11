@@ -140,8 +140,16 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         public
         
     {
-        require(_minCR > FixedPoint96.Q96, "WRONG");
+        require(_minCR > FixedPoint96.Q96, "The minimum collateral ratio must be greater than 1.");
         _poolAddressToRiskConstants[_pool].minCR = _minCR;
+    }
+
+    function getRiskConstants(address _pool)
+        public
+        view
+        returns (uint256 minCR)
+    {
+        return _poolAddressToRiskConstants[_pool].minCR;
     }
 
     //Get the status of a position given the position's tokenId.

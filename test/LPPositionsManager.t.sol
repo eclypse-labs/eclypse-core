@@ -134,12 +134,26 @@ contract LPPositionsManagerTest is UniswapTest{
         assertEq(uint(lpPositionsManager.getPosition(0).status), 0, "Position should not exist");
     }
 
-    function testComputePositionAmounts() public {
-        (uint256 amount0, uint256 amount1) = lpPositionsManager.computePositionAmounts(lpPositionsManager.getPosition(facticeUser1_tokenId));
-        console.log(amount0);
-        console.log(amount1);
-        
+    function testRiskConstant_increase() public {
+        uint256 initialRC = lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr));
+        uint256 newMinRC = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
+        assertEq(lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)), newMinRC, "Risk constant should be updated");
     }
+
+    function testRiskConstant_setTo1OrLess() public {
+        vm.expectRevert(bytes("The minimum collateral ratio must be greater than 1."));
+        uint256 newMinRC = FullMath.mulDiv(1, FixedPoint96.Q96, 1);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), newMinRC);
+    }
+
+    function testPositionAmounts() public {
+        (uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+        console.log("Amount 0: ", amount0);
+        console.log("Amount 1: ", amount1);
+    }
+
+
 
     // function testLiquidatablePosition() public {
     //     uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
