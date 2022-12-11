@@ -283,32 +283,34 @@ contract LPPositionsManagerTest is UniswapTest{
         );
         vm.stopPrank();
         vm.startPrank(address(facticeUser1));
+        (uint a, uint b) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+        console.log("factice position amounts", a, b);
         console.log(lpPositionsManager.positionValueInETH(facticeUser1_tokenId) / 10**18);
         console.log(
             "total supply of GHO before borrow: ",
-            ghoToken.totalSupply() / ghoToken.decimals()
+            ghoToken.totalSupply()
         );
         console.log(
             "total debt of facticeUser1 before borrow: ",
-            lpPositionsManager.totalDebtOf(facticeUser1) / ghoToken.decimals()
+            lpPositionsManager.totalDebtOf(facticeUser1)
         );
-        borrowerOperation.borrowGHO(10000, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10**18 * 633, facticeUser1_tokenId);
         vm.stopPrank();
         console.log(
             "user's cr after borrow: ",
-            lpPositionsManager.computeCR(facticeUser1_tokenId) / (1 << 96)
+            lpPositionsManager.computeCR(facticeUser1_tokenId)
         );
         console.log(
             "borrowed GHO : ",
-            ghoToken.balanceOf(facticeUser1) / ghoToken.decimals()
+            ghoToken.balanceOf(facticeUser1)
         );
         console.log(
             "total supply of GHO after borrow: ",
-            ghoToken.totalSupply() / ghoToken.decimals()
+            ghoToken.totalSupply()
         );
         console.log(
             "total debt of user1 after borrow: ",
-            lpPositionsManager.totalDebtOf(facticeUser1) / ghoToken.decimals()
+            lpPositionsManager.totalDebtOf(facticeUser1)
         );
         uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
         assertTrue(cr > _minCR);

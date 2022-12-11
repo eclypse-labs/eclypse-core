@@ -145,7 +145,7 @@ abstract contract UniswapTest is Test {
                 fee: 100,
                 tickLower: int24(204920),
                 tickUpper: int24(204930),
-                amount0Desired: 10**18,
+                amount0Desired: 10**6 * 1000,
                 amount1Desired: 10**18,
                 amount0Min: 0,
                 amount1Min: 0,
@@ -154,6 +154,7 @@ abstract contract UniswapTest is Test {
             });
 
         (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+        
         uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId);
         borrowerOperation.openPosition(facticeUser1_tokenId);
 
@@ -167,7 +168,7 @@ abstract contract UniswapTest is Test {
         // vm.stopPrank();
     }
 
-    // creates teh ghoe/eth pool, puts liquidity in it and adds it to the protocol's list of pools
+    // creates teh gho/eth pool, puts liquidity in it and adds it to the protocol's list of pools
     function createEthGhoPool() private {
         vm.startPrank(deployer);
 

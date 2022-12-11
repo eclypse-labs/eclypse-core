@@ -233,7 +233,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
-        console.log("hello before oracle");
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
@@ -284,7 +283,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
-        return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
+        //return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
+        return 
+        FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) + 
+        FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
     }
 
     //Given a user's address, computes the sum of all of its positions' values.
@@ -461,13 +463,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256)
     {
-        if (tokenAddress == ETHAddress) return FullMath.mulDiv(1 ether, FixedPoint96.Q96, 1);
-        console.log(_tokenToWETHPoolInfo[tokenAddress].poolAddress);
+        if (tokenAddress == ETHAddress) return 10**18;
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
         );
-        console.log("Bonjour");
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint256 ratio = FullMath.mulDiv(
             sqrtRatioX96,
@@ -480,13 +480,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         else return ratio;
     }
 
-    function computeCR(uint256 _tokenId) public returns (uint256) {
-        Position memory position = _positionFromTokenId[_tokenId];
+    function computeCR(uint256 _tokenId) public view returns (uint256) {
         return _computeCR(positionValueInETH(_tokenId), debtOfInETH(_tokenId));
     }
 
     function _computeCR(uint256 _collValue, uint256 _debt)
         public
+        pure
         returns (uint256)
     {
         if (_debt > 0) {
@@ -494,7 +494,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             // Solution : work with fixed point collateral ratios :
             uint256 newCollRatio = FullMath.mulDiv(
                 _collValue,
-                1,
+                FixedPoint96.Q96,
                 _debt
             );
             return newCollRatio;

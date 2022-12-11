@@ -4,10 +4,8 @@
 [submodule "lib/v3-periphery"]
 	path = lib/v3-periphery
 	url = https://github.com/eclypse-labs/v3-periphery
-[submodule "/Users/darius/Programming/Eclypse/eclypse-core-fix/lib/v3-periphery"]
 	branch = 0.8
 [submodule "lib/v3-core"]
 	path = lib/v3-core
 	url = https://github.com/eclypse-labs/v3-core
-[submodule "/Users/darius/Programming/Eclypse/eclypse-core-fix/lib/v3-core"]
 	branch = 0.8
