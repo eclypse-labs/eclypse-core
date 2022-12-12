@@ -90,8 +90,11 @@ contract BorrowerOperations is
             position.user == msg.sender,
             "You are not the owner of this position."
         );
-        repayGHO(lpPositionsManager.debtOf(_tokenId) , _tokenId); // try to repay all debt
-        require(position.debt == 0, "you have to repay your debt"); // should be 0 or the tx would have reverted, but just in case
+
+        uint256 debt = lpPositionsManager.debtOf(_tokenId);
+
+        if (debt > 0) repayGHO(debt, _tokenId); // try to repay all debt
+        require(debt == 0, "you have to repay your debt"); // should be 0 or the tx would have reverted, but just in case
 
         // send LP to owner
         activePool.sendLp(msg.sender, _tokenId);
@@ -128,7 +131,7 @@ contract BorrowerOperations is
     }
 
     function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
-        external
+        public
         payable
         override
     {
@@ -151,7 +154,7 @@ contract BorrowerOperations is
         emit RepaidGHO(msg.sender, _GHOAmount, block.timestamp);
     }
 
-    // TODO : add verficiation of amount0 and amount1 regarding LP specifications
+    // TODO : add verification of amount0 and amount1 regarding LP specifications
     // current implementation does not work
     function addCollateral(
         uint256 tokenId,
