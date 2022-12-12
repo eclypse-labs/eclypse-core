@@ -33,11 +33,11 @@ contract BorrowerOperations is
         IGHOToken GHOToken;
     }
 
-    enum BorrowerOperation {
+    /*enum BorrowerOperation {
         openPosition,
         closePosition,
         adjustPosition
-    }
+    }*/ // Not used, commented it in case we need it in the future
 
     function setAddresses(
         address _lpPositionsManagerAddress,
@@ -90,7 +90,8 @@ contract BorrowerOperations is
             position.user == msg.sender,
             "You are not the owner of this position."
         );
-        require(position.debt == 0, "you have to repay your debt");
+        repayGHO(lpPositionsManager.debtOf(_tokenId) , _tokenId); // try to repay all debt
+        require(position.debt == 0, "you have to repay your debt"); // should be 0 or the tx would have reverted, but just in case
 
         // send LP to owner
         activePool.sendLp(msg.sender, _tokenId);
