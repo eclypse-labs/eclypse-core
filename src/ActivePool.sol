@@ -126,10 +126,23 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
             uint256 amount1
         )
     {
-        (,,address token0, address token1,,,,,,,,) = uniswapPositionsNFT.positions(tokenId);
+        (
+            ,
+            ,
+            address token0,
+            address token1,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+
+        ) = uniswapPositionsNFT.positions(tokenId);
         IERC20(token0).transferFrom(payer, address(this), amountAdd0);
         IERC20(token1).transferFrom(payer, address(this), amountAdd1);
-        
+
         INonfungiblePositionManager.IncreaseLiquidityParams
             memory params = INonfungiblePositionManager
                 .IncreaseLiquidityParams({

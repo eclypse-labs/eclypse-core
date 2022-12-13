@@ -6,22 +6,18 @@ import "./interfaces/IActivePool.sol";
 import "./interfaces/ILPPositionsManager.sol";
 import "./interfaces/IGHOToken.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "@uniswap-core/libraries/TickMath.sol";
 import "@uniswap-core/libraries/FullMath.sol";
 import "@uniswap-core/libraries/FixedPoint96.sol";
-
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
 import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
 import "@uniswap-periphery/libraries/TransferHelper.sol";
 import "forge-std/console.sol";
-
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 
 /*
@@ -53,7 +49,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     IActivePool public activePool;
     IGHOToken public GHOToken;
 
-    //List of all of the LPPositionsManager's events
+    // List of all of the LPPositionsManager's events
 
     event BorrowerOperationsAddressChanged(
         address _newBorrowerOperationsAddress
@@ -63,7 +59,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // event StabilityPoolAddressChanged(address _stabilityPoolAddress);
     // event GasPoolAddressChanged(address _gasPoolAddress);
 
-    //The pool's data
+    // The pool's data
     struct RiskConstants {
         uint256 minCR; // Minimum collateral ratio
     }
@@ -76,26 +72,25 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     mapping(address => bool) private _acceptedPoolAddresses;
 
     mapping(address => RiskConstants) private _poolAddressToRiskConstants;
-    //Retrieves a pool's data given the pool's address.
+    // Retrieves a pool's data given the pool's address.
 
     Position[] private _allPositions;
-    //An array of all positions.
+    // An array of all positions.
 
     mapping(address => Position[]) private _positionsFromAddress;
-    //Retrieves every positions a user has, under the form of an array, given the user's address.
+    // Retrieves every positions a user has, under the form of an array, given the user's address.
 
     mapping(uint256 => Position) private _positionFromTokenId;
-    //Retrieves a position given its tokenId.
+    // Retrieves a position given its tokenId.
 
     mapping(address => PoolPricingInfo) private _tokenToWETHPoolInfo;
 
-    //Retrieves the address of the pool associated with the pair (token/ETH) where given the token's address.
-
+    // Retrieves the address of the pool associated with the pair (token/ETH) where given the token's address.
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Constructors
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    
+
     function setAddresses(
         address _borrowerOperationsAddress,
         address _activePoolAddress,
@@ -115,7 +110,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         // emit GasPoolAddressChanged(_gasPoolAddress);
         emit GHOTokenAddressChanged(_GHOTokenAddress);
 
-        //renounceOwnership();
+        // renounceOwnership();
     }
 
     function addPairToProtocol(
@@ -154,7 +149,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // Position Statuses
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-    //Get the status of a position given the position's tokenId.
+    // Get the status of a position given the position's tokenId.
     function getPositionStatus(uint256 _tokenId)
         public
         view
@@ -164,7 +159,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         return _positionFromTokenId[_tokenId].status;
     }
 
-    //Allows the owner of this contract to change the status of a position with a given status, given the position's tokenId.
+    // Allows the owner of this contract to change the status of a position with a given status, given the position's tokenId.
     function changePositionStatus(uint256 _tokenId, Status status)
         public
         override
@@ -231,7 +226,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // Position Amounts
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-    //Given a position's tokenId, calls computePositionAmounts on this position.
+    // Given a position's tokenId, calls computePositionAmounts on this position.
     function positionAmounts(uint256 _tokenId)
         public
         view
@@ -242,8 +237,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         Position memory _position = _positionFromTokenId[_tokenId];
         return computePositionAmounts(_position);
     }
-    
-    //Given a position, computes the amount of token0 relative to token1 and the amount of token1 relative to token0.
+
+    // Given a position, computes the amount of token0 relative to token1 and the amount of token1 relative to token0.
     function computePositionAmounts(Position memory _position)
         public
         view
@@ -279,13 +274,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     //(4) Computes the position's token1 amount value given the token1 value in ETH.
     //(5) Returns the position's value expressed as the sum of (3) & (4).
 
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Debt Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
-    //Given a position's tokenId, returns the current debt of this position.
+    // Given a position's tokenId, returns the current debt of this position.
     function debtOf(uint256 _tokenId) public view override returns (uint256) {
         _requirePositionIsActive(_tokenId);
 
@@ -300,7 +293,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         return debtPlusInterest;
     }
 
-    //Given a user's address, computes the sum of all of its positions' debt.
+    // Given a user's address, computes the sum of all of its positions' debt.
     function totalDebtOf(address _user)
         public
         view
@@ -316,7 +309,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         return totalDebtInGHO;
     }
 
-    //Given a position's tokenId and an amount, allows BorrowerOperations to increase the debt of a position by this amount.
+    // Given a position's tokenId and an amount, allows BorrowerOperations to increase the debt of a position by this amount.
     function increaseDebtOf(uint256 _tokenId, uint256 _amount)
         public
         override
@@ -349,7 +342,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         );
     }
 
-    //Given a position's tokenId and an amount, allows BorrowerOperations to decrease the debt of a position by this amount.
+    // Given a position's tokenId and an amount, allows BorrowerOperations to decrease the debt of a position by this amount.
     function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
         public
         override
@@ -393,14 +386,14 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // Values in ETH Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-    //Returns the price in ETH in the form of as a Q64.96 fixed point number.
+    // Returns the price in ETH in the form of as a Q64.96 fixed point number.
     function priceInETH(address tokenAddress)
         public
         view
         override
         returns (uint256)
     {
-        if (tokenAddress == ETHAddress) return 2**96;
+        if (tokenAddress == ETHAddress) return FixedPoint96.Q96;
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
@@ -427,7 +420,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             FullMath.mulDivRoundingUp(
                 debtOf(_tokenId),
                 priceInETH(address(GHOToken)),
-                1
+                FixedPoint96.Q96
             );
     }
 
@@ -442,11 +435,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         address token1 = _positionFromTokenId[_tokenId].token1;
         //return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
         return
-            FullMath.mulDiv(amount0, priceInETH(token0), 1) +
-            FullMath.mulDiv(amount1, priceInETH(token1), 1);
+            FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
+            FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
     }
 
-    //Given a user's address, computes the sum of all of its positions' values.
+    // Given a user's address, computes the sum of all of its positions' values.
     function totalPositionsValueInETH(address _user)
         public
         view
@@ -490,7 +483,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.
         else {
             // if (_debt == 0)
-            return 2**256- 1;
+            return 2**256 - 1;
         }
     }
 
@@ -502,8 +495,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         return _poolAddressToRiskConstants[_pool].minCR;
     }
 
-    //Allows the owner of this contract to add risk constants for a certain type of LP.
-    //THIS RATIO IS ENCODED AS A 96-DECIMALS FIXED POINT.
+    // Allows the owner of this contract to add risk constants for a certain type of LP.
+    // THIS RATIO IS ENCODED AS A 96-DECIMALS FIXED POINT.
     function updateRiskConstants(address _pool, uint256 _minCR) public {
         require(
             _minCR > FixedPoint96.Q96,
@@ -512,13 +505,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         _poolAddressToRiskConstants[_pool].minCR = _minCR;
     }
 
-    
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Position Attributes Modifier Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-    //Given a position's tokenId and an amount, allows BorrowerOperations to set the liquidity of a position to this amount.
+    // Given a position's tokenId and an amount, allows BorrowerOperations to set the liquidity of a position to this amount.
     function setNewLiquidity(uint256 _tokenId, uint128 _liquidity)
         public
         onlyBorrowerOperations
@@ -655,16 +646,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             });
     }
 
-    /*function priceFeed() public override view returns (IPriceFeed) {
-        return priceFeed;
-    }*/
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Liquidation functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
-    //Given a position's tokenId, checks if this position is liquidatable.
+    // Given a position's tokenId, checks if this position is liquidatable.
     function liquidatable(uint256 _tokenId)
         public
         view
@@ -733,7 +719,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // Modifiers and Require functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
     //Checks is a given position is active to avoid unecessary computations.
     function _requirePositionIsActive(uint256 _tokenId) public view override {
         require(
@@ -756,8 +741,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         );
         _;
     }
-
-    
 
     // base is a fixedpoint96 number, exponent is a regular unsigned integer
     function dumbPower(uint256 _base, uint256 _exponent)
