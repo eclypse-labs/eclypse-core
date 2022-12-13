@@ -226,25 +226,14 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // Position Amounts
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-    // Given a position's tokenId, calls computePositionAmounts on this position.
+    // Given a position's tokenId, computes the amount of token0 and the amount of token1 in that position.
     function positionAmounts(uint256 _tokenId)
         public
         view
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
-        _requirePositionIsActive(_tokenId);
         Position memory _position = _positionFromTokenId[_tokenId];
-        return computePositionAmounts(_position);
-    }
-
-    // Given a position, computes the amount of token0 relative to token1 and the amount of token1 relative to token0.
-    function computePositionAmounts(Position memory _position)
-        public
-        view
-        override
-        returns (uint256 amountToken0, uint256 amountToken1)
-    {
         (int24 twappedTick, ) = OracleLibrary.consult(
             _position.poolAddress,
             lookBackTWAP
@@ -268,20 +257,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         return (amount0, amount1);
     }
 
-    //(1) Given a position's tokenId, calls positionAmounts on this tokenId.
-    //(2) Computes the position's token0 and token1 values in ETH.
-    //(3) Computes the position's token0 amount value given the token0 value in ETH.
-    //(4) Computes the position's token1 amount value given the token1 value in ETH.
-    //(5) Returns the position's value expressed as the sum of (3) & (4).
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Debt Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
     // Given a position's tokenId, returns the current debt of this position.
     function debtOf(uint256 _tokenId) public view override returns (uint256) {
-        _requirePositionIsActive(_tokenId);
-
         uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
             .lastUpdateTimestamp;
         uint256 debtPlusInterest = FullMath.mulDiv(
@@ -433,7 +414,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
-        //return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
         return
             FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
             FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
@@ -523,7 +503,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         uint256 _tokenId,
         int24 _newMinTick,
         int24 _newMaxTick
-    ) public payable onlyBorrowerOperations {
+    ) public onlyBorrowerOperations {
         require(
             _newMinTick < _newMaxTick,
             "The new min tick must be smaller than the new max tick."

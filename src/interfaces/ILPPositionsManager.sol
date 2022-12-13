@@ -62,7 +62,15 @@ interface ILPPositionsManager is IEclypseBase {
 
     function _requirePositionIsActive(uint256 _tokenId) external view;
 
-    function addPairToProtocol(address _poolAddress, address _token0, address _token1, address _ETHpoolToken0, address _ETHpoolToken1, bool _inv0, bool _inv1) external;
+    function addPairToProtocol(
+        address _poolAddress,
+        address _token0,
+        address _token1,
+        address _ETHpoolToken0,
+        address _ETHpoolToken1,
+        bool _inv0,
+        bool _inv1
+    ) external;
 
     function getPositionStatus(uint256 _tokenId)
         external
@@ -77,11 +85,6 @@ interface ILPPositionsManager is IEclypseBase {
         external
         view
         returns (Position memory position);
-
-    function computePositionAmounts(Position memory _position)
-        external
-        view
-        returns (uint256 amountToken0, uint256 amountToken1);
 
     function positionAmounts(uint256 _tokenId)
         external
@@ -109,7 +112,9 @@ interface ILPPositionsManager is IEclypseBase {
 
     function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
 
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount) external returns(uint256);
+    function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
+        external
+        returns (uint256);
 
     function setNewLiquidity(uint256 tokenId, uint128 liquidity) external;
 
