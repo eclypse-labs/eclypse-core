@@ -400,7 +400,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256)
     {
-        if (tokenAddress == ETHAddress) return 2**96;
+        if (tokenAddress == ETHAddress) return FixedPoint96.Q96;
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
@@ -427,7 +427,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             FullMath.mulDivRoundingUp(
                 debtOf(_tokenId),
                 priceInETH(address(GHOToken)),
-                1
+                FixedPoint96.Q96
             );
     }
 
@@ -442,8 +442,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         address token1 = _positionFromTokenId[_tokenId].token1;
         //return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
         return
-            FullMath.mulDiv(amount0, priceInETH(token0), 1) +
-            FullMath.mulDiv(amount1, priceInETH(token1), 1);
+            FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
+            FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
     }
 
     //Given a user's address, computes the sum of all of its positions' values.
@@ -490,7 +490,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.
         else {
             // if (_debt == 0)
-            return 2**256- 1;
+            return 2**256 - 1;
         }
     }
 
