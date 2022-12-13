@@ -313,7 +313,7 @@ contract LPPositionsManagerTest is UniswapTest{
             lpPositionsManager.totalDebtOf(facticeUser1)
         );
         uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
-        assertTrue(cr > _minCR);
+        assertTrue(cr < _minCR);
     }
 
     function testLiquidate() public {
@@ -322,14 +322,25 @@ contract LPPositionsManagerTest is UniswapTest{
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10**16, facticeUser1_tokenId);
         vm.stopPrank();
-        
+
+        console.log("Is liquidatable: ", lpPositionsManager.liquidatable(facticeUser1_tokenId));
+        console.log("CR of facticeUser1: ", lpPositionsManager.computeCR(facticeUser1_tokenId));
+        console.log("CR: ", lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)));        
         vm.startPrank(deployer);
         uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
         lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
         vm.stopPrank();
 
         bool isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
-
+        console.log("Debt: ", lpPositionsManager.totalDebtOf(facticeUser1));
+        console.log("Debt in ETH: ", lpPositionsManager.debtOfInETH(facticeUser1_tokenId));
+        (uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+        console.log("Collateral Amount0: ", amount0);
+        console.log("Collateral Amount1: ", amount1);
+        console.log("Collateral in ETH: ", lpPositionsManager.totalPositionsValueInETH(facticeUser1));
+        console.log("Is liquidatable: ", lpPositionsManager.liquidatable(facticeUser1_tokenId));
+        console.log("CR of facticeUser1: ", lpPositionsManager.computeCR(facticeUser1_tokenId));
+        console.log("CR: ", lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))); 
         assertTrue(isLiquidatable);
 
         //TODO: Create a factice user with a handful of GHO. 
