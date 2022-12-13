@@ -337,8 +337,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
 
         uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
             .lastUpdateTimestamp;
-        uint256 debtPlusInterest = FullMath.mulDiv(_positionFromTokenId[_tokenId].debt, dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp), FixedPoint96.Q96);
-        
+        uint256 debtPlusInterest = FullMath.mulDiv(
+            _positionFromTokenId[_tokenId].debt,
+            dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
+            FixedPoint96.Q96
+        );
 
         return debtPlusInterest;
     }
@@ -350,7 +353,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         returns (uint256)
     {
         return
-            FullMath.mulDiv(
+            FullMath.mulDivRoundingUp(
                 debtOf(_tokenId),
                 priceInETH(address(GHOToken)),
                 FixedPoint96.Q96
@@ -397,8 +400,14 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
 
         uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
             .lastUpdateTimestamp;
-        uint256 previousDebtPlusInterest = FullMath.mulDiv(_positionFromTokenId[_tokenId].debt, dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp), FixedPoint96.Q96);
-        _positionFromTokenId[_tokenId].debt = previousDebtPlusInterest + _amount;
+        uint256 previousDebtPlusInterest = FullMath.mulDiv(
+            _positionFromTokenId[_tokenId].debt,
+            dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
+            FixedPoint96.Q96
+        );
+        _positionFromTokenId[_tokenId].debt =
+            previousDebtPlusInterest +
+            _amount;
         _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
 
         emit IncreasedDebt(
@@ -425,15 +434,20 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
 
         uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
             .lastUpdateTimestamp;
-        uint256 previousDebtPlusInterest = FullMath.mulDiv(_positionFromTokenId[_tokenId].debt, dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp), FixedPoint96.Q96);
-        
+        uint256 previousDebtPlusInterest = FullMath.mulDiv(
+            _positionFromTokenId[_tokenId].debt,
+            dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
+            FixedPoint96.Q96
+        );
+
         if (previousDebtPlusInterest < _amount) {
             _positionFromTokenId[_tokenId].debt = 0;
             leftOver = _amount - previousDebtPlusInterest;
         } else {
             uint256 newDebt = previousDebtPlusInterest - _amount;
             _positionFromTokenId[_tokenId].debt = newDebt;
-            _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
+            _positionFromTokenId[_tokenId].lastUpdateTimestamp = block
+                .timestamp;
         }
 
         emit DecreasedDebt(
@@ -461,7 +475,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
                 FixedPoint96.Q96
             );*/
         return
-            computeCR(_tokenId) >
+            computeCR(_tokenId) <
             _poolAddressToRiskConstants[position.poolAddress].minCR;
     }
 
@@ -472,7 +486,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         returns (bool)
     {
         require(liquidatable(_tokenId), "Position is not liquidatable");
-        require(debtOf(_tokenId) <= _GHOToRepay, "Not enough GHO to repay debt");
+        require(
+            debtOf(_tokenId) <= _GHOToRepay,
+            "Not enough GHO to repay debt"
+        );
         //We should burn the GHO here.
         GHOToken.burn(msg.sender, debtOf(_tokenId)); // burn exactly the debt
         Position memory position = _positionFromTokenId[_tokenId];
