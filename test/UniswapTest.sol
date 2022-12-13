@@ -71,7 +71,10 @@ abstract contract UniswapTest is Test {
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
 
-        ghoToken = new GHOToken(address(borrowerOperation), address(lpPositionsManager)); // we assume gho is DAI, for simplicity
+        ghoToken = new GHOToken(
+            address(borrowerOperation),
+            address(lpPositionsManager)
+        ); // we assume gho is DAI, for simplicity
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),
@@ -165,10 +168,7 @@ abstract contract UniswapTest is Test {
             facticeUser1_tokenId
         );
 
-        
         borrowerOperation.openPosition(facticeUser1_tokenId);
-
-        
 
         vm.stopPrank();
 
@@ -258,7 +258,6 @@ abstract contract UniswapTest is Test {
         //     false // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
         // );
 
-        
         ghoToken.approve(swapRouterAddr, 10**18 * 25 * 2);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
@@ -272,8 +271,6 @@ abstract contract UniswapTest is Test {
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
-
-        
 
         vm.roll(block.number + 1);
         vm.warp(block.timestamp + 1 minutes);

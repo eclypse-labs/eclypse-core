@@ -59,12 +59,13 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
     // --- Addresses ---
     address public immutable borrowerOperationsAddress;
     address public immutable lpPositionsManagerAddress;
+
     // --- Events ---
 
-    constructor(address _borrowerOperationsAddress, address _lpPositionsManagerAddress)
-        ERC20Permit(_NAME)
-        ERC20(_NAME, _VERSION)
-    {
+    constructor(
+        address _borrowerOperationsAddress,
+        address _lpPositionsManagerAddress
+    ) ERC20Permit(_NAME) ERC20(_NAME, _VERSION) {
         borrowerOperationsAddress = _borrowerOperationsAddress;
         lpPositionsManagerAddress = _lpPositionsManagerAddress;
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
@@ -223,7 +224,8 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
 
     function _requireCallerIsBOorLPPM() internal view {
         require(
-            msg.sender == borrowerOperationsAddress || msg.sender == lpPositionsManagerAddress,
+            msg.sender == borrowerOperationsAddress ||
+                msg.sender == lpPositionsManagerAddress,
             "GHOToken: Caller is not BorrowerOperations not LPPositionsManager."
         );
     }

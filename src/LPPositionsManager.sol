@@ -91,11 +91,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
 
     //Retrieves the address of the pool associated with the pair (token/ETH) where given the token's address.
 
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Constructors
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    
+
     function setAddresses(
         address _borrowerOperationsAddress,
         address _activePoolAddress,
@@ -242,7 +241,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         Position memory _position = _positionFromTokenId[_tokenId];
         return computePositionAmounts(_position);
     }
-    
+
     //Given a position, computes the amount of token0 relative to token1 and the amount of token1 relative to token0.
     function computePositionAmounts(Position memory _position)
         public
@@ -279,11 +278,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     //(4) Computes the position's token1 amount value given the token1 value in ETH.
     //(5) Returns the position's value expressed as the sum of (3) & (4).
 
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Debt Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
 
     //Given a position's tokenId, returns the current debt of this position.
     function debtOf(uint256 _tokenId) public view override returns (uint256) {
@@ -512,8 +509,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         _poolAddressToRiskConstants[_pool].minCR = _minCR;
     }
 
-    
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Position Attributes Modifier Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -663,7 +658,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // Liquidation functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
     //Given a position's tokenId, checks if this position is liquidatable.
     function liquidatable(uint256 _tokenId)
         public
@@ -733,7 +727,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
     // Modifiers and Require functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
     //Checks is a given position is active to avoid unecessary computations.
     function _requirePositionIsActive(uint256 _tokenId) public view override {
         require(
@@ -756,8 +749,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         );
         _;
     }
-
-    
 
     // base is a fixedpoint96 number, exponent is a regular unsigned integer
     function dumbPower(uint256 _base, uint256 _exponent)
