@@ -56,15 +56,6 @@ contract LPPositionsManagerTest is UniswapTest{
         vm.stopPrank();
     }
 
-    function testBorrowAndRepayGHO_wrongUserRepay() public {
-        vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
-        vm.stopPrank();
-        vm.startPrank(address(facticeUser2));
-        vm.expectRevert(bytes("You are not the owner of this position.")); 
-        borrowerOperation.repayGHO(10, facticeUser1_tokenId);
-        vm.stopPrank();
-    }
 
     function testBorrowAndRepayGHO_checkDebtEvolution() public {
         vm.startPrank(address(facticeUser1));
@@ -91,14 +82,6 @@ contract LPPositionsManagerTest is UniswapTest{
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
         vm.expectRevert(bytes("Cannot repay 0 GHO."));
         borrowerOperation.repayGHO(0, facticeUser1_tokenId);
-        vm.stopPrank();
-    }
-
-    function testBorrowAndRepayGHO_repayMoreThanDebt() public {
-        vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
-        vm.expectRevert(bytes("Cannot repay more GHO than the position's debt."));
-        borrowerOperation.repayGHO(11, facticeUser1_tokenId);
         vm.stopPrank();
     }
 
@@ -354,6 +337,11 @@ contract LPPositionsManagerTest is UniswapTest{
         borrowerOperation.borrowGHO(10**18 * 633, facticeUser1_tokenId);
         vm.stopPrank();
 
+        (uint a, uint b) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
+        console.log("factice position amounts", a, b);
+        console.log(lpPositionsManager.positionValueInETH(facticeUser1_tokenId));
+        console.log(lpPositionsManager.priceInETH(usdcAddr));
+        console.log(lpPositionsManager.priceInETH(wethAddr));
         bool isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
 
         assertFalse(isLiquidatable);
@@ -396,7 +384,7 @@ contract LPPositionsManagerTest is UniswapTest{
         assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2, "Position should be transferred to liquidator");
     }
 
-    
+
     // Only works if you comment the reauire not liquidatable in the removeCollateral function
     function Liquidate_withdrawColl() public {
         vm.startPrank(deployer);
