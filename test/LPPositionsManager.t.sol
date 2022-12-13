@@ -61,8 +61,9 @@ contract LPPositionsManagerTest is UniswapTest{
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
         vm.stopPrank();
         vm.startPrank(address(facticeUser2));
-        vm.expectRevert(bytes("You are not the owner of this position.")); 
+        //vm.expectRevert(bytes("You are not the owner of this position.")); 
         borrowerOperation.repayGHO(10, facticeUser1_tokenId);
+        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
     }
 
@@ -97,8 +98,9 @@ contract LPPositionsManagerTest is UniswapTest{
     function testBorrowAndRepayGHO_repayMoreThanDebt() public {
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
-        vm.expectRevert(bytes("Cannot repay more GHO than the position's debt."));
+        //vm.expectRevert(bytes("Cannot repay more GHO than the position's debt."));
         borrowerOperation.repayGHO(11, facticeUser1_tokenId);
+        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
     }
 
@@ -171,8 +173,8 @@ contract LPPositionsManagerTest is UniswapTest{
         address token0 = lpPositionsManager.getPosition(facticeUser1_tokenId).token0;
         console.log("Token0: ", token0);
         address token1 = lpPositionsManager.getPosition(facticeUser1_tokenId).token1;
-        console.log(lpPositionsManager.priceInETH(token1));
-        console.log(lpPositionsManager.priceInETH(token0));
+        console.log("Price of token1", lpPositionsManager.priceInETH(token1));
+        console.log("Price of token0", lpPositionsManager.priceInETH(token0));
         //uint256 priceInETH = lpPositionsManager.positionValueInETH(facticeUser1_tokenId);
         //console.log(priceInETH);
     }
@@ -343,7 +345,6 @@ contract LPPositionsManagerTest is UniswapTest{
         assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2, "Position should be transferred to liquidator");
     }
 
-
     function testLiquidate_swap() public {
         vm.startPrank(deployer);
         uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
@@ -359,9 +360,9 @@ contract LPPositionsManagerTest is UniswapTest{
         assertFalse(isLiquidatable);
 
         vm.startPrank(deployer);
-        deal(address(USDC), deployer, 10**18 * 1000000 * 2);
-        vm.deal(deployer, 300000 ether);
-        USDC.approve(swapRouterAddr, 10**18 * 1000000 * 2);
+        deal(address(USDC), deployer, 10**18 * 1_000_000 * 2);
+        vm.deal(deployer, 300_000 ether);
+        USDC.approve(swapRouterAddr, 10**18 * 1_000_000 * 2);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
@@ -383,11 +384,10 @@ contract LPPositionsManagerTest is UniswapTest{
         swapRouter.exactInputSingle(params);
         vm.stopPrank();
 
-        isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
-        assertTrue(isLiquidatable);
+        assertTrue(lpPositionsManager.liquidatable(facticeUser1_tokenId));
 
         vm.startPrank(address(facticeUser2));
-        uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
+        uint256 amountToRepay = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
         vm.stopPrank();
@@ -395,7 +395,6 @@ contract LPPositionsManagerTest is UniswapTest{
         assertEq(uint(lpPositionsManager.getPositionStatus(facticeUser1_tokenId)), 3, "Position should be closed by liquidation");
         assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2, "Position should be transferred to liquidator");
     }
-
     
     // Only works if you comment the reauire not liquidatable in the removeCollateral function
     function Liquidate_withdrawColl() public {

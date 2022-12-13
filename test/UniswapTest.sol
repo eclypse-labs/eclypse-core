@@ -181,10 +181,6 @@ abstract contract UniswapTest is Test {
         // vm.stopPrank();
         vm.startPrank(address(borrowerOperation));
         ghoToken.mint(facticeUser2, 10**18 * 1000);
-        console.log(
-            "FACTICEUSER2 GHO BALANCE : ",
-            ghoToken.balanceOf(facticeUser2)
-        );
         vm.stopPrank();
     }
 
