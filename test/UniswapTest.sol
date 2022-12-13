@@ -91,11 +91,8 @@ abstract contract UniswapTest is Test {
             address(lpPositionsManager)
         );
 
-        //         //whitelist la pool: updateRiskConstants
-        // uint256 _minCR = 0;
-        // positionsManager.updateRiskConstants(address(uniPoolUsdcETH), _minCR);
-        // //pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
-        // bool _inv = false; //TODO: set parameter _inv
+        // whitelist la pool: updateRiskConstants
+        // pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
         lpPositionsManager.addPairToProtocol(
             uniPoolUsdcETHAddr,
             usdcAddr,
@@ -105,11 +102,6 @@ abstract contract UniswapTest is Test {
             false,
             true
         );
-        // lpPositionsManager.addTokenETHpoolAddress(
-        //     usdcAddr,
-        //     uniPoolUsdcETHAddr,
-        //     uniV3PoolWeth_Usdc.token1() == usdcAddr
-        // );
 
         vm.stopPrank();
         addFacticeUser();
@@ -130,7 +122,6 @@ abstract contract UniswapTest is Test {
 
     function addFacticeUser() private {
         vm.startPrank(facticeUser1);
-        //console.log(ILPPositionsManager.Status.closedByOwner);
         deal(usdcAddr, facticeUser1, 100_000 ether);
         deal(wethAddr, facticeUser1, 100 ether);
 
@@ -139,12 +130,12 @@ abstract contract UniswapTest is Test {
 
         // uniswapPositionsNFT::mint((0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174,
         // 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, 500, 204920, 204930, 0,
-        //78651133592434045, 0, 78651133592434045, 0xCcDA2f3B7255Fa09B963bEc26720940209E27ecd, 1670147167))
+        // 78651133592434045, 0, 78651133592434045, 0xCcDA2f3B7255Fa09B963bEc26720940209E27ecd, 1670147167))
 
-        //uniV3PoolWeth_Usdc::mint(uniswapPositionsNFT: [0xC36442b4a4522E871399CD717aBDD847Ab11FE88],
-        //204920, 204930, 5585850858003193, 0x0000000000000000000000002791bca1f2de4661ed88a30c99a7a9449aa8417400
-        //00000000000000000000007ceb23fd6bc0add59e62ac25578270cff1b9f619000000000000000000000000000000000000000000
-        //00000000000000000001f4000000000000000000000000ccda2f3b7255fa09b963bec26720940209e27ecd)
+        // uniV3PoolWeth_Usdc::mint(uniswapPositionsNFT: [0xC36442b4a4522E871399CD717aBDD847Ab11FE88],
+        // 204920, 204930, 5585850858003193, 0x0000000000000000000000002791bca1f2de4661ed88a30c99a7a9449aa8417400
+        // 00000000000000000000007ceb23fd6bc0add59e62ac25578270cff1b9f619000000000000000000000000000000000000000000
+        // 00000000000000000001f4000000000000000000000000ccda2f3b7255fa09b963bec26720940209e27ecd)
 
         INonfungiblePositionManager.MintParams
             memory mintParams = INonfungiblePositionManager.MintParams({
@@ -169,16 +160,8 @@ abstract contract UniswapTest is Test {
         );
 
         borrowerOperation.openPosition(facticeUser1_tokenId);
-
         vm.stopPrank();
 
-        // facticeUser1.transfer
-
-        // console.log(uniswapPositionsNFT.getPosition(tokenId).user);
-        // uniswapPositionsNFT.approve(address(borrowerOperation), tokenId);
-        // borrowerOperation.openPosition(tokenId);
-        //console.log(lpPositionsManager.getPosition(tokenId).user);
-        // vm.stopPrank();
         vm.startPrank(address(borrowerOperation));
         ghoToken.mint(facticeUser2, 10**18 * 1000);
         console.log(
@@ -188,11 +171,10 @@ abstract contract UniswapTest is Test {
         vm.stopPrank();
     }
 
-    // creates teh gho/eth pool, puts liquidity in it and adds it to the protocol's list of pools
+    // creates the gho/eth pool, puts liquidity in it and adds it to the protocol's list of pools
     function createEthGhoPool() private {
         vm.startPrank(deployer);
 
-        //uniswapFactory.enableFeeAmount(500, 10);
         uniPoolGhoEth = IUniswapV3Pool(
             uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
         );
@@ -200,7 +182,7 @@ abstract contract UniswapTest is Test {
         deal(address(ghoToken), deployer, 10**18 * 1225 * 2000);
 
         vm.deal(deployer, 3000 ether);
-        //address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
+        // address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
 
         ghoToken.approve(address(uniswapPositionsNFT), 10**18 * 1225 * 2000);
 
@@ -251,12 +233,6 @@ abstract contract UniswapTest is Test {
             false,
             true
         );
-
-        // lpPositionsManager.addTokenETHpoolAddress(
-        //     address(ghoToken),
-        //     address(uniPoolGhoEth),
-        //     false // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
-        // );
 
         ghoToken.approve(swapRouterAddr, 10**18 * 25 * 2);
 
