@@ -134,28 +134,20 @@ contract BorrowerOperations is
      * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
      */
     function borrowGHO(uint256 _GHOAmount, uint256 _tokenId)
-        external
+        public
         payable
         override
     {
-        ILPPositionsManager.Position memory position = lpPositionsManager
-            .getPosition(_tokenId);
+        require(_GHOAmount > 0, "Cannot withdraw 0 GHO.");
         require(
-            position.user == msg.sender,
+            lpPositionsManager.getPosition(_tokenId).user == msg.sender,
             "You are not the owner of this position."
         );
-
         lpPositionsManager._requirePositionIsActive(_tokenId);
-
-        require(_GHOAmount > 0, "Cannot withdraw 0 GHO.");
-
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
-        //Check whether the user's collateral is enough to withdraw _GHOAmount GHO.
-        //require(!lpPositionsManager.liquidatable(_tokenId));
-        console.log(msg.sender, _GHOAmount);
+        require(!lpPositionsManager.liquidatable(_tokenId));
         GHOToken.mint(msg.sender, _GHOAmount);
-
-        emit WithdrawnGHO(msg.sender, _GHOAmount, block.timestamp);
+        emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
     }
 
     /*
@@ -169,23 +161,12 @@ contract BorrowerOperations is
         payable
         override
     {
+        _GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
         require(_GHOAmount > 0, "Cannot repay 0 GHO.");
-        ILPPositionsManager.Position memory position = lpPositionsManager
-            .getPosition(_tokenId);
-        require(
-            position.user == msg.sender,
-            "You are not the owner of this position."
-        );
-
         lpPositionsManager._requirePositionIsActive(_tokenId);
-
-        require(
-            _GHOAmount <= position.debt,
-            "Cannot repay more GHO than the position's debt."
-        );
-        GHOToken.burn(msg.sender, _GHOAmount);
         lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
-        emit RepaidGHO(msg.sender, _GHOAmount, block.timestamp);
+        GHOToken.burn(msg.sender, _GHOAmount);
+        emit RepaidGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
     }
 
     // --- Collateral Operations ---
