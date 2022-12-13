@@ -2815,8 +2815,8 @@
       }
     },
     "src/BorrowerOperations.sol": {
-      "lastModificationDate": 1670916997599,
-      "contentHash": "8134afca56a62af627ff11b83da530f2",
+      "lastModificationDate": 1670919551076,
+      "contentHash": "d4650c8dfd6bd108107a9ab70a984131",
       "sourceName": "src/BorrowerOperations.sol",
       "solcConfig": {
         "settings": {
@@ -2980,8 +2980,8 @@
       }
     },
     "src/LPPositionsManager.sol": {
-      "lastModificationDate": 1670918430197,
-      "contentHash": "26f6ab28c6c33535a1593727bc812d7c",
+      "lastModificationDate": 1670920105010,
+      "contentHash": "e2c9bd109c13d91d8f1a7962042be5f3",
       "sourceName": "src/LPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -4159,8 +4159,8 @@
       }
     },
     "test/LPPositionsManager.t.sol": {
-      "lastModificationDate": 1670918797391,
-      "contentHash": "d95c1fe0876ff0e057312facf38740fe",
+      "lastModificationDate": 1670920462384,
+      "contentHash": "ddd2ec8fd59483b9325dee704733cdc8",
       "sourceName": "test/LPPositionsManager.t.sol",
       "solcConfig": {
         "settings": {

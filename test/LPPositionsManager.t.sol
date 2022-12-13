@@ -313,20 +313,23 @@ contract LPPositionsManagerTest is UniswapTest{
             lpPositionsManager.totalDebtOf(facticeUser1)
         );
         uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
-        assertTrue(cr < _minCR);
+        assertTrue(cr > _minCR);
     }
 
     function testLiquidate() public {
 
 
         vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10**16, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10**18 * 1000, facticeUser1_tokenId);
         vm.stopPrank();
     
         vm.startPrank(deployer);
         uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
         lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
         vm.stopPrank();
+
+        console.log("MIN CR: ", lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)));
+        console.log("CR: ", lpPositionsManager.computeCR(facticeUser1_tokenId));
 
         bool isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
         assertTrue(isLiquidatable);
@@ -341,9 +344,10 @@ contract LPPositionsManagerTest is UniswapTest{
 
         assertEq(uint(lpPositionsManager.getPositionStatus(facticeUser1_tokenId)), 3, "Position should be closed by liquidation");
         assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2, "Position should be transferred to liquidator");
-        
-        
+    
     }
+
+
 
 
     //     //TODO: test deposit + borrow + can't withdraw if it would liquidate the position

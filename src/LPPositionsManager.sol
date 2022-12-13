@@ -24,6 +24,12 @@ import "forge-std/console.sol";
 
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 
+/*
+ * @title LPPositionsManager contract
+ * @notice Contains the logic for position operations performed by users.
+ * @dev The contract is owned by the Eclypse system, and is called by the LPPositionManager contract.
+ */
+
 contract LPPositionsManager is ILPPositionsManager, Ownable {
     using SafeMath for uint256;
 
@@ -248,6 +254,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             _position.poolAddress,
             lookBackTWAP
         );
+
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(
             _position.tickLower
@@ -475,7 +482,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             // Solution : work with fixed point collateral ratios :
             uint256 newCollRatio = FullMath.mulDiv(
                 _collValue,
-                10**18 ,
+                FixedPoint96.Q96 ,
                 _debt
             );
             return newCollRatio;
