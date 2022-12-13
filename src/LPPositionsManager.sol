@@ -483,7 +483,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.
         else {
             // if (_debt == 0)
-            return 2**128 - 1;
+            return 2**256- 1;
         }
     }
 
