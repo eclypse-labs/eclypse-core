@@ -10,6 +10,11 @@ import "src/liquity-dependencies/CheckContract.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
+/*
+ * @title BorrowerOperations contract
+ * @notice Contains the logic for position operations performed by users.
+ * @dev The contract is owned by the Eclypse system, and is called by the LPPositionManager contract.
+ */
 contract BorrowerOperations is
     EclypseBase,
     Ownable,
@@ -37,8 +42,15 @@ contract BorrowerOperations is
         openPosition,
         closePosition,
         adjustPosition
-    }*/ // Not used, commented it in case we need it in the future
+    }*/
+    // Not used, commented it in case we need it in the future
 
+    /*
+     * @notice Needs to be called once deploying the contracts to setup the addresses.
+     * @param _lpPositionsManagerAddress The new LPPositionsManager address.
+     * @param _activePoolAddress The new ActivePool address.
+     * @param _GHOTokenAddress The new GHOToken address.
+     */
     function setAddresses(
         address _lpPositionsManagerAddress,
         address _activePoolAddress,
@@ -46,7 +58,7 @@ contract BorrowerOperations is
         //address _gasPoolAddress,
         address _GHOTokenAddress
     ) external onlyOwner {
-        // This makes impossible to open a trove with zero withdrawn GHO
+        // This makes it impossible to open a trove with zero withdrawn GHO
         assert(MIN_NET_DEBT > 0);
 
         lpPositionsManager = LPPositionsManager(_lpPositionsManagerAddress);
@@ -66,6 +78,11 @@ contract BorrowerOperations is
 
     // --- Borrower Position Operations ---
 
+    /*
+     * @notice Opens a new position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function openPosition(uint256 _tokenId) external override {
         uniswapPositionsNFT.transferFrom(
             msg.sender,
@@ -81,6 +98,11 @@ contract BorrowerOperations is
         contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
     }
 
+    /*
+     * @notice Closes a position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function closePosition(uint256 _tokenId) public {
         lpPositionsManager._requirePositionIsActive(_tokenId);
         ILPPositionsManager.Position memory position = lpPositionsManager
@@ -105,6 +127,12 @@ contract BorrowerOperations is
         );
     }
 
+    /*
+     * @notice Borrows GHO by minting it.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _GHOAmount The amount of GHO to borrow.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function borrowGHO(uint256 _GHOAmount, uint256 _tokenId)
         external
         payable
@@ -130,6 +158,12 @@ contract BorrowerOperations is
         emit WithdrawnGHO(msg.sender, _GHOAmount, block.timestamp);
     }
 
+    /*
+     * @notice Repays GHO by burning it.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _GHOAmount The amount of GHO to repay.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
         public
         payable
@@ -154,6 +188,7 @@ contract BorrowerOperations is
         emit RepaidGHO(msg.sender, _GHOAmount, block.timestamp);
     }
 
+    // --- Collateral Operations ---
     // TODO : add verification of amount0 and amount1 regarding LP specifications
     // current implementation does not work
     function addCollateral(
@@ -213,6 +248,13 @@ contract BorrowerOperations is
         return (amount0, amount1);
     }
 
+    /*
+     * @notice Changes the position's balance in the respective uniswap pool by performing a flash loan.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _newMinTick The new minimum tick of the position.
+     * @param _newMaxTick The new maximum tick of the position.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function changeTick(
         uint256 _tokenId,
         int24 _newMinTick,
