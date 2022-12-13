@@ -400,7 +400,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         override
         returns (uint256)
     {
-        if (tokenAddress == ETHAddress) return 10**18;
+        if (tokenAddress == ETHAddress) return 2**96;
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[tokenAddress].poolAddress,
             lookBackTWAP
@@ -427,7 +427,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             FullMath.mulDivRoundingUp(
                 debtOf(_tokenId),
                 priceInETH(address(GHOToken)),
-                FixedPoint96.Q96
+                1
             );
     }
 
@@ -442,8 +442,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
         address token1 = _positionFromTokenId[_tokenId].token1;
         //return amount0 * priceInETH(token0) + amount1 * priceInETH(token1);
         return
-            FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
-            FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
+            FullMath.mulDiv(amount0, priceInETH(token0), 1) +
+            FullMath.mulDiv(amount1, priceInETH(token1), 1);
     }
 
     //Given a user's address, computes the sum of all of its positions' values.
@@ -482,7 +482,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable {
             // Solution : work with fixed point collateral ratios :
             uint256 newCollRatio = FullMath.mulDiv(
                 _collValue,
-                FixedPoint96.Q96 ,
+                FixedPoint96.Q96,
                 _debt
             );
             return newCollRatio;

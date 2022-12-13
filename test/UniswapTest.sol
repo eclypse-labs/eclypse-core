@@ -148,7 +148,7 @@ abstract contract UniswapTest is Test {
                 token0: usdcAddr,
                 token1: wethAddr,
                 fee: 500,
-                tickLower: int24(204920),
+                tickLower: int24(104920),
                 tickUpper: int24(204930),
                 amount0Desired: 10**6 * 1000,
                 amount1Desired: 10**18,
@@ -258,7 +258,9 @@ abstract contract UniswapTest is Test {
         //     false // inv = true if and only if GHO is token1 <=> address(GHO) > address(WETH)
         // );
 
+        
         ghoToken.approve(swapRouterAddr, 10**18 * 25 * 2);
+
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
                 tokenIn: address(ghoToken),
@@ -270,6 +272,9 @@ abstract contract UniswapTest is Test {
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
+
+        
+
         vm.roll(block.number + 1);
         vm.warp(block.timestamp + 1 minutes);
         swapRouter.exactInputSingle(params);
