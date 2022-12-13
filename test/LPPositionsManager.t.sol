@@ -318,7 +318,6 @@ contract LPPositionsManagerTest is UniswapTest{
 
     function testLiquidate() public {
 
-
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10**18 * 1000, facticeUser1_tokenId);
         vm.stopPrank();
@@ -334,7 +333,58 @@ contract LPPositionsManagerTest is UniswapTest{
         bool isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
         assertTrue(isLiquidatable);
 
-        //TODO: Create a factice user with a handful of GHO. 
+        vm.startPrank(address(facticeUser2));
+        uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
+        assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
+        lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
+        vm.stopPrank();
+
+        assertEq(uint(lpPositionsManager.getPositionStatus(facticeUser1_tokenId)), 3, "Position should be closed by liquidation");
+        assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2, "Position should be transferred to liquidator");
+    }
+
+
+    function testLiquidate_swap() public {
+        vm.startPrank(deployer);
+        uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
+        vm.stopPrank();
+
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10**18 * 633, facticeUser1_tokenId);
+        vm.stopPrank();
+
+        bool isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
+
+        assertFalse(isLiquidatable);
+
+        vm.startPrank(deployer);
+        deal(address(USDC), deployer, 10**18 * 1000000 * 2);
+        vm.deal(deployer, 300000 ether);
+        USDC.approve(swapRouterAddr, 10**18 * 1000000 * 2);
+
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+            .ExactInputSingleParams({
+                tokenIn: usdcAddr,
+                tokenOut: wethAddr,
+                fee: 500,
+                recipient: deployer,
+                deadline: block.timestamp + 5 minutes,
+                amountIn: 10**18 * 1000000,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
+
+        vm.roll(block.number + 1);
+        vm.warp(block.timestamp + 1 minutes);
+        swapRouter.exactInputSingle(params);
+        vm.roll(block.number + 2);
+        vm.warp(block.timestamp + 90 seconds);
+        swapRouter.exactInputSingle(params);
+        vm.stopPrank();
+
+        isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
+        assertTrue(isLiquidatable);
 
         vm.startPrank(address(facticeUser2));
         uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
@@ -344,7 +394,31 @@ contract LPPositionsManagerTest is UniswapTest{
 
         assertEq(uint(lpPositionsManager.getPositionStatus(facticeUser1_tokenId)), 3, "Position should be closed by liquidation");
         assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2, "Position should be transferred to liquidator");
+    }
+
     
+    // Only works if you comment the reauire not liquidatable in the removeCollateral function
+    function Liquidate_withdrawColl() public {
+        vm.startPrank(deployer);
+        uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
+        vm.stopPrank();
+
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10**18 * 633, facticeUser1_tokenId);
+        vm.stopPrank();
+
+        bool isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
+        assertFalse(isLiquidatable);
+
+        console.log("Liquidity: ", lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity);
+
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.removeCollateral(facticeUser1_tokenId, 28163658190075390);
+        vm.stopPrank();
+
+        isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
+        assertTrue(isLiquidatable);
     }
 
 
