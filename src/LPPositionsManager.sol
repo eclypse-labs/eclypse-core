@@ -19,6 +19,7 @@ import "@uniswap-periphery/libraries/OracleLibrary.sol";
 import "@uniswap-periphery/libraries/TransferHelper.sol";
 import "forge-std/console.sol";
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
+import "forge-std/Test.sol";
 
 /*
  * @title LPPositionsManager contract
@@ -26,7 +27,7 @@ import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
  * @dev The contract is owned by the Eclypse system, and is called by the LPPositionManager contract.
  */
 
-contract LPPositionsManager is ILPPositionsManager, Ownable {
+contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     using SafeMath for uint256;
 
     uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP

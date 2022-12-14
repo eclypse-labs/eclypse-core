@@ -52,7 +52,7 @@ contract LPPositionsManagerTest is UniswapTest {
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
         vm.stopPrank();
         vm.startPrank(address(facticeUser2));
-        //vm.expectRevert(bytes("You are not the owner of this position.")); 
+        //vm.expectRevert(bytes("You are not the owner of this position."));
         borrowerOperation.repayGHO(10, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
@@ -60,22 +60,29 @@ contract LPPositionsManagerTest is UniswapTest {
 
     function testBorrowAndRepayGHO_checkDebtEvolution() public {
         vm.startPrank(address(facticeUser1));
-        uint256 initialDebt = lpPositionsManager
-            .getPosition(facticeUser1_tokenId)
-            .debt;
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
-        uint256 currentDebt = lpPositionsManager
-            .getPosition(facticeUser1_tokenId)
-            .debt;
+        uint256 initialDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
+        console.log(
+            "Initial debt before borrowing (should be 0): ",
+            initialDebt
+        );
+        borrowerOperation.borrowGHO(10**18, facticeUser1_tokenId);
+        console.log("Current time :", block.timestamp);
+        uint256 currentDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGt(
             currentDebt,
             initialDebt,
             "borrowing GHO should increase the debt"
         );
-        borrowerOperation.repayGHO(10, facticeUser1_tokenId);
-        uint256 finalDebt = lpPositionsManager
-            .getPosition(facticeUser1_tokenId)
-            .debt;
+        console.log("Current debt after borrowing ", currentDebt);
+        vm.warp(block.timestamp + 365 days);
+        console.log("Current time after 1 year :", block.timestamp);
+        console.log(
+            "Evolved current debt after 1 year (with interest):",
+            currentDebt
+        );
+        borrowerOperation.repayGHO(10**18, facticeUser1_tokenId);
+        uint256 finalDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
+        console.log("Final debt after repaying GHO (should be 0): ", finalDebt);
         assertLt(
             finalDebt,
             currentDebt,
@@ -254,7 +261,9 @@ contract LPPositionsManagerTest is UniswapTest {
             .getPosition(facticeUser1_tokenId)
             .token0;
         console.log("Token0: ", token0);
-        address token1 = lpPositionsManager.getPosition(facticeUser1_tokenId).token1;
+        address token1 = lpPositionsManager
+            .getPosition(facticeUser1_tokenId)
+            .token1;
         console.log("Price of token1", lpPositionsManager.priceInETH(token1));
         console.log("Price of token0", lpPositionsManager.priceInETH(token0));
         //uint256 priceInETH = lpPositionsManager.positionValueInETH(facticeUser1_tokenId);
@@ -441,7 +450,7 @@ contract LPPositionsManagerTest is UniswapTest {
             "Position should be transferred to liquidator"
         );
     }
-    
+
     // Only works if you comment the reauire not liquidatable in the removeCollateral function
     function Liquidate_withdrawColl() public {
         vm.startPrank(deployer);
