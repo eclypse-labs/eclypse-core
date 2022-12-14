@@ -17,8 +17,8 @@ interface IBorrowerOperations {
     event GasPoolAddressChanged(address _gasPoolAddress);
     event GHOTokenAddressChanged(address _GHOTokenAddress);
 
-    event WithdrawnGHO(address _borrower, uint256 _GHOAmount, uint256 _time);
-    event RepaidGHO(address _borrower, uint256 _GHOAmount, uint256 _time);
+    event WithdrawnGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId, uint256 _time);
+    event RepaidGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId, uint256 _time);
 
     // --- Functions ---
 

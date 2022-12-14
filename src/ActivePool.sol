@@ -38,8 +38,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
     function setAddresses(
         address _borrowerOperationsAddress,
-        address _lpPositionsManagerAddress,
-        address _GHOTokenAddress
+        address _lpPositionsManagerAddress
     )
         external
         //address _stabilityPoolAddress
@@ -113,6 +112,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
     // Heal function
     function increaseLiquidity(
+        address payer,
         uint256 tokenId,
         uint256 amountAdd0,
         uint256 amountAdd1
@@ -126,6 +126,23 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
             uint256 amount1
         )
     {
+        (
+            ,
+            ,
+            address token0,
+            address token1,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+
+        ) = uniswapPositionsNFT.positions(tokenId);
+        IERC20(token0).transferFrom(payer, address(this), amountAdd0);
+        IERC20(token1).transferFrom(payer, address(this), amountAdd1);
+
         INonfungiblePositionManager.IncreaseLiquidityParams
             memory params = INonfungiblePositionManager
                 .IncreaseLiquidityParams({

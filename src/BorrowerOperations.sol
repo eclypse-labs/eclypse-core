@@ -10,13 +10,17 @@ import "src/liquity-dependencies/CheckContract.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
+/*
+ * @title BorrowerOperations contract
+ * @notice Contains the logic for position operations performed by users.
+ * @dev The contract is owned by the Eclypse system, and is called by the LPPositionManager contract.
+ */
 contract BorrowerOperations is
     EclypseBase,
     Ownable,
     CheckContract,
     IBorrowerOperations
 {
-    using SafeMath for uint256;
 
     LPPositionsManager private lpPositionsManager;
     IGHOToken private GHOToken;
@@ -33,12 +37,19 @@ contract BorrowerOperations is
         IGHOToken GHOToken;
     }
 
-    enum BorrowerOperation {
+    /*enum BorrowerOperation {
         openPosition,
         closePosition,
         adjustPosition
-    }
+    }*/
+    // Not used, commented it in case we need it in the future
 
+    /*
+     * @notice Needs to be called once deploying the contracts to setup the addresses.
+     * @param _lpPositionsManagerAddress The new LPPositionsManager address.
+     * @param _activePoolAddress The new ActivePool address.
+     * @param _GHOTokenAddress The new GHOToken address.
+     */
     function setAddresses(
         address _lpPositionsManagerAddress,
         address _activePoolAddress,
@@ -46,7 +57,7 @@ contract BorrowerOperations is
         //address _gasPoolAddress,
         address _GHOTokenAddress
     ) external onlyOwner {
-        // This makes impossible to open a trove with zero withdrawn GHO
+        // This makes it impossible to open a trove with zero withdrawn GHO
         assert(MIN_NET_DEBT > 0);
 
         lpPositionsManager = LPPositionsManager(_lpPositionsManagerAddress);
@@ -66,6 +77,11 @@ contract BorrowerOperations is
 
     // --- Borrower Position Operations ---
 
+    /*
+     * @notice Opens a new position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function openPosition(uint256 _tokenId) external override {
         uniswapPositionsNFT.transferFrom(
             msg.sender,
@@ -81,16 +97,21 @@ contract BorrowerOperations is
         contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
     }
 
-    function closePosition(uint256 _tokenId) public {
-        lpPositionsManager._requirePositionIsActive(_tokenId);
-        ILPPositionsManager.Position memory position = lpPositionsManager
-            .getPosition(_tokenId);
+    /*
+     * @notice Closes a position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
+    function closePosition(uint256 _tokenId) public 
+    onlyActivePosition(_tokenId)
+    onlyPositionOwner(_tokenId, msg.sender)
+    {
 
-        require(
-            position.user == msg.sender,
-            "You are not the owner of this position."
-        );
-        require(position.debt == 0, "you have to repay your debt");
+
+        uint256 debt = lpPositionsManager.debtOf(_tokenId);
+
+        if (debt > 0) repayGHO(debt, _tokenId); // try to repay all debt
+        require(debt == 0, "you have to repay your debt"); // should be 0 or the tx would have reverted, but just in case
 
         // send LP to owner
         activePool.sendLp(msg.sender, _tokenId);
@@ -101,56 +122,47 @@ contract BorrowerOperations is
         );
     }
 
+    /*
+     * @notice Borrows GHO by minting it.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _GHOAmount The amount of GHO to borrow.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function borrowGHO(uint256 _GHOAmount, uint256 _tokenId)
-        external
+        public
         payable
         override
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
     {
-        ILPPositionsManager.Position memory position = lpPositionsManager
-            .getPosition(_tokenId);
-        require(
-            position.user == msg.sender,
-            "You are not the owner of this position."
-        );
-
-        lpPositionsManager._requirePositionIsActive(_tokenId);
-
         require(_GHOAmount > 0, "Cannot withdraw 0 GHO.");
-
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
-        //Check whether the user's collateral is enough to withdraw _GHOAmount GHO.
-        //require(!lpPositionsManager.liquidatable(_tokenId));
-        console.log(msg.sender, _GHOAmount);
+        require(!lpPositionsManager.liquidatable(_tokenId));
         GHOToken.mint(msg.sender, _GHOAmount);
-
-        emit WithdrawnGHO(msg.sender, _GHOAmount, block.timestamp);
+        emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
     }
 
+    /*
+     * @notice Repays GHO by burning it.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _GHOAmount The amount of GHO to repay.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
-        external
+        public
         payable
         override
+        onlyActivePosition(_tokenId)
     {
+        _GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
         require(_GHOAmount > 0, "Cannot repay 0 GHO.");
-        ILPPositionsManager.Position memory position = lpPositionsManager
-            .getPosition(_tokenId);
-        require(
-            position.user == msg.sender,
-            "You are not the owner of this position."
-        );
-
-        lpPositionsManager._requirePositionIsActive(_tokenId);
-
-        require(
-            _GHOAmount <= position.debt,
-            "Cannot repay more GHO than the position's debt."
-        );
-        GHOToken.burn(msg.sender, _GHOAmount);
         lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
-        emit RepaidGHO(msg.sender, _GHOAmount, block.timestamp);
+        GHOToken.burn(msg.sender, _GHOAmount);
+        emit RepaidGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
     }
 
-    // TODO : add verficiation of amount0 and amount1 regarding LP specifications
+    // --- Collateral Operations ---
+    // TODO : add verification of amount0 and amount1 regarding LP specifications
     // current implementation does not work
     function addCollateral(
         uint256 tokenId,
@@ -166,6 +178,7 @@ contract BorrowerOperations is
         )
     {
         (liquidity, amount0, amount1) = activePool.increaseLiquidity(
+            msg.sender,
             tokenId,
             amountAdd0,
             amountAdd1
@@ -176,17 +189,13 @@ contract BorrowerOperations is
     function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
         external
         override
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
         returns (uint256 amount0, uint256 amount1)
     {
-        lpPositionsManager._requirePositionIsActive(_tokenId);
-
         LPPositionsManager.Position memory position = lpPositionsManager
             .getPosition(_tokenId);
 
-        require(
-            msg.sender == position.user,
-            "You are not the owner of this position."
-        );
         require(
             _liquidityToRemove <= position.liquidity,
             "You can't remove more liquidity than you have"
@@ -208,13 +217,35 @@ contract BorrowerOperations is
         return (amount0, amount1);
     }
 
+    /*
+     * @notice Changes the position's balance in the respective uniswap pool by performing a flash loan.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _newMinTick The new minimum tick of the position.
+     * @param _newMaxTick The new maximum tick of the position.
+     * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
+     */
     function changeTick(
         uint256 _tokenId,
         int24 _newMinTick,
         int24 _newMaxTick
-    ) public payable {
-        lpPositionsManager._checkOwnership(_tokenId, msg.sender);
-        lpPositionsManager._requirePositionIsActive(_tokenId);
+    ) public payable onlyPositionOwner(_tokenId, msg.sender) onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender){
         lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
     }
+
+    modifier onlyActivePosition(uint256 _tokenId) {
+        require(
+            lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active,
+            "Position does not exist or is closed"
+        );
+        _;
+    }
+
+    modifier onlyPositionOwner(uint256 _tokenId, address _user) {
+        require(
+            lpPositionsManager.getPosition(_tokenId).user == _user,
+            "You are not the owner of this position."
+        );
+        _;
+    }
 }
+

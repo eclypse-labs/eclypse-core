@@ -18,6 +18,7 @@ interface IActivePool is IPool {
     function decreaseGHODebt(uint256 _amount) external;
     
     function increaseLiquidity(
+        address payer,
         uint256 tokenId,
         uint256 amountAdd0,
         uint256 amountAdd1

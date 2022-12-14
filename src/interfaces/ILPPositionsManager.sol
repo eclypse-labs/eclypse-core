@@ -25,6 +25,15 @@ interface ILPPositionsManager is IEclypseBase {
         uint256 _time
     );
 
+    // List of all of the LPPositionsManager's events
+
+    event GHOTokenAddressChanged(address _newGHOTokenAddress);
+    event ActivePoolAddressChanged(address _activePoolAddress);
+    event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
+
+    // event StabilityPoolAddressChanged(address _stabilityPoolAddress);
+    // event GasPoolAddressChanged(address _gasPoolAddress);
+
     //Possible status a position can have.
     enum Status {
         nonExistent,
@@ -47,6 +56,17 @@ interface ILPPositionsManager is IEclypseBase {
         uint256 tokenId;
         Status status;
         uint256 debt;
+        uint256 lastUpdateTimestamp;
+    }
+
+    // The pool's data
+    struct RiskConstants {
+        uint256 minCR; // Minimum collateral ratio
+    }
+
+    struct PoolPricingInfo {
+        address poolAddress;
+        bool inv; // true if and only if WETH is token0 of the pool.
     }
 
     // --- Functions ---
@@ -59,18 +79,15 @@ interface ILPPositionsManager is IEclypseBase {
         address _GHOTokenAddress
     ) external;
 
-    function _requirePositionIsActive(uint256 _tokenId) external view;
-
-    function addTokenETHpoolAddress(
-        address _token,
-        address _pool,
-        bool _inv
+    function addPairToProtocol(
+        address _poolAddress,
+        address _token0,
+        address _token1,
+        address _ETHpoolToken0,
+        address _ETHpoolToken1,
+        bool _inv0,
+        bool _inv1
     ) external;
-
-    function getPositionStatus(uint256 _tokenId)
-        external
-        view
-        returns (Status status);
 
     function changePositionStatus(uint256 _tokenId, Status status) external;
 
@@ -80,11 +97,6 @@ interface ILPPositionsManager is IEclypseBase {
         external
         view
         returns (Position memory position);
-
-    function computePositionAmounts(Position memory _position)
-        external
-        view
-        returns (uint256 amountToken0, uint256 amountToken1);
 
     function positionAmounts(uint256 _tokenId)
         external
@@ -112,9 +124,11 @@ interface ILPPositionsManager is IEclypseBase {
 
     function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
 
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount) external;
+    function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
+        external
+        returns (uint256);
 
-    function setNewLiquidity(uint256 tokenId, uint128 liquidity) external;
+    function setNewLiquidity(uint256 _tokenId, uint128 _liquidity) external;
 
     function liquidatable(uint256 _tokenId) external returns (bool);
 
@@ -129,3 +143,4 @@ interface ILPPositionsManager is IEclypseBase {
         uint256[] memory _GHOToRepay
     ) external;
 }
+
