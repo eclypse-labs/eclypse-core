@@ -31,7 +31,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     using SafeMath for uint256;
 
     uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
-    uint256 constant interestRate = 79228162564705624056075081118; // 2% APY interest rate : fixedpoint96 value found by evaluating "1.02^(1/(12*30*24*60*60))*2^96" on https://www.mathsisfun.com/calculator-precision.html
+    uint256 constant interestRate = 79228162564014647528974148095; // 2% APY interest rate : fixedpoint96 value found by evaluating "1.02^(1/(31536000))*2^96" on https://www.mathsisfun.com/calculator-precision.html (31556952 is the number of seconds in a year)
 
     address constant ETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant factoryAddress =
@@ -263,16 +263,14 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
     // Given a position's tokenId, returns the current debt of this position.
-    function debtOf(uint256 _tokenId) public view override returns (uint256) {
+    function debtOf(uint256 _tokenId) public view override returns (uint256 currentDebt) {
         uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
             .lastUpdateTimestamp;
-        uint256 debtPlusInterest = FullMath.mulDiv(
+        currentDebt = FullMath.mulDivRoundingUp(
             _positionFromTokenId[_tokenId].debt,
-            dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
+            lessDumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
             FixedPoint96.Q96
         );
-
-        return debtPlusInterest;
     }
 
     // Given a user's address, computes the sum of all of its positions' debt.
@@ -303,16 +301,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             "A debt cannot be increased by a negative amount or by 0."
         );
 
-        uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
-            .lastUpdateTimestamp;
-        uint256 previousDebtPlusInterest = FullMath.mulDiv(
-            _positionFromTokenId[_tokenId].debt,
-            dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
-            FixedPoint96.Q96
-        );
-        _positionFromTokenId[_tokenId].debt =
-            previousDebtPlusInterest +
-            _amount;
+        uint256 prevDebt = debtOf(_tokenId);
+        _positionFromTokenId[_tokenId].debt = prevDebt + _amount;
         _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
 
         emit IncreasedDebt(
@@ -337,23 +327,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             "A debt cannot be decreased by a negative amount or by 0."
         );
 
-        uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
-            .lastUpdateTimestamp;
-        uint256 previousDebtPlusInterest = FullMath.mulDiv(
-            _positionFromTokenId[_tokenId].debt,
-            dumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
-            FixedPoint96.Q96
-        );
-
-        if (previousDebtPlusInterest < _amount) {
-            _positionFromTokenId[_tokenId].debt = 0;
-            leftOver = _amount - previousDebtPlusInterest;
-        } else {
-            uint256 newDebt = previousDebtPlusInterest - _amount;
-            _positionFromTokenId[_tokenId].debt = newDebt;
-            _positionFromTokenId[_tokenId].lastUpdateTimestamp = block
-                .timestamp;
-        }
+        uint256 prevDebt = debtOf(_tokenId);
+        _positionFromTokenId[_tokenId].debt = Math.max(prevDebt - _amount, 0);
+        _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
+        leftOver = Math.max(_amount - prevDebt, 0);
 
         emit DecreasedDebt(
             _positionFromTokenId[_tokenId].user,
@@ -724,13 +701,28 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     }
 
     // base is a fixedpoint96 number, exponent is a regular unsigned integer
-    function dumbPower(uint256 _base, uint256 _exponent)
+    function lessDumbPower(uint256 _base, uint256 _exponent)
         public
         pure
         returns (uint256 result)
     {
-        result = FixedPoint96.Q96;
+        /*result = FixedPoint96.Q96;
         for (uint256 i = 0; i < _exponent; i++) {
+            result = FullMath.mulDiv(result, _base, FixedPoint96.Q96);
+        }*/
+        // do fast exponentiation by checking parity of exponent
+        if (_exponent == 0) {
+            result = FixedPoint96.Q96;
+        } else if (_exponent == 1) {
+            result = _base;
+        } else if (_exponent % 2 == 0) {
+            result = lessDumbPower(_base, _exponent / 2);
+            // calculate the square of the square root with FullMath.mulDiv
+            result = FullMath.mulDiv(result, result, FixedPoint96.Q96);
+        } else {
+            result = lessDumbPower(_base, (_exponent - 1) / 2);
+            // calculate the square of the square root with FullMath.mulDiv and multiply by base once
+            result = FullMath.mulDiv(result, result, FixedPoint96.Q96);
             result = FullMath.mulDiv(result, _base, FixedPoint96.Q96);
         }
     }

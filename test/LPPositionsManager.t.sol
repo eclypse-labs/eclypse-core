@@ -66,6 +66,7 @@ contract LPPositionsManagerTest is UniswapTest {
             initialDebt
         );
         borrowerOperation.borrowGHO(10**18, facticeUser1_tokenId);
+        console.log("FacticeUser1 GHO balance :", ghoToken.balanceOf(facticeUser1));
         console.log("Current time :", block.timestamp);
         uint256 currentDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGt(
@@ -76,16 +77,18 @@ contract LPPositionsManagerTest is UniswapTest {
         console.log("Current debt after borrowing ", currentDebt);
         vm.warp(block.timestamp + 365 days);
         console.log("Current time after 1 year :", block.timestamp);
+        uint256 afterYearDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
         console.log(
             "Evolved current debt after 1 year (with interest):",
-            currentDebt
+            afterYearDebt
         );
-        borrowerOperation.repayGHO(10**18, facticeUser1_tokenId);
+        deal(address(ghoToken), facticeUser1, currentDebt * 51/50 + 1); // deal ourselves the interest to pay : 2% per year
+        borrowerOperation.repayGHO(afterYearDebt, facticeUser1_tokenId);
         uint256 finalDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
         console.log("Final debt after repaying GHO (should be 0): ", finalDebt);
         assertLt(
             finalDebt,
-            currentDebt,
+            afterYearDebt,
             "repaying GHO should decrease the debt"
         );
         assertEq(
