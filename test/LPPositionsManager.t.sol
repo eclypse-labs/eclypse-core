@@ -13,7 +13,6 @@ import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "./UniswapTest.sol";
 
 contract LPPositionsManagerTest is UniswapTest {
-
     uint256 public fee;
 
     function setUp() public {
