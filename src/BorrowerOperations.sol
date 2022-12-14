@@ -106,8 +106,6 @@ contract BorrowerOperations is
     onlyActivePosition(_tokenId)
     onlyPositionOwner(_tokenId, msg.sender)
     {
-        ILPPositionsManager.Position memory position = lpPositionsManager
-            .getPosition(_tokenId);
 
 
         uint256 debt = lpPositionsManager.debtOf(_tokenId);
