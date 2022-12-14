@@ -21,7 +21,6 @@ contract BorrowerOperations is
     CheckContract,
     IBorrowerOperations
 {
-    using SafeMath for uint256;
 
     LPPositionsManager private lpPositionsManager;
     IGHOToken private GHOToken;
@@ -103,15 +102,13 @@ contract BorrowerOperations is
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
      */
-    function closePosition(uint256 _tokenId) public {
-        lpPositionsManager._requirePositionIsActive(_tokenId);
+    function closePosition(uint256 _tokenId) public 
+    onlyActivePosition(_tokenId)
+    onlyPositionOwner(_tokenId, msg.sender)
+    {
         ILPPositionsManager.Position memory position = lpPositionsManager
             .getPosition(_tokenId);
 
-        require(
-            position.user == msg.sender,
-            "You are not the owner of this position."
-        );
 
         uint256 debt = lpPositionsManager.debtOf(_tokenId);
 
@@ -137,13 +134,10 @@ contract BorrowerOperations is
         public
         payable
         override
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
     {
         require(_GHOAmount > 0, "Cannot withdraw 0 GHO.");
-        require(
-            lpPositionsManager.getPosition(_tokenId).user == msg.sender,
-            "You are not the owner of this position."
-        );
-        lpPositionsManager._requirePositionIsActive(_tokenId);
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
         require(!lpPositionsManager.liquidatable(_tokenId));
         GHOToken.mint(msg.sender, _GHOAmount);
@@ -160,10 +154,10 @@ contract BorrowerOperations is
         public
         payable
         override
+        onlyActivePosition(_tokenId)
     {
         _GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
         require(_GHOAmount > 0, "Cannot repay 0 GHO.");
-        lpPositionsManager._requirePositionIsActive(_tokenId);
         lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
         GHOToken.burn(msg.sender, _GHOAmount);
         emit RepaidGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
@@ -197,17 +191,13 @@ contract BorrowerOperations is
     function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
         external
         override
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
         returns (uint256 amount0, uint256 amount1)
     {
-        lpPositionsManager._requirePositionIsActive(_tokenId);
-
         LPPositionsManager.Position memory position = lpPositionsManager
             .getPosition(_tokenId);
 
-        require(
-            msg.sender == position.user,
-            "You are not the owner of this position."
-        );
         require(
             _liquidityToRemove <= position.liquidity,
             "You can't remove more liquidity than you have"
@@ -240,9 +230,23 @@ contract BorrowerOperations is
         uint256 _tokenId,
         int24 _newMinTick,
         int24 _newMaxTick
-    ) public payable {
-        lpPositionsManager._checkOwnership(_tokenId, msg.sender);
-        lpPositionsManager._requirePositionIsActive(_tokenId);
+    ) public payable onlyPositionOwner(_tokenId, msg.sender) onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender){
         lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
+    }
+
+    modifier onlyActivePosition(uint256 _tokenId) {
+        require(
+            lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active,
+            "Position does not exist or is closed"
+        );
+        _;
+    }
+
+    modifier onlyPositionOwner(uint256 _tokenId, address _user) {
+        require(
+            lpPositionsManager.getPosition(_tokenId).user == _user,
+            "You are not the owner of this position."
+        );
+        _;
     }
 }

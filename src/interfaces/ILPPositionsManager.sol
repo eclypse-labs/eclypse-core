@@ -25,6 +25,15 @@ interface ILPPositionsManager is IEclypseBase {
         uint256 _time
     );
 
+    // List of all of the LPPositionsManager's events
+
+    event GHOTokenAddressChanged(address _newGHOTokenAddress);
+    event ActivePoolAddressChanged(address _activePoolAddress);
+    event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
+
+    // event StabilityPoolAddressChanged(address _stabilityPoolAddress);
+    // event GasPoolAddressChanged(address _gasPoolAddress);
+
     //Possible status a position can have.
     enum Status {
         nonExistent,
@@ -50,6 +59,16 @@ interface ILPPositionsManager is IEclypseBase {
         uint256 lastUpdateTimestamp;
     }
 
+    // The pool's data
+    struct RiskConstants {
+        uint256 minCR; // Minimum collateral ratio
+    }
+
+    struct PoolPricingInfo {
+        address poolAddress;
+        bool inv; // true if and only if WETH is token0 of the pool.
+    }
+
     // --- Functions ---
 
     function setAddresses(
@@ -60,8 +79,6 @@ interface ILPPositionsManager is IEclypseBase {
         address _GHOTokenAddress
     ) external;
 
-    function _requirePositionIsActive(uint256 _tokenId) external view;
-
     function addPairToProtocol(
         address _poolAddress,
         address _token0,
@@ -71,11 +88,6 @@ interface ILPPositionsManager is IEclypseBase {
         bool _inv0,
         bool _inv1
     ) external;
-
-    function getPositionStatus(uint256 _tokenId)
-        external
-        view
-        returns (Status status);
 
     function changePositionStatus(uint256 _tokenId, Status status) external;
 
@@ -116,7 +128,7 @@ interface ILPPositionsManager is IEclypseBase {
         external
         returns (uint256);
 
-    function setNewLiquidity(uint256 tokenId, uint128 liquidity) external;
+    function setNewLiquidity(uint256 _tokenId, uint128 _liquidity) external;
 
     function liquidatable(uint256 _tokenId) external returns (bool);
 
