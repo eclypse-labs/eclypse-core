@@ -95,7 +95,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         return (amount0, amount1);
     }
 
-    function collectFees(INonfungiblePositionManager.CollectParams memory params)
+    function collectOwed(INonfungiblePositionManager.CollectParams memory params)
         public
         onlyBOorLPPMorSP
         returns (uint256 amount0, uint256 amount1)

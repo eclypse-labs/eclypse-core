@@ -21,7 +21,7 @@ interface IActivePool is IPool {
     function decreaseGHODebt(uint256 _amount) external;
 
     function decreaseLiquidity(INonfungiblePositionManager.DecreaseLiquidityParams memory params) external returns (uint256 amount0, uint256 amount1);
-    function collectFees(INonfungiblePositionManager.CollectParams memory params) external returns (uint256 amount0, uint256 amount1);
+    function collectOwed(INonfungiblePositionManager.CollectParams memory params) external returns (uint256 amount0, uint256 amount1);
     
     function burnPosition(uint256 _tokenId) external;
     
