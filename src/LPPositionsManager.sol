@@ -5,7 +5,6 @@ import "./interfaces/IStabilityPool.sol";
 import "./interfaces/IActivePool.sol";
 import "./interfaces/ILPPositionsManager.sol";
 import "./interfaces/IGHOToken.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -730,14 +729,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             debtOf(_tokenId) <= _GHOToRepay,
             "Not enough GHO to repay debt"
         );
-        //We should burn the GHO here.
         GHOToken.burn(msg.sender, debtOf(_tokenId)); // burn exactly the debt
         Position memory position = _positionFromTokenId[_tokenId];
         position.debt = 0;
         position.status = Status.closedByLiquidation;
         _positionFromTokenId[_tokenId] = position;
-
-        console.log("Passed 1");
 
         INonfungiblePositionManager.DecreaseLiquidityParams memory params =
             INonfungiblePositionManager.DecreaseLiquidityParams({
@@ -750,7 +746,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         activePool.decreaseLiquidity(params);
 
-
         INonfungiblePositionManager.CollectParams memory feesParam =
             INonfungiblePositionManager.CollectParams({
                 tokenId: _tokenId,
@@ -762,16 +757,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         (uint256 amount0, uint256 amount1) = activePool.collectFees(feesParam);
 
-        console.log("Balance: ", IERC20(position.token0).balanceOf(address(activePool)));
-        console.log("Balance: ", IERC20(position.token1).balanceOf(address(activePool)));
-
         activePool.sendToken(position.token0, msg.sender, amount0);
         activePool.sendToken(position.token1, msg.sender, amount1);
 
         activePool.burnPosition(_tokenId);
-
-        console.log("Balance: ", IERC20(position.token0).balanceOf(address(activePool)));
-        console.log("Balance: ", IERC20(position.token1).balanceOf(address(activePool)));
 
         return true;
     }

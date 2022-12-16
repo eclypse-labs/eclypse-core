@@ -10,7 +10,6 @@ import "forge-std/console.sol";
 import "./LPPositionsManager.sol";
 
 contract ActivePool is Ownable, CheckContract, IActivePool {
-    using SafeMath for uint256;
 
     string public constant NAME = "ActivePool";
     address public borrowerOperationsAddress;
@@ -132,7 +131,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
     }
 
     function increaseGHODebt(uint256 _amount) external override onlyBOorLPPM {
-        GHODebt = GHODebt.add(_amount);
+        GHODebt += _amount;
         emit ActivePoolGHODebtUpdated(GHODebt);
     }
 
@@ -141,7 +140,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         override
         onlyBOorLPPMorSP
     {
-        GHODebt = GHODebt.sub(_amount);
+        GHODebt -= _amount;
         emit ActivePoolGHODebtUpdated(GHODebt);
     }
 
