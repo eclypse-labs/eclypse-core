@@ -71,9 +71,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     // Retrieves the address of the pool associated with the pair (token/ETH) where given the token's address.
     mapping(address => PoolPricingInfo) private _tokenToWETHPoolInfo;
-
-    // An array of all positions.
-    Position[] private _allPositions;
    
     // -- Methods --
 
@@ -155,14 +152,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         return _positionFromTokenId[_tokenId];
     }
 
-    /**
-     * @notice Returns the total number of positions owned by all users.
-     * @return totalCount The number of positions owned by all users.
-     */
-    function getPositionsOwnersCount() external view returns (uint256) {
-        return _allPositions.length;
-    }
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Position Statuses
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -234,7 +223,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             block.timestamp
         );
 
-        _allPositions.push(position);
         _positionsFromAddress[_owner].push(position);
         _positionFromTokenId[_tokenId] = position;
 
@@ -655,7 +643,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             _position.lastUpdateTimestamp
         );
 
-        _allPositions.push(position);
         _positionsFromAddress[msg.sender].push(position);
         _positionFromTokenId[_newTokenId] = position;
 
@@ -750,19 +737,41 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         position.status = Status.closedByLiquidation;
         _positionFromTokenId[_tokenId] = position;
 
-        // uint128 currentLiquidity = position.liquidity;
-        // uint128 liquidityToDecrease = (currentLiquidity * 5) / 100;
-        // INonfungiblePositionManager.DecreaseLiquidityParams memory params =
-        //     INonfungiblePositionManager.DecreaseLiquidityParams({
-        //         tokenId: _tokenId,
-        //         liquidity: liquidityToDecrease,
-        //         amount0Min: 0,
-        //         amount1Min: 0,
-        //         deadline: block.timestamp
-        //     });
-        //(uint256 amount0, uint256 amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
+        console.log("Passed 1");
 
-        activePool.sendLp(msg.sender, _tokenId);
+        INonfungiblePositionManager.DecreaseLiquidityParams memory params =
+            INonfungiblePositionManager.DecreaseLiquidityParams({
+                tokenId: _tokenId,
+                liquidity: position.liquidity,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            });
+
+        activePool.decreaseLiquidity(params);
+
+
+        INonfungiblePositionManager.CollectParams memory feesParam =
+            INonfungiblePositionManager.CollectParams({
+                tokenId: _tokenId,
+                recipient: address(activePool),
+                amount0Max: type(uint128).max,
+                amount1Max: type(uint128).max
+            });
+
+
+        (uint256 amount0, uint256 amount1) = activePool.collectFees(feesParam);
+
+        console.log("Balance: ", IERC20(position.token0).balanceOf(address(activePool)));
+        console.log("Balance: ", IERC20(position.token1).balanceOf(address(activePool)));
+
+        activePool.sendToken(position.token0, msg.sender, amount0);
+        activePool.sendToken(position.token1, msg.sender, amount1);
+
+        activePool.burnPosition(_tokenId);
+
+        console.log("Balance: ", IERC20(position.token0).balanceOf(address(activePool)));
+        console.log("Balance: ", IERC20(position.token1).balanceOf(address(activePool)));
 
         return true;
     }
@@ -827,3 +836,4 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         }
     }
 }
+

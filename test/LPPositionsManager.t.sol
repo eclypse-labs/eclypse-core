@@ -364,6 +364,8 @@ contract LPPositionsManagerTest is UniswapTest {
         assertTrue(isLiquidatable);
 
         vm.startPrank(address(facticeUser2));
+        uint256 initialUSDCBalance = USDC.balanceOf(address(facticeUser2));
+        uint256 initialWETHBalance = WETH.balanceOf(address(facticeUser2));
         uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
@@ -374,11 +376,11 @@ contract LPPositionsManagerTest is UniswapTest {
             3,
             "Position should be closed by liquidation"
         );
-        assertEq(
-            uniswapPositionsNFT.ownerOf(facticeUser1_tokenId),
-            facticeUser2,
-            "Position should be transferred to liquidator"
-        );
+
+        uint256 finalUSDCBalance = USDC.balanceOf(address(facticeUser2));
+        uint256 finalWETHBalance = WETH.balanceOf(address(facticeUser2));
+        assertGe(finalUSDCBalance, initialUSDCBalance);
+        assertGe(finalWETHBalance, initialWETHBalance);
     }
 
     function testLiquidate_swap() public {
@@ -437,6 +439,9 @@ contract LPPositionsManagerTest is UniswapTest {
         assertTrue(lpPositionsManager.liquidatable(facticeUser1_tokenId));
 
         vm.startPrank(address(facticeUser2));
+        uint256 initialUSDCBalance = USDC.balanceOf(address(facticeUser2));
+        uint256 initialWETHBalance = WETH.balanceOf(address(facticeUser2));
+
         uint256 amountToRepay = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
@@ -447,12 +452,14 @@ contract LPPositionsManagerTest is UniswapTest {
             3,
             "Position should be closed by liquidation"
         );
-        assertEq(
-            uniswapPositionsNFT.ownerOf(facticeUser1_tokenId),
-            facticeUser2,
-            "Position should be transferred to liquidator"
-        );
+
+        uint256 finalUSDCBalance = USDC.balanceOf(address(facticeUser2));
+        uint256 finalWETHBalance = WETH.balanceOf(address(facticeUser2));
+        assertGe(finalUSDCBalance, initialUSDCBalance);
+        assertGe(finalWETHBalance, initialWETHBalance);
+
     }
+
 
     // Only works if you comment the reauire not liquidatable in the removeCollateral function
     function Liquidate_withdrawColl() public {
@@ -488,4 +495,7 @@ contract LPPositionsManagerTest is UniswapTest {
         isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
         assertTrue(isLiquidatable);
     }
+
+
 }
+

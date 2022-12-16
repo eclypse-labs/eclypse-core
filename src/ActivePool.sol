@@ -86,14 +86,49 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
     // --- Pool functionality ---
 
+    function decreaseLiquidity(INonfungiblePositionManager.DecreaseLiquidityParams memory params)
+        public
+        onlyBOorLPPMorSP
+        returns (uint256 amount0, uint256 amount1)
+    {
+        (amount0, amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
+
+        return (amount0, amount1);
+    }
+
+    function collectFees(INonfungiblePositionManager.CollectParams memory params)
+        public
+        onlyBOorLPPMorSP
+        returns (uint256 amount0, uint256 amount1)
+    {
+        (amount0, amount1) = uniswapPositionsNFT.collect(params);
+
+        return (amount0, amount1);
+    }
+
+    function burnPosition(uint256 tokenId)
+        public
+        onlyBOorLPPMorSP
+    {
+        uniswapPositionsNFT.burn(tokenId);
+    }
+
     function sendLp(address _account, uint256 _tokenId)
-        external
+        public
         onlyBOorLPPMorSP
         onlyBOorLPPM
     {
         //emit ActivePoolCollateralBalanceUpdated(getCollateralValue());
         emit LpSent(_account, _tokenId);
         uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
+    }
+
+    function sendToken(address _token, address _account, uint256 _amount)
+        public
+        onlyBOorLPPMorSP
+        onlyBOorLPPM
+    {
+        IERC20(_token).transfer(_account, _amount);
     }
 
     function increaseGHODebt(uint256 _amount) external override onlyBOorLPPM {
@@ -212,3 +247,4 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         _;
     }
 }
+

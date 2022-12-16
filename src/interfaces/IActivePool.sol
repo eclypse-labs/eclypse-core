@@ -3,6 +3,8 @@
 pragma solidity >=0.6.11;
 
 import "./IPool.sol";
+import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+
 
 interface IActivePool is IPool {
     // --- Events ---
@@ -13,9 +15,15 @@ interface IActivePool is IPool {
 
     // --- Functions ---
     function sendLp(address _account, uint256 _tokenId) external;
+    function sendToken(address _token, address _account, uint256 _amount) external;
     
     function increaseGHODebt(uint256 _amount) external;
     function decreaseGHODebt(uint256 _amount) external;
+
+    function decreaseLiquidity(INonfungiblePositionManager.DecreaseLiquidityParams memory params) external returns (uint256 amount0, uint256 amount1);
+    function collectFees(INonfungiblePositionManager.CollectParams memory params) external returns (uint256 amount0, uint256 amount1);
+    
+    function burnPosition(uint256 _tokenId) external;
     
     function increaseLiquidity(
         address payer,
@@ -34,3 +42,4 @@ interface IActivePool is IPool {
         external
         returns (uint256 amount0, uint256 amount1);
 }
+
