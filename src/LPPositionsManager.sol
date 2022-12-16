@@ -755,7 +755,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             });
 
 
-        (uint256 amount0, uint256 amount1) = activePool.collectFees(feesParam);
+        (uint256 amount0, uint256 amount1) = activePool.collectOwed(feesParam);
 
         activePool.sendToken(position.token0, msg.sender, amount0);
         activePool.sendToken(position.token1, msg.sender, amount1);
