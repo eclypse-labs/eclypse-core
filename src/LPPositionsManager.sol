@@ -5,7 +5,6 @@ import "./interfaces/IStabilityPool.sol";
 import "./interfaces/IActivePool.sol";
 import "./interfaces/ILPPositionsManager.sol";
 import "./interfaces/IGHOToken.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -17,18 +16,14 @@ import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
 import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
 import "@uniswap-periphery/libraries/TransferHelper.sol";
-import "forge-std/console.sol";
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
-import "forge-std/Test.sol";
-
 /**
  * @title LPPositionsManager contract
  * @notice Contains the logic for position operations performed by users.
  * @dev The contract is owned by the Eclypse system, and is called by the LPPositionManager contract.
  */
 
-contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
-
+contract LPPositionsManager is ILPPositionsManager, Ownable {
     // -- Integer Constants --
 
     uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
@@ -37,7 +32,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // -- Addresses --
 
     address constant ETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address constant factoryAddress = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+    address constant factoryAddress =
+        0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
     address gasPoolAddress;
     address borrowerOperationsAddress;
@@ -53,7 +49,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // IStabilityPool public stabilityPool;
     IActivePool public activePool;
     IGHOToken public GHOToken;
-
 
     // -- Mappings & Arrays --
 
@@ -74,7 +69,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     // An array of all positions.
     Position[] private _allPositions;
-   
+
     // -- Methods --
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -109,7 +104,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         // renounceOwnership();
     }
-
 
     /**
      * @notice Adds a pair of tokens to the protocol.
@@ -166,7 +160,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Position Statuses
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
 
     /**
      * @notice Changes the status of a position with a given token ID.
@@ -292,7 +285,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the debt of.
      * @return currentDebt The total debt of the position, including interest.
      */
-    function debtOf(uint256 _tokenId) public view override returns (uint256 currentDebt) {
+    function debtOf(uint256 _tokenId)
+        public
+        view
+        override
+        returns (uint256 currentDebt)
+    {
         uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
             .lastUpdateTimestamp;
         currentDebt = FullMath.mulDivRoundingUp(
@@ -486,7 +484,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // Collateral Ratio functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
     /**
      * @notice Returns the collateral ratio of a position.
      * @param _tokenId The ID of the position to get the collateral ratio of.
@@ -582,7 +579,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         uint256 _tokenId,
         int24 _newMinTick,
         int24 _newMaxTick
-    ) public onlyBorrowerOperations onlyActivePosition(_tokenId){
+    ) public onlyBorrowerOperations onlyActivePosition(_tokenId) {
         require(
             _newMinTick < _newMaxTick,
             "The new min tick must be smaller than the new max tick."
@@ -786,7 +783,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Modifiers and Require functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
 
     modifier onlyActivePosition(uint256 _tokenId) {
         require(

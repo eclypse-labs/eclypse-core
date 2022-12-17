@@ -4,7 +4,7 @@ pragma solidity <0.9.0;
 
 import "./interfaces/IGHOToken.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "src/liquity-dependencies/CheckContract.sol";
+import "./liquity-dependencies/CheckContract.sol";
 //import "Dependencies/console.sol";
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";

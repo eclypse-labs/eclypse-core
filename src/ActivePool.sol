@@ -3,14 +3,10 @@
 pragma solidity <0.9.0;
 
 import "./interfaces/IActivePool.sol";
-import "src/liquity-dependencies/CheckContract.sol";
-import "forge-std/console.sol";
-//import "Dependencies/console.sol";
-
+import "./liquity-dependencies/CheckContract.sol";
 import "./LPPositionsManager.sol";
 
 contract ActivePool is Ownable, CheckContract, IActivePool {
-    using SafeMath for uint256;
 
     string public constant NAME = "ActivePool";
     address public borrowerOperationsAddress;

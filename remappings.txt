@@ -12,4 +12,4 @@ forge-std/=lib/forge-std/src/
 openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 @uniswap-core/=lib/v3-core/contracts/
 @uniswap-periphery/=lib/v3-periphery/contracts/
-@openzeppelin=lib/openzeppelin-contracts/
+@openzeppelin/=lib/openzeppelin-contracts/
