@@ -19,9 +19,6 @@ contract LPPositionsManagerTest is UniswapTest {
         uniswapTest();
     }
 
-    //TODO: test deposit + borrow + check health factor
-    //TODO: test deposit + borrow + can't withdraw if it would liquidate the position
-    //TODO: test liquidation (change oracle price)
 
     function testDepositAndWithdraw() public {
         uint256 initBalanceUsdc = USDC.balanceOf(facticeUser1);
@@ -52,7 +49,6 @@ contract LPPositionsManagerTest is UniswapTest {
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
         vm.stopPrank();
         vm.startPrank(address(facticeUser2));
-        //vm.expectRevert(bytes("You are not the owner of this position."));
         borrowerOperation.repayGHO(10, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
@@ -61,40 +57,28 @@ contract LPPositionsManagerTest is UniswapTest {
     function testBorrowAndRepayGHO_checkDebtEvolution() public {
         vm.startPrank(address(facticeUser1));
         uint256 initialDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
-        console.log(
-            "Initial debt before borrowing (should be 0): ",
-            initialDebt
-        );
+
         borrowerOperation.borrowGHO(10**18, facticeUser1_tokenId);
-        console.log("FacticeUser1 GHO balance :", ghoToken.balanceOf(facticeUser1));
-        console.log("Current time :", block.timestamp);
         uint256 currentDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGt(
             currentDebt,
             initialDebt,
-            "borrowing GHO should increase the debt"
+            "Borrowing GHO should increase the debt."
         );
-        console.log("Current debt after borrowing ", currentDebt);
         vm.warp(block.timestamp + 365 days);
-        console.log("Current time after 1 year :", block.timestamp);
         uint256 afterYearDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
-        console.log(
-            "Evolved current debt after 1 year (with interest):",
-            afterYearDebt
-        );
         deal(address(ghoToken), facticeUser1, currentDebt * 51/50 + 1); // deal ourselves the interest to pay : 2% per year
         borrowerOperation.repayGHO(afterYearDebt, facticeUser1_tokenId);
         uint256 finalDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
-        console.log("Final debt after repaying GHO (should be 0): ", finalDebt);
         assertLt(
             finalDebt,
             afterYearDebt,
-            "repaying GHO should decrease the debt"
+            "Repaying GHO should decrease the debt."
         );
         assertEq(
             finalDebt,
             initialDebt,
-            "repaying GHO should decrease the debt to the initial debt"
+            "Repaying GHO should decrease the debt to the initial debt."
         );
         vm.stopPrank();
     }
@@ -123,13 +107,27 @@ contract LPPositionsManagerTest is UniswapTest {
         vm.stopPrank();
     }
 
+    function testPositionStatus_changeToCurrentOne() public {
+        assertEq(
+            uint256(
+                lpPositionsManager.getPosition(facticeUser1_tokenId).status
+            ),
+            1,
+            "Position should be active."
+        );
+        vm.startPrank(address(borrowerOperation));
+        vm.expectRevert(bytes("A position status cannot be changed to its current one."));
+        lpPositionsManager.changePositionStatus(facticeUser1_tokenId, ILPPositionsManager.Status.active);
+        vm.stopPrank();
+    }
+
     function testPositionStatus_closeByOwner() public {
         assertEq(
             uint256(
                 lpPositionsManager.getPosition(facticeUser1_tokenId).status
             ),
             1,
-            "Position should be active"
+            "Position should be active."
         );
         vm.startPrank(address(facticeUser1));
         borrowerOperation.closePosition(facticeUser1_tokenId);
@@ -139,7 +137,7 @@ contract LPPositionsManagerTest is UniswapTest {
                 lpPositionsManager.getPosition(facticeUser1_tokenId).status
             ),
             2,
-            "Position should be closed by owner"
+            "Position should be closed by owner."
         );
     }
 
@@ -149,11 +147,11 @@ contract LPPositionsManagerTest is UniswapTest {
                 lpPositionsManager.getPosition(facticeUser1_tokenId).status
             ),
             1,
-            "Position should be active"
+            "Position should be active."
         );
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
-        vm.expectRevert(bytes("you have to repay your debt"));
+        vm.expectRevert(bytes("Debt is not repaid."));
         borrowerOperation.closePosition(facticeUser1_tokenId);
         vm.stopPrank();
         assertEq(
@@ -161,7 +159,7 @@ contract LPPositionsManagerTest is UniswapTest {
                 lpPositionsManager.getPosition(facticeUser1_tokenId).status
             ),
             1,
-            "Position should be active"
+            "Position should be active."
         );
     }
 
@@ -171,7 +169,7 @@ contract LPPositionsManagerTest is UniswapTest {
                 lpPositionsManager.getPosition(facticeUser1_tokenId).status
             ),
             1,
-            "Position should be active"
+            "Position should be active."
         );
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
@@ -183,7 +181,7 @@ contract LPPositionsManagerTest is UniswapTest {
                 lpPositionsManager.getPosition(facticeUser1_tokenId).status
             ),
             2,
-            "Position should be closed by owner"
+            "Position should be closed by owner."
         );
     }
 
@@ -191,21 +189,21 @@ contract LPPositionsManagerTest is UniswapTest {
         assertEq(
             uint256(lpPositionsManager.getPosition(0).status),
             0,
-            "Position should not exist"
+            "Position should not exist."
         );
     }
 
     function testRiskConstant_increase() public {
-        //uint256 initialRC = lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr));
         uint256 newMinRC = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
         lpPositionsManager.updateRiskConstants(
             address(uniPoolUsdcETHAddr),
             newMinRC
         );
+
         assertEq(
             lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)),
             newMinRC,
-            "Risk constant should be updated"
+            "Risk constant should be updated."
         );
     }
 
@@ -232,7 +230,7 @@ contract LPPositionsManagerTest is UniswapTest {
         assertLt(
             newMinRC,
             initialRC,
-            "Risk constant should be updated and decreased"
+            "Risk constant should be updated and decreased."
         );
     }
 
@@ -258,83 +256,32 @@ contract LPPositionsManagerTest is UniswapTest {
         );
     }
 
-    function testPositionAmounts() public view {
-        //(uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
-        address token0 = lpPositionsManager
-            .getPosition(facticeUser1_tokenId)
-            .token0;
-        console.log("Token0: ", token0);
-        address token1 = lpPositionsManager
-            .getPosition(facticeUser1_tokenId)
-            .token1;
-        console.log("Price of token1", lpPositionsManager.priceInETH(token1));
-        console.log("Price of token0", lpPositionsManager.priceInETH(token0));
-        //uint256 priceInETH = lpPositionsManager.positionValueInETH(facticeUser1_tokenId);
-        //console.log(priceInETH);
-    }
-
     function testRiskConstantsAreCorrectlyUpdated() public {
-        console.log(
-            "initial risk constant: ",
-            lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
-        );
         uint256 _minCR = Math.mulDiv(17, 1 << 96, 10);
-        console.log("minCR calculated: ", _minCR);
         lpPositionsManager.updateRiskConstants(
             address(uniPoolUsdcETHAddr),
             _minCR
         );
-        console.log(
-            "updated risk constant: ",
-            lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
-        );
+
         assertEq(
             lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr)),
             _minCR,
-            "risk constants are not updated correctly"
+            "Risk constants are not updated correctly."
         );
     }
 
     function testLiquidatablePosition() public {
         vm.startPrank(deployer);
         uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
-        console.log("minCR calculated: ", _minCR);
         lpPositionsManager.updateRiskConstants(
             address(uniPoolUsdcETHAddr),
             _minCR
         );
         vm.stopPrank();
         vm.startPrank(address(facticeUser1));
-        (uint256 a, uint256 b) = lpPositionsManager.positionAmounts(
-            facticeUser1_tokenId
-        );
-        console.log("factice position amounts", a, b);
-        console.log(
-            lpPositionsManager.positionValueInETH(facticeUser1_tokenId) / 10**18
-        );
-        console.log(
-            "total supply of GHO before borrow: ",
-            ghoToken.totalSupply()
-        );
-        console.log(
-            "total debt of facticeUser1 before borrow: ",
-            lpPositionsManager.totalDebtOf(facticeUser1)
-        );
         borrowerOperation.borrowGHO(10**18 * 633, facticeUser1_tokenId);
         vm.stopPrank();
-        console.log(
-            "user's cr after borrow: ",
-            lpPositionsManager.computeCR(facticeUser1_tokenId)
-        );
-        console.log("borrowed GHO : ", ghoToken.balanceOf(facticeUser1));
-        console.log(
-            "total supply of GHO after borrow: ",
-            ghoToken.totalSupply()
-        );
-        console.log(
-            "total debt of user1 after borrow: ",
-            lpPositionsManager.totalDebtOf(facticeUser1)
-        );
+
         uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
         assertTrue(cr > _minCR);
     }
@@ -352,20 +299,18 @@ contract LPPositionsManagerTest is UniswapTest {
         );
         vm.stopPrank();
 
-        console.log(
-            "MIN CR: ",
-            lpPositionsManager.getRiskConstants(address(uniPoolUsdcETHAddr))
-        );
-        console.log("CR: ", lpPositionsManager.computeCR(facticeUser1_tokenId));
-
-        bool isLiquidatable = lpPositionsManager.liquidatable(
+        assertTrue(lpPositionsManager.liquidatable(
             facticeUser1_tokenId
-        );
-        assertTrue(isLiquidatable);
+        ));
 
         vm.startPrank(address(facticeUser2));
-        uint256 initialUSDCBalance = USDC.balanceOf(address(facticeUser2));
-        uint256 initialWETHBalance = WETH.balanceOf(address(facticeUser2));
+
+        uint256 initialUSDCBalanceFacticeUser2 = USDC.balanceOf(address(facticeUser2));
+        uint256 initialWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
+
+        uint256 initialUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
+        uint256 initialWETHBalanceActivePool = WETH.balanceOf(address(activePool));
+
         uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
@@ -374,14 +319,22 @@ contract LPPositionsManagerTest is UniswapTest {
         assertEq(
             uint256(lpPositionsManager.getPosition(facticeUser1_tokenId).status),
             3,
-            "Position should be closed by liquidation"
+            "Position should be closed by liquidation."
         );
 
-        uint256 finalUSDCBalance = USDC.balanceOf(address(facticeUser2));
-        uint256 finalWETHBalance = WETH.balanceOf(address(facticeUser2));
-        assertGe(finalUSDCBalance, initialUSDCBalance);
-        assertGe(finalWETHBalance, initialWETHBalance);
+        uint256 finalUSDCBalanceFacticeUser2  = USDC.balanceOf(address(facticeUser2));
+        uint256 finalWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
+
+        uint256 finalUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
+        uint256 finalWETHBalanceActivePool = WETH.balanceOf(address(activePool));
+
+        assertGe(finalUSDCBalanceFacticeUser2 , initialUSDCBalanceActivePool );
+        assertGe(finalWETHBalanceFacticeUser2 , initialWETHBalanceActivePool );
+
+        assertGe(finalUSDCBalanceActivePool , initialUSDCBalanceFacticeUser2 );
+        assertGe(finalWETHBalanceActivePool , initialWETHBalanceFacticeUser2 );
     }
+
 
     function testLiquidate_swap() public {
         vm.startPrank(deployer);
@@ -396,24 +349,14 @@ contract LPPositionsManagerTest is UniswapTest {
         borrowerOperation.borrowGHO(10**18 * 633, facticeUser1_tokenId);
         vm.stopPrank();
 
-        (uint256 a, uint256 b) = lpPositionsManager.positionAmounts(
-            facticeUser1_tokenId
-        );
-        console.log("factice position amounts", a, b);
-        console.log(
-            lpPositionsManager.positionValueInETH(facticeUser1_tokenId)
-        );
-        console.log(lpPositionsManager.priceInETH(usdcAddr));
-        console.log(lpPositionsManager.priceInETH(wethAddr));
-        bool isLiquidatable = lpPositionsManager.liquidatable(
-            facticeUser1_tokenId
-        );
 
-        assertFalse(isLiquidatable);
+        assertFalse(lpPositionsManager.liquidatable(facticeUser1_tokenId));
 
         vm.startPrank(deployer);
+
         deal(address(USDC), deployer, 10**18 * 1_000_000 * 2);
-        vm.deal(deployer, 300_000 ether);
+        deal(deployer, 300_000 ether);
+
         USDC.approve(swapRouterAddr, 10**18 * 1_000_000 * 2);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
@@ -439,62 +382,40 @@ contract LPPositionsManagerTest is UniswapTest {
         assertTrue(lpPositionsManager.liquidatable(facticeUser1_tokenId));
 
         vm.startPrank(address(facticeUser2));
-        uint256 initialUSDCBalance = USDC.balanceOf(address(facticeUser2));
-        uint256 initialWETHBalance = WETH.balanceOf(address(facticeUser2));
+
+        uint256 initialUSDCBalanceFacticeUser2 = USDC.balanceOf(address(facticeUser2));
+        uint256 initialWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
+
+        uint256 initialUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
+        uint256 initialWETHBalanceActivePool = WETH.balanceOf(address(activePool));
 
         uint256 amountToRepay = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
+
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
         vm.stopPrank();
 
         assertEq(
             uint256(lpPositionsManager.getPosition(facticeUser1_tokenId).status),
             3,
-            "Position should be closed by liquidation"
+            "Position should be closed by liquidation."
         );
 
-        uint256 finalUSDCBalance = USDC.balanceOf(address(facticeUser2));
-        uint256 finalWETHBalance = WETH.balanceOf(address(facticeUser2));
-        assertGe(finalUSDCBalance, initialUSDCBalance);
-        assertGe(finalWETHBalance, initialWETHBalance);
+
+        uint256 finalUSDCBalanceFacticeUser2  = USDC.balanceOf(address(facticeUser2));
+        uint256 finalWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
+
+        uint256 finalUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
+        uint256 finalWETHBalanceActivePool = WETH.balanceOf(address(activePool));
+
+        assertGe(finalUSDCBalanceFacticeUser2 , initialUSDCBalanceActivePool );
+        assertGe(finalWETHBalanceFacticeUser2 , initialWETHBalanceActivePool );
+
+        assertGe(finalUSDCBalanceActivePool , initialUSDCBalanceFacticeUser2 );
+        assertGe(finalWETHBalanceActivePool , initialWETHBalanceFacticeUser2 );
 
     }
 
-
-    // Only works if you comment the reauire not liquidatable in the removeCollateral function
-    function Liquidate_withdrawColl() public {
-        vm.startPrank(deployer);
-        uint256 _minCR = Math.mulDiv(15, 1 << 96, 10);
-        lpPositionsManager.updateRiskConstants(
-            address(uniPoolUsdcETHAddr),
-            _minCR
-        );
-        vm.stopPrank();
-
-        vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10**18 * 633, facticeUser1_tokenId);
-        vm.stopPrank();
-
-        bool isLiquidatable = lpPositionsManager.liquidatable(
-            facticeUser1_tokenId
-        );
-        assertFalse(isLiquidatable);
-
-        console.log(
-            "Liquidity: ",
-            lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity
-        );
-
-        vm.startPrank(address(facticeUser1));
-        borrowerOperation.removeCollateral(
-            facticeUser1_tokenId,
-            28163658190075390
-        );
-        vm.stopPrank();
-
-        isLiquidatable = lpPositionsManager.liquidatable(facticeUser1_tokenId);
-        assertTrue(isLiquidatable);
-    }
 
 
 }

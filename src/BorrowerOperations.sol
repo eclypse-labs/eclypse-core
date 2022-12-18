@@ -111,7 +111,7 @@ contract BorrowerOperations is
         uint256 debt = lpPositionsManager.debtOf(_tokenId);
 
         if (debt > 0) repayGHO(debt, _tokenId); // try to repay all debt
-        require(debt == 0, "you have to repay your debt"); // should be 0 or the tx would have reverted, but just in case
+        require(debt == 0, "Debt is not repaid."); // should be 0 or the tx would have reverted, but just in case
 
         // send LP to owner
         activePool.sendLp(msg.sender, _tokenId);
@@ -198,7 +198,7 @@ contract BorrowerOperations is
 
         require(
             _liquidityToRemove <= position.liquidity,
-            "You can't remove more liquidity than you have"
+            "You can't remove more liquidity than you have."
         );
 
         lpPositionsManager.setNewLiquidity(
@@ -235,7 +235,7 @@ contract BorrowerOperations is
     modifier onlyActivePosition(uint256 _tokenId) {
         require(
             lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active,
-            "Position does not exist or is closed"
+            "Position does not exist or is closed."
         );
         _;
     }

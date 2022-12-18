@@ -724,10 +724,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         override
         returns (bool)
     {
-        require(liquidatable(_tokenId), "Position is not liquidatable");
+        require(liquidatable(_tokenId), "Position is not liquidatable.");
         require(
             debtOf(_tokenId) <= _GHOToRepay,
-            "Not enough GHO to repay debt"
+            "Not enough GHO to repay debt."
         );
         GHOToken.burn(msg.sender, debtOf(_tokenId)); // burn exactly the debt
         Position memory position = _positionFromTokenId[_tokenId];
@@ -789,7 +789,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     modifier onlyActivePosition(uint256 _tokenId) {
         require(
             _positionFromTokenId[_tokenId].status == Status.active,
-            "Position does not exist or is closed"
+            "Position does not exist or is closed."
         );
         _;
     }
@@ -797,7 +797,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     modifier onlyBorrowerOperations() {
         require(
             msg.sender == borrowerOperationsAddress,
-            "This operation is restricted"
+            "This operation is restricted."
         );
         _;
     }

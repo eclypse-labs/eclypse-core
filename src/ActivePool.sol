@@ -5,6 +5,7 @@ pragma solidity <0.9.0;
 import "./interfaces/IActivePool.sol";
 import "src/liquity-dependencies/CheckContract.sol";
 import "forge-std/console.sol";
+import "@uniswap-core/libraries/FullMath.sol";
 //import "Dependencies/console.sol";
 
 import "./LPPositionsManager.sol";
@@ -19,6 +20,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
     //uint256[] internal COLLATERAL; // array of LP position tokenIds in the protocol
     //mapping(uint256 => uint256) indexOfTokenId;
     uint256 internal GHODebt;
+
+    uint256 internal liquidationFees = 5;
 
     INonfungiblePositionManager constant uniswapPositionsNFT =
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
@@ -127,7 +130,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         onlyBOorLPPMorSP
         onlyBOorLPPM
     {
-        IERC20(_token).transfer(_account, _amount);
+        uint256 amountToSend = FullMath.mulDiv(_amount, 100 - liquidationFees, 100);
+        IERC20(_token).transfer(_account, amountToSend);
     }
 
     function increaseGHODebt(uint256 _amount) external override onlyBOorLPPM {
