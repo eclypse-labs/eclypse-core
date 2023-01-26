@@ -150,7 +150,6 @@ contract BorrowerOperations is
      */
     function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
         public
-        payable
         override
         onlyActivePosition(_tokenId)
     {
@@ -212,7 +211,7 @@ contract BorrowerOperations is
             "Collateral Ratio cannot be lower than the minimum collateral ratio."
         );
 
-        activePool.removeLiquidity(_tokenId, _liquidityToRemove);
+        (amount0, amount1) = activePool.removeLiquidity(_tokenId, _liquidityToRemove);
 
         return (amount0, amount1);
     }
