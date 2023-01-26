@@ -36,7 +36,7 @@ interface IBorrowerOperations {
 
     function borrowGHO(uint256 _GHOAmount, uint256 _tokenId) external payable;
 
-    function repayGHO(uint256 _GHOAmount, uint256 _tokenId) external payable;
+    function repayGHO(uint256 _GHOAmount, uint256 _tokenId) external;
 
     function addCollateral(
         uint256 _tokenId,
