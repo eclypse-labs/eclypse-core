@@ -21,7 +21,6 @@ contract BorrowerOperations is
     CheckContract,
     IBorrowerOperations
 {
-
     LPPositionsManager private lpPositionsManager;
     IGHOToken private GHOToken;
 
@@ -102,12 +101,11 @@ contract BorrowerOperations is
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      * @dev The caller must have approved the transfer of the collateral tokens from their wallet to the ActivePool contract.
      */
-    function closePosition(uint256 _tokenId) public 
-    onlyActivePosition(_tokenId)
-    onlyPositionOwner(_tokenId, msg.sender)
+    function closePosition(uint256 _tokenId)
+        public
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
     {
-
-
         uint256 debt = lpPositionsManager.debtOf(_tokenId);
 
         if (debt > 0) repayGHO(debt, _tokenId); // try to repay all debt
@@ -197,7 +195,7 @@ contract BorrowerOperations is
 
         require(
             _liquidityToRemove <= position.liquidity,
-            "You can't remove more liquidity than you have."
+            "You can't remove more liquidity than you have"
         );
 
         lpPositionsManager.setNewLiquidity(
@@ -211,7 +209,7 @@ contract BorrowerOperations is
             "Collateral Ratio cannot be lower than the minimum collateral ratio."
         );
 
-        (amount0, amount1) = activePool.removeLiquidity(_tokenId, _liquidityToRemove);
+        activePool.removeLiquidity(_tokenId, _liquidityToRemove);
 
         return (amount0, amount1);
     }
@@ -227,14 +225,21 @@ contract BorrowerOperations is
         uint256 _tokenId,
         int24 _newMinTick,
         int24 _newMaxTick
-    ) public payable onlyPositionOwner(_tokenId, msg.sender) onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender){
+    )
+        public
+        payable
+        onlyPositionOwner(_tokenId, msg.sender)
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
+    {
         lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
     }
 
     modifier onlyActivePosition(uint256 _tokenId) {
         require(
-            lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active,
-            "Position does not exist or is closed."
+            lpPositionsManager.getPosition(_tokenId).status ==
+                ILPPositionsManager.Status.active,
+            "Position does not exist or is closed"
         );
         _;
     }
@@ -247,4 +252,3 @@ contract BorrowerOperations is
         _;
     }
 }
-

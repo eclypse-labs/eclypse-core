@@ -68,6 +68,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
      * Returns the total collateral value locked in the protocol.
      *
      */
+    
     function getCollateralValue() public view override returns (uint256) {
         uint256 sum = 0;
         for (
@@ -199,7 +200,6 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
     function removeLiquidity(uint256 _tokenId, uint128 _liquidityToRemove)
         public
         override
-        onlyBorrowerOperations
         returns (uint256 amount0, uint256 amount1)
     {
         // amount0Min and amount1Min are price slippage checks
@@ -215,10 +215,15 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
                 });
 
         // It might be necessary that the ActivePool does this, since it's the actual NFT owner.
+
+
         (amount0, amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
 
+        console.log("ActivePool: removeLiquidity: amount0: %s", amount0);
+        console.log("ActivePool: removeLiquidity: amount1: %s", amount1);
+
         //send liquidity back to owner
-        uniswapPositionsNFT.collect(
+        (amount0, amount1) = uniswapPositionsNFT.collect(
             INonfungiblePositionManager.CollectParams(
                 _tokenId,
                 msg.sender,
@@ -226,6 +231,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
                 type(uint128).max
             )
         );
+        console.log("ActivePool: removeLiquidity: amount0: %s", amount0);
+        console.log("ActivePool: removeLiquidity: amount1: %s", amount1);
     }
 
     modifier onlyBorrowerOperations() {

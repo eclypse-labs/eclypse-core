@@ -416,6 +416,27 @@ contract LPPositionsManagerTest is UniswapTest {
 
     }
 
+    function testChangeTicks() public {
+        
+        int24 initialLowerTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickLower;
+        int24 initialUpperTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickUpper;
+
+        int24 newLowerTick = initialLowerTick + 10;
+        int24 newUpperTick = initialUpperTick + 10;
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.changeTick(facticeUser1_tokenId, newLowerTick, newUpperTick);
+        vm.stopPrank();
+
+    }
+
+    function testRemoveLiquidity() public {
+        vm.startPrank(address(facticeUser1));
+        console.log("Liquidity before: %s", lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity);
+        activePool.removeLiquidity(facticeUser1_tokenId, lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity / 2);
+        console.log("Liquidity after: %s", lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity);
+        vm.stopPrank();
+    }
+
 
 
 }

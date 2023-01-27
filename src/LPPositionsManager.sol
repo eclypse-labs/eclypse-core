@@ -5,6 +5,7 @@ import "./interfaces/IStabilityPool.sol";
 import "./interfaces/IActivePool.sol";
 import "./interfaces/ILPPositionsManager.sol";
 import "./interfaces/IGHOToken.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -70,6 +71,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     // Retrieves the address of the pool associated with the pair (token/ETH) where given the token's address.
     mapping(address => PoolPricingInfo) private _tokenToWETHPoolInfo;
+
+    // An array of all positions.
+    Position[] private _allPositions;
    
     // -- Methods --
 
@@ -151,6 +155,14 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         return _positionFromTokenId[_tokenId];
     }
 
+    /**
+     * @notice Returns the total number of positions owned by all users.
+     * @return totalCount The number of positions owned by all users.
+     */
+    function getPositionsOwnersCount() external view returns (uint256) {
+        return _allPositions.length;
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Position Statuses
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -222,6 +234,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             block.timestamp
         );
 
+        _allPositions.push(position);
         _positionsFromAddress[_owner].push(position);
         _positionFromTokenId[_tokenId] = position;
 
@@ -584,31 +597,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         );
 
         Position memory _position = _positionFromTokenId[_tokenId];
+        (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
+        console.log("Liquidity Before:", _position.liquidity);
 
-        (
-            uint256 amount0ToWithdraw,
-            uint256 amount1ToWithdraw
-        ) = positionAmounts(_tokenId);
-
-        TransferHelper.safeApprove(
-            _position.token0,
-            address(uniswapPositionsNFT),
-            amount0ToWithdraw
-        );
-        TransferHelper.safeApprove(
-            _position.token1,
-            address(uniswapPositionsNFT),
-            amount1ToWithdraw
-        );
-
-        INonfungiblePositionManager.CollectParams
-            memory collectParams = INonfungiblePositionManager.CollectParams({
-                tokenId: _tokenId,
-                recipient: address(this),
-                amount0Max: type(uint128).max,
-                amount1Max: type(uint128).max
-            });
-
+        (uint256 _amount0, uint256 _amount1) = activePool.removeLiquidity(_tokenId, _position.liquidity);
+        console.log("Liquidity After:", _position.liquidity);
         INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager
             .MintParams({
                 token0: _position.token0,
@@ -616,20 +609,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 fee: _position.fee,
                 tickLower: _newMinTick,
                 tickUpper: _newMaxTick,
-                amount0Desired: amount0ToWithdraw,
-                amount1Desired: amount1ToWithdraw,
+                amount0Desired: amount0,
+                amount1Desired: amount1,
                 amount0Min: 0, //TODO: Change that cause it represents a vulnerability
                 amount1Min: 0, //TODO: Change that cause it represents a vulnerability
                 recipient: address(this),
                 deadline: block.timestamp
             });
-
-        (uint256 _amount0, uint256 _amount1) = uniswapPositionsNFT.collect(
-            collectParams
-        );
-
-        TransferHelper.safeTransfer(_position.token0, address(this), _amount0);
-        TransferHelper.safeTransfer(_position.token1, address(this), _amount1);
 
         (uint256 _newTokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
 
@@ -642,6 +628,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             _position.lastUpdateTimestamp
         );
 
+        _allPositions.push(position);
         _positionsFromAddress[msg.sender].push(position);
         _positionFromTokenId[_newTokenId] = position;
 
@@ -724,43 +711,31 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         override
         returns (bool)
     {
-        require(liquidatable(_tokenId), "Position is not liquidatable.");
+        require(liquidatable(_tokenId), "Position is not liquidatable");
         require(
             debtOf(_tokenId) <= _GHOToRepay,
-            "Not enough GHO to repay debt."
+            "Not enough GHO to repay debt"
         );
+        //We should burn the GHO here.
         GHOToken.burn(msg.sender, debtOf(_tokenId)); // burn exactly the debt
         Position memory position = _positionFromTokenId[_tokenId];
         position.debt = 0;
         position.status = Status.closedByLiquidation;
         _positionFromTokenId[_tokenId] = position;
 
-        INonfungiblePositionManager.DecreaseLiquidityParams memory params =
-            INonfungiblePositionManager.DecreaseLiquidityParams({
-                tokenId: _tokenId,
-                liquidity: position.liquidity,
-                amount0Min: 0,
-                amount1Min: 0,
-                deadline: block.timestamp
-            });
+        // uint128 currentLiquidity = position.liquidity;
+        // uint128 liquidityToDecrease = (currentLiquidity * 5) / 100;
+        // INonfungiblePositionManager.DecreaseLiquidityParams memory params =
+        //     INonfungiblePositionManager.DecreaseLiquidityParams({
+        //         tokenId: _tokenId,
+        //         liquidity: liquidityToDecrease,
+        //         amount0Min: 0,
+        //         amount1Min: 0,
+        //         deadline: block.timestamp
+        //     });
+        //(uint256 amount0, uint256 amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
 
-        activePool.decreaseLiquidity(params);
-
-        INonfungiblePositionManager.CollectParams memory feesParam =
-            INonfungiblePositionManager.CollectParams({
-                tokenId: _tokenId,
-                recipient: address(activePool),
-                amount0Max: type(uint128).max,
-                amount1Max: type(uint128).max
-            });
-
-
-        (uint256 amount0, uint256 amount1) = activePool.collectOwed(feesParam);
-
-        activePool.sendToken(position.token0, msg.sender, amount0);
-        activePool.sendToken(position.token1, msg.sender, amount1);
-
-        activePool.burnPosition(_tokenId);
+        activePool.sendLp(msg.sender, _tokenId);
 
         return true;
     }
@@ -789,7 +764,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     modifier onlyActivePosition(uint256 _tokenId) {
         require(
             _positionFromTokenId[_tokenId].status == Status.active,
-            "Position does not exist or is closed."
+            "Position does not exist or is closed"
         );
         _;
     }
@@ -797,7 +772,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     modifier onlyBorrowerOperations() {
         require(
             msg.sender == borrowerOperationsAddress,
-            "This operation is restricted."
+            "This operation is restricted"
         );
         _;
     }
@@ -825,4 +800,3 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         }
     }
 }
-
