@@ -582,7 +582,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         uint256 _tokenId,
         int24 _newMinTick,
         int24 _newMaxTick
-    ) public onlyBorrowerOperations onlyActivePosition(_tokenId){
+    ) public onlyBorrowerOperations onlyActivePosition(_tokenId) returns (uint256 _newTokenId) {
         require(
             _newMinTick < _newMaxTick,
             "The new min tick must be smaller than the new max tick."
@@ -597,11 +597,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         );
 
         Position memory _position = _positionFromTokenId[_tokenId];
-        (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
-        console.log("Liquidity Before:", _position.liquidity);
 
         (uint256 _amount0, uint256 _amount1) = activePool.removeLiquidity(_tokenId, _position.liquidity);
-        console.log("Liquidity After:", _position.liquidity);
+        
         INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager
             .MintParams({
                 token0: _position.token0,
@@ -609,18 +607,18 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 fee: _position.fee,
                 tickLower: _newMinTick,
                 tickUpper: _newMaxTick,
-                amount0Desired: amount0,
-                amount1Desired: amount1,
+                amount0Desired: _amount0,
+                amount1Desired: _amount1,
                 amount0Min: 0, //TODO: Change that cause it represents a vulnerability
                 amount1Min: 0, //TODO: Change that cause it represents a vulnerability
-                recipient: address(this),
+                recipient: address(activePool),
                 deadline: block.timestamp
             });
 
-        (uint256 _newTokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+        _newTokenId = activePool.mintLP(mintParams);
 
         Position memory position = setNewPosition(
-            msg.sender,
+            address(activePool),
             _position.poolAddress,
             _newTokenId,
             Status.active,
@@ -632,8 +630,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _positionsFromAddress[msg.sender].push(position);
         _positionFromTokenId[_newTokenId] = position;
 
-        _position.status = Status.closedByOwner;
-        uniswapPositionsNFT.burn(_tokenId);
+        activePool.burnPosition(_tokenId);
+        changePositionStatus(_tokenId, Status.closedByOwner);
+
+        return _newTokenId;
     }
 
     function setNewPosition(

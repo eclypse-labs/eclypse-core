@@ -231,8 +231,9 @@ contract BorrowerOperations is
         onlyPositionOwner(_tokenId, msg.sender)
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
+        returns (uint256 _newTokenId)
     {
-        lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
+        _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
     }
 
     modifier onlyActivePosition(uint256 _tokenId) {

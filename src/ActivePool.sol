@@ -6,11 +6,13 @@ import "./interfaces/IActivePool.sol";
 import "src/liquity-dependencies/CheckContract.sol";
 import "forge-std/console.sol";
 import "@uniswap-core/libraries/FullMath.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+
 //import "Dependencies/console.sol";
 
 import "./LPPositionsManager.sol";
 
-contract ActivePool is Ownable, CheckContract, IActivePool {
+contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
     string public constant NAME = "ActivePool";
     address public borrowerOperationsAddress;
@@ -116,6 +118,23 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
         uniswapPositionsNFT.burn(tokenId);
     }
 
+    function mintLP(
+        INonfungiblePositionManager.MintParams memory params
+    ) public onlyBOorLPPMorSP returns (uint256 tokenId) {
+        TransferHelper.safeApprove(
+            params.token0,
+            address(uniswapPositionsNFT),
+            params.amount0Desired
+        );
+        TransferHelper.safeApprove(
+            params.token1,
+            address(uniswapPositionsNFT),
+            params.amount1Desired
+        );
+        (tokenId, , ,) = uniswapPositionsNFT.mint(params);
+        return tokenId;
+    }
+
     function sendLp(address _account, uint256 _tokenId)
         public
         onlyBOorLPPMorSP
@@ -216,23 +235,26 @@ contract ActivePool is Ownable, CheckContract, IActivePool {
 
         // It might be necessary that the ActivePool does this, since it's the actual NFT owner.
 
+        uniswapPositionsNFT.safeTransferFrom(address(this), address(this), _tokenId);
 
         (amount0, amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
 
-        console.log("ActivePool: removeLiquidity: amount0: %s", amount0);
-        console.log("ActivePool: removeLiquidity: amount1: %s", amount1);
-
         //send liquidity back to owner
         (amount0, amount1) = uniswapPositionsNFT.collect(
-            INonfungiblePositionManager.CollectParams(
-                _tokenId,
-                msg.sender,
-                type(uint128).max, // sends everything owed to the position owner (removed liquidity + fees collected)
-                type(uint128).max
-            )
-        );
-        console.log("ActivePool: removeLiquidity: amount0: %s", amount0);
-        console.log("ActivePool: removeLiquidity: amount1: %s", amount1);
+            INonfungiblePositionManager.CollectParams({
+                tokenId: _tokenId,
+                recipient: address(this),
+                amount0Max: type(uint128).max,
+                amount1Max: type(uint128).max
+            }));
+
+        TransferHelper.safeTransfer(lpPositionsManager.getPosition(_tokenId).token0 , address(this), amount0);
+        TransferHelper.safeTransfer(lpPositionsManager.getPosition(_tokenId).token1 , address(this), amount1);
+        
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 
     modifier onlyBorrowerOperations() {

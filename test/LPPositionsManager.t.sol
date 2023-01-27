@@ -19,7 +19,6 @@ contract LPPositionsManagerTest is UniswapTest {
         uniswapTest();
     }
 
-
     function testDepositAndWithdraw() public {
         uint256 initBalanceUsdc = USDC.balanceOf(facticeUser1);
         uint256 initBalanceWeth = WETH.balanceOf(facticeUser1);
@@ -424,18 +423,47 @@ contract LPPositionsManagerTest is UniswapTest {
         int24 newLowerTick = initialLowerTick + 10;
         int24 newUpperTick = initialUpperTick + 10;
         vm.startPrank(address(facticeUser1));
-        borrowerOperation.changeTick(facticeUser1_tokenId, newLowerTick, newUpperTick);
+        uint256 _newTokenId = borrowerOperation.changeTick(facticeUser1_tokenId, newLowerTick, newUpperTick);
         vm.stopPrank();
+
+        assertEq(
+            uint256(lpPositionsManager.getPosition(_newTokenId).status),
+            1,
+            "Position should be active."
+        );
+        assertEq(
+            lpPositionsManager.getPosition(_newTokenId).tickLower,
+            newLowerTick,
+            "Position should have new lower tick."
+        );
+        assertEq(
+            lpPositionsManager.getPosition(_newTokenId).tickUpper,
+            newUpperTick,
+            "Position should have new upper tick."
+        );
+        assertEq(
+            uint256(
+                lpPositionsManager.getPosition(facticeUser1_tokenId).status
+            ),
+            2,
+            "Position should be closed by owner."
+        );
+
+        assertEq(
+            lpPositionsManager.getPosition(facticeUser1_tokenId).debt,
+            lpPositionsManager.getPosition(_newTokenId).debt,
+            "Position should have same debt."
+        );
 
     }
 
     function testRemoveLiquidity() public {
         vm.startPrank(address(facticeUser1));
-        console.log("Liquidity before: %s", lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity);
         activePool.removeLiquidity(facticeUser1_tokenId, lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity / 2);
-        console.log("Liquidity after: %s", lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity);
         vm.stopPrank();
     }
+
+    
 
 
 

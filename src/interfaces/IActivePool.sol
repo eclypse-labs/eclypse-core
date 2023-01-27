@@ -14,6 +14,10 @@ interface IActivePool is IPool {
     //event ActivePoolCollateralBalanceUpdated(uint _collateralValue);
 
     // --- Functions ---
+
+    function mintLP(
+        INonfungiblePositionManager.MintParams memory params
+    ) external returns (uint256 tokenId);
     function sendLp(address _account, uint256 _tokenId) external;
     function sendToken(address _token, address _account, uint256 _amount) external;
     
