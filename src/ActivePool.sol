@@ -170,8 +170,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
     // Heal function
     function increaseLiquidity(
-        address payer,
-        uint256 tokenId,
+        address sender,
+        uint256 _tokenId,
         uint256 amountAdd0,
         uint256 amountAdd1
     )
@@ -184,35 +184,24 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             uint256 amount1
         )
     {
-        (
-            ,
-            ,
-            address token0,
-            address token1,
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
-            ,
+        address token0 = lpPositionsManager.getPosition(_tokenId).token0;
+        address token1 = lpPositionsManager.getPosition(_tokenId).token1;
 
-        ) = uniswapPositionsNFT.positions(tokenId);
-        IERC20(token0).transferFrom(payer, address(this), amountAdd0);
-        IERC20(token1).transferFrom(payer, address(this), amountAdd1);
+        TransferHelper.safeTransferFrom(token0, sender, address(this), amountAdd0);
+        TransferHelper.safeTransferFrom(token1, sender, address(this), amountAdd1);
 
-        INonfungiblePositionManager.IncreaseLiquidityParams
-            memory params = INonfungiblePositionManager
-                .IncreaseLiquidityParams({
-                    tokenId: tokenId,
-                    amount0Desired: amountAdd0,
-                    amount1Desired: amountAdd1,
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    deadline: block.timestamp
-                });
+        TransferHelper.safeApprove(token0, address(uniswapPositionsNFT), amountAdd0);
+        TransferHelper.safeApprove(token1, address(uniswapPositionsNFT), amountAdd1);
+
         (liquidity, amount0, amount1) = uniswapPositionsNFT.increaseLiquidity(
-            params
+            INonfungiblePositionManager.IncreaseLiquidityParams({
+                tokenId: _tokenId,
+                amount0Desired: amountAdd0,
+                amount1Desired: amountAdd1,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            })
         );
     }
 
@@ -222,24 +211,18 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         returns (uint256 amount0, uint256 amount1)
     {
         // amount0Min and amount1Min are price slippage checks
-        // if the amount received after burning is not greater than these minimums, transaction will fail
-        INonfungiblePositionManager.DecreaseLiquidityParams
-            memory params = INonfungiblePositionManager
+
+        uniswapPositionsNFT.decreaseLiquidity(
+            INonfungiblePositionManager
                 .DecreaseLiquidityParams({
                     tokenId: _tokenId,
                     liquidity: _liquidityToRemove,
                     amount0Min: 0,
                     amount1Min: 0,
                     deadline: block.timestamp
-                });
+                })
+        );
 
-        // It might be necessary that the ActivePool does this, since it's the actual NFT owner.
-
-        uniswapPositionsNFT.safeTransferFrom(address(this), address(this), _tokenId);
-
-        (amount0, amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
-
-        //send liquidity back to owner
         (amount0, amount1) = uniswapPositionsNFT.collect(
             INonfungiblePositionManager.CollectParams({
                 tokenId: _tokenId,
