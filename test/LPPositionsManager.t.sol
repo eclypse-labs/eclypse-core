@@ -349,8 +349,10 @@ contract LPPositionsManagerTest is UniswapTest {
         vm.stopPrank();
 
 
+        console.log("Pass 1");
         assertFalse(lpPositionsManager.liquidatable(facticeUser1_tokenId));
 
+        console.log("Pass 2");
         vm.startPrank(deployer);
 
         deal(address(USDC), deployer, 10**18 * 1_000_000 * 2);
@@ -378,7 +380,9 @@ contract LPPositionsManagerTest is UniswapTest {
         swapRouter.exactInputSingle(params);
         vm.stopPrank();
 
+        console.log("Pass 3");
         assertTrue(lpPositionsManager.liquidatable(facticeUser1_tokenId));
+        console.log("Pass 4");
 
         vm.startPrank(address(facticeUser2));
 
@@ -389,17 +393,20 @@ contract LPPositionsManagerTest is UniswapTest {
         uint256 initialWETHBalanceActivePool = WETH.balanceOf(address(activePool));
 
         uint256 amountToRepay = lpPositionsManager.debtOf(facticeUser1_tokenId);
+        console.log("Pass 5");
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
+        console.log("Pass 6");
 
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
         vm.stopPrank();
 
+        console.log("Pass 7");
         assertEq(
             uint256(lpPositionsManager.getPosition(facticeUser1_tokenId).status),
             3,
             "Position should be closed by liquidation."
         );
-
+        console.log("Pass 8");
 
         uint256 finalUSDCBalanceFacticeUser2  = USDC.balanceOf(address(facticeUser2));
         uint256 finalWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
@@ -407,10 +414,13 @@ contract LPPositionsManagerTest is UniswapTest {
         uint256 finalUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
         uint256 finalWETHBalanceActivePool = WETH.balanceOf(address(activePool));
 
+        console.log("Pass 9");
         assertGe(finalUSDCBalanceFacticeUser2 , initialUSDCBalanceActivePool );
+        console.log("Pass 10");
         assertGe(finalWETHBalanceFacticeUser2 , initialWETHBalanceActivePool );
-
+        console.log("Pass 11");
         assertGe(finalUSDCBalanceActivePool , initialUSDCBalanceFacticeUser2 );
+        console.log("Pass 12");
         assertGe(finalWETHBalanceActivePool , initialWETHBalanceFacticeUser2 );
 
     }
