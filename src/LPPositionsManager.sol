@@ -24,7 +24,7 @@ import "forge-std/Test.sol";
 /**
  * @title LPPositionsManager contract
  * @notice Contains the logic for position operations performed by users.
- * @dev The contract is owned by the Eclypse system, and is called by the LPPositionManager contract.
+ * @dev The contract is owned by the Eclypse system, and is called by the BorrowerOperations and ActivePool contracts.
  */
 
 contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
@@ -492,7 +492,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the collateral ratio of.
      * @return collRatio The collateral ratio of the position.
      */
-    function computeCR(uint256 _tokenId) public returns (uint256) {
+    function computeCR(uint256 _tokenId) public view returns (uint256) {
         return _computeCR(positionValueInETH(_tokenId), debtOfInETH(_tokenId));
     }
 
@@ -598,7 +598,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         Position memory _position = _positionFromTokenId[_tokenId];
 
-        (uint256 _amount0, uint256 _amount1) = activePool.removeLiquidity(_tokenId, _position.liquidity);
+        (uint256 _amount0, uint256 _amount1) = activePool.decreaseLiquidity(_tokenId, _position.liquidity);
         
         INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager
             .MintParams({
@@ -615,9 +615,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 deadline: block.timestamp
             });
 
-        _newTokenId = activePool.mintLP(mintParams);
+        _newTokenId = activePool.mintPosition(mintParams);
 
-        Position memory position = setNewPosition(
+        setNewPosition(
             address(activePool),
             _position.poolAddress,
             _newTokenId,
@@ -626,16 +626,23 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             _position.lastUpdateTimestamp
         );
 
-        _allPositions.push(position);
-        _positionsFromAddress[msg.sender].push(position);
-        _positionFromTokenId[_newTokenId] = position;
-
         activePool.burnPosition(_tokenId);
         changePositionStatus(_tokenId, Status.closedByOwner);
 
         return _newTokenId;
     }
 
+
+    /**
+    * @notice Add a new position to the list of positions.
+    * @param _owner The owner of the position.
+    * @param _poolAddress The address of the pool of the position.
+    * @param _newTokenId The ID of the position.
+    * @param _status The status of the position.
+    * @param _debt The debt of the position.
+    * @param _lastUpdate The last update of the position.
+    * @return position The position.
+    */
     function setNewPosition(
         address _owner,
         address _poolAddress,
@@ -643,7 +650,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         Status _status,
         uint256 _debt,
         uint256 _lastUpdate
-    ) public view returns (Position memory) {
+    ) public returns (Position memory position) {
         (
             ,
             ,
@@ -659,22 +666,27 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         ) = uniswapPositionsNFT.positions(_newTokenId);
 
-        return
-            Position({
-                user: _owner,
-                token0: _token0,
-                token1: _token1,
-                fee: _fee,
-                tickLower: _tickLower,
-                tickUpper: _tickUpper,
-                liquidity: _liquidity,
-                poolAddress: _poolAddress,
-                tokenId: _newTokenId,
-                status: _status,
-                debt: _debt,
-                lastUpdateTimestamp: _lastUpdate
-            });
+        position = Position({
+            user: _owner,
+            token0: _token0,
+            token1: _token1,
+            fee: _fee,
+            tickLower: _tickLower,
+            tickUpper: _tickUpper,
+            liquidity: _liquidity,
+            poolAddress: _poolAddress,
+            tokenId: _newTokenId,
+            status: _status,
+            debt: _debt,
+            lastUpdateTimestamp: _lastUpdate
+        });
+
+        _allPositions.push(position);
+        _positionsFromAddress[_owner].push(position);
+        _positionFromTokenId[_newTokenId] = position;
     }
+
+
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Liquidation functions
@@ -688,6 +700,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function liquidatable(uint256 _tokenId)
         public
+        view
         override
         returns (bool)
     {
@@ -734,7 +747,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         //     });
         //(uint256 amount0, uint256 amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
 
-        activePool.sendLp(msg.sender, _tokenId);
+        activePool.sendPosition(msg.sender, _tokenId);
 
         return true;
     }
@@ -760,6 +773,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 
+    /**
+     * @notice Checks if a position is active.
+     * @param _tokenId The ID of the position to check.
+     * @return true if the position exists and false otherwise.
+     */
     modifier onlyActivePosition(uint256 _tokenId) {
         require(
             _positionFromTokenId[_tokenId].status == Status.active,
@@ -768,6 +786,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _;
     }
 
+    /**
+    * @notice Checks if the caller is the borrower operations contract.
+    * @dev This modifier is used to restrict access to the borrower operations contract.
+    */
     modifier onlyBorrowerOperations() {
         require(
             msg.sender == borrowerOperationsAddress,

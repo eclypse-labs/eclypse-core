@@ -467,9 +467,9 @@ contract LPPositionsManagerTest is UniswapTest {
 
     }
 
-    function testRemoveLiquidity() public {
+    function testDecreaseLiquidity() public {
         vm.startPrank(address(facticeUser1));
-        activePool.removeLiquidity(facticeUser1_tokenId, lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity / 2);
+        activePool.decreaseLiquidity(facticeUser1_tokenId, lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity / 2);
         vm.stopPrank();
     }
 

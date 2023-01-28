@@ -15,17 +15,16 @@ interface IActivePool is IPool {
 
     // --- Functions ---
 
-    function mintLP(
+    function mintPosition(
         INonfungiblePositionManager.MintParams memory params
     ) external returns (uint256 tokenId);
-    function sendLp(address _account, uint256 _tokenId) external;
+    function sendPosition(address _account, uint256 _tokenId) external;
     function sendToken(address _token, address _account, uint256 _amount) external;
     
     function increaseGHODebt(uint256 _amount) external;
     function decreaseGHODebt(uint256 _amount) external;
 
-    function decreaseLiquidity(INonfungiblePositionManager.DecreaseLiquidityParams memory params) external returns (uint256 amount0, uint256 amount1);
-    function collectOwed(INonfungiblePositionManager.CollectParams memory params) external returns (uint256 amount0, uint256 amount1);
+    function amountsOwed(INonfungiblePositionManager.CollectParams memory params) external returns (uint256 amount0, uint256 amount1);
     
     function burnPosition(uint256 _tokenId) external;
     
@@ -42,7 +41,7 @@ interface IActivePool is IPool {
             uint256 amount1
         );
 
-    function removeLiquidity(uint256 _tokenId, uint128 _liquidityToRemove)
+    function decreaseLiquidity(uint256 _tokenId, uint128 _liquidityToRemove)
         external
         returns (uint256 amount0, uint256 amount1);
 }
