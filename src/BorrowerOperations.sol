@@ -219,7 +219,6 @@ contract BorrowerOperations is
      */
     function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
         external
-        override
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
         returns (uint256 amount0, uint256 amount1)
@@ -238,7 +237,7 @@ contract BorrowerOperations is
             "Collateral Ratio cannot be lower than the minimum collateral ratio."
         );
 
-        activePool.decreaseLiquidity(_tokenId, _liquidityToRemove);
+        activePool.decreaseLiquidity(_tokenId, _liquidityToRemove, msg.sender);
 
         require(
             !lpPositionsManager.liquidatable(_tokenId),
@@ -269,6 +268,19 @@ contract BorrowerOperations is
     {
         _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
     }
+
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // Assets
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+    function retrieveTokens(address _token, uint256 _amount)
+        external
+        onlyOwner
+    {
+        activePool.decreaseOwedToUser(msg.sender, _token, _amount);
+    }
+
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Modifiers and Require functions

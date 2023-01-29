@@ -42,13 +42,15 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     LPPositionsManager lpPositionsManager;
 
     // --- Events ---
-
     event BorrowerOperationsAddressChanged(
         address _newBorrowerOperationsAddress
     );
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
     event ActivePoolGHODebtUpdated(uint256 _GHODebt);
     event ActivePoolCollateralBalanceUpdated(uint256 _collateralValue);
+
+    // --- Data Structures ---
+    mapping(address => mapping(address => uint256)) private owedToUser;
 
     // -- Methods --
 
@@ -238,8 +240,9 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      */
     function decreaseLiquidity(
         uint256 _tokenId,
-        uint128 _liquidityToRemove
-    ) public override returns (uint256 amount0, uint256 amount1) {
+        uint128 _liquidityToRemove,
+        address sender
+    ) public returns (uint256 amount0, uint256 amount1) {
         // amount0Min and amount1Min are price slippage checks
 
         uniswapPositionsNFT.decreaseLiquidity(
@@ -272,11 +275,26 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             amount1
         );
 
+        if(sender != address(0)) {
+            owedToUser[sender][lpPositionsManager.getPosition(_tokenId).token0] += amount0;
+            owedToUser[sender][lpPositionsManager.getPosition(_tokenId).token1] += amount1;
+        }
+
         lpPositionsManager.setNewLiquidity(
             _tokenId,
             lpPositionsManager.getPosition(_tokenId).liquidity -
                 _liquidityToRemove
         );
+    }
+
+    function increaseOwedToUser(address sender, address token, uint256 amount) public onlyBOorLPPMorSP {
+        owedToUser[sender][token] += amount;
+    }
+
+    function decreaseOwedToUser(address sender, address token, uint256 amount) public onlyBOorLPPMorSP {
+        require(owedToUser[sender][token] >= amount, "Insufficient amount");
+        owedToUser[sender][token] -= amount;
+        sendToken(token, sender, amount);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//

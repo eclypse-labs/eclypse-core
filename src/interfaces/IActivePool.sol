@@ -41,8 +41,11 @@ interface IActivePool is IPool {
             uint256 amount1
         );
 
-    function decreaseLiquidity(uint256 _tokenId, uint128 _liquidityToRemove)
+    function decreaseLiquidity(uint256 _tokenId, uint128 _liquidityToRemove, address sender)
         external
         returns (uint256 amount0, uint256 amount1);
+
+    function decreaseOwedToUser(address sender, address token, uint256 amount) external;
+    function increaseOwedToUser(address sender, address token, uint256 amount) external;
 }
 

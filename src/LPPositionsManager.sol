@@ -607,7 +607,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         (uint256 _amount0, uint256 _amount1) = activePool.decreaseLiquidity(
             _tokenId,
-            _position.liquidity
+            _position.liquidity,
+            address(0)
         );
 
         INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager
