@@ -126,7 +126,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     * @return amount1 The amount of token1 owed to the position.
     */
 
-    function amountsOwed(
+    function feesOwed(
         INonfungiblePositionManager.CollectParams memory params
     ) public onlyBOorLPPMorSP returns (uint256 amount0, uint256 amount1) {
         (amount0, amount1) = uniswapPositionsNFT.collect(params);

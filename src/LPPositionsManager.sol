@@ -492,8 +492,17 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the collateral ratio of.
      * @return collRatio The collateral ratio of the position.
      */
-    function computeCR(uint256 _tokenId) public view returns (uint256) {
-        return _computeCR(positionValueInETH(_tokenId), debtOfInETH(_tokenId));
+    function computeCR(uint256 _tokenId) public returns (uint256) {
+        (uint256 fee0, uint256 fee1) = activePool.feesOwed( 
+             INonfungiblePositionManager.CollectParams(
+                _tokenId,
+                address(this),
+                type(uint128).max,
+                type(uint128).max
+        ));
+        uint256 fees = FullMath.mulDiv(fee0, priceInETH(_positionFromTokenId[_tokenId].token0), FixedPoint96.Q96) + FullMath.mulDiv(fee1, priceInETH(_positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
+
+        return _computeCR(positionValueInETH(_tokenId) + fees, debtOfInETH(_tokenId));
     }
 
     /**
@@ -700,7 +709,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function liquidatable(uint256 _tokenId)
         public
-        view
         override
         returns (bool)
     {
