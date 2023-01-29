@@ -468,14 +468,12 @@ contract LPPositionsManagerTest is UniswapTest {
     }
 
     function testDecreaseLiquidity() public {
+        uint128 previousLiquidity = lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity;
         vm.startPrank(address(facticeUser1));
         activePool.decreaseLiquidity(facticeUser1_tokenId, lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity / 2);
         vm.stopPrank();
+        assertEq(lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity, previousLiquidity / 2, "Position should have half liquidity.");
     }
-
-    
-
-
 
 }
 

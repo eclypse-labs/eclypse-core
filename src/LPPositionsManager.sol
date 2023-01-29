@@ -28,7 +28,6 @@ import "forge-std/Test.sol";
  */
 
 contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
-
     // -- Integer Constants --
 
     uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
@@ -37,7 +36,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // -- Addresses --
 
     address constant ETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address constant factoryAddress = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+    address constant factoryAddress =
+        0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
     address gasPoolAddress;
     address borrowerOperationsAddress;
@@ -53,7 +53,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // IStabilityPool public stabilityPool;
     IActivePool public activePool;
     IGHOToken public GHOToken;
-
 
     // -- Mappings & Arrays --
 
@@ -74,7 +73,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     // An array of all positions.
     Position[] private _allPositions;
-   
+
     // -- Methods --
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -109,7 +108,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         // renounceOwnership();
     }
-
 
     /**
      * @notice Adds a pair of tokens to the protocol.
@@ -147,11 +145,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The token to retrieve the position for
      * @return position The position of the given token
      */
-    function getPosition(uint256 _tokenId)
-        public
-        view
-        returns (Position memory position)
-    {
+    function getPosition(
+        uint256 _tokenId
+    ) public view returns (Position memory position) {
         return _positionFromTokenId[_tokenId];
     }
 
@@ -167,18 +163,16 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // Position Statuses
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
     /**
      * @notice Changes the status of a position with a given token ID.
      * @dev The position must have a different status than the one provided.
      * @param _tokenId The token ID of the position.
      * @param _status The new status of the position.
      */
-    function changePositionStatus(uint256 _tokenId, Status _status)
-        public
-        override
-        onlyBorrowerOperations
-    {
+    function changePositionStatus(
+        uint256 _tokenId,
+        Status _status
+    ) public override onlyBorrowerOperations {
         require(
             _positionFromTokenId[_tokenId].status != _status,
             "A position status cannot be changed to its current one."
@@ -192,11 +186,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _owner The address of the position owner.
      * @param _tokenId The ID of the Uniswap NFT representing the position.
      */
-    function openPosition(address _owner, uint256 _tokenId)
-        public
-        override
-        onlyBorrowerOperations
-    {
+    function openPosition(
+        address _owner,
+        uint256 _tokenId
+    ) public override onlyBorrowerOperations {
         (
             ,
             ,
@@ -252,7 +245,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @return amountToken0 The amount of tokens 0.
      * @return amountToken1 The amount of tokens 1.
      */
-    function positionAmounts(uint256 _tokenId)
+    function positionAmounts(
+        uint256 _tokenId
+    )
         public
         view
         override
@@ -292,7 +287,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the debt of.
      * @return currentDebt The total debt of the position, including interest.
      */
-    function debtOf(uint256 _tokenId) public view override returns (uint256 currentDebt) {
+    function debtOf(
+        uint256 _tokenId
+    ) public view override returns (uint256 currentDebt) {
         uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
             .lastUpdateTimestamp;
         currentDebt = FullMath.mulDivRoundingUp(
@@ -308,11 +305,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _user The address of the user to get the debt of.
      * @return totalDebtInGHO The total debt of the user, including interest.
      */
-    function totalDebtOf(address _user)
-        public
-        view
-        returns (uint256 totalDebtInGHO)
-    {
+    function totalDebtOf(
+        address _user
+    ) public view returns (uint256 totalDebtInGHO) {
         for (uint32 i = 0; i < _positionsFromAddress[_user].length; i++) {
             if (_positionsFromAddress[_user][i].status == Status.active) {
                 totalDebtInGHO += debtOf(
@@ -329,12 +324,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to increase the debt of.
      * @param _amount The amount to increase the debt of the position by.
      */
-    function increaseDebtOf(uint256 _tokenId, uint256 _amount)
-        public
-        override
-        onlyBorrowerOperations
-        onlyActivePosition(_tokenId)
-    {
+    function increaseDebtOf(
+        uint256 _tokenId,
+        uint256 _amount
+    ) public override onlyBorrowerOperations onlyActivePosition(_tokenId) {
         require(
             _amount > 0,
             "A debt cannot be increased by a negative amount or by 0."
@@ -360,7 +353,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _amount The amount to decrease the debt of the position by.
      * @return leftOver The amount of debt that could not be decreased.
      */
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
+    function decreaseDebtOf(
+        uint256 _tokenId,
+        uint256 _amount
+    )
         public
         override
         onlyBorrowerOperations
@@ -396,12 +392,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenAddress The address of the token.
      * @return valueInETH The value of the token in ETH.
      */
-    function priceInETH(address _tokenAddress)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function priceInETH(
+        address _tokenAddress
+    ) public view override returns (uint256) {
         if (_tokenAddress == ETHAddress) return FixedPoint96.Q96;
         (int24 twappedTick, ) = OracleLibrary.consult(
             _tokenToWETHPoolInfo[_tokenAddress].poolAddress,
@@ -425,12 +418,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the debt of.
      * @return debtInETH The debt of the position in ETH.
      */
-    function debtOfInETH(uint256 _tokenId)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function debtOfInETH(
+        uint256 _tokenId
+    ) public view override returns (uint256) {
         return
             FullMath.mulDivRoundingUp(
                 debtOf(_tokenId),
@@ -445,12 +435,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the value of.
      * @return value The value of the position in ETH.
      */
-    function positionValueInETH(uint256 _tokenId)
-        public
-        view
-        override
-        returns (uint256 value)
-    {
+    function positionValueInETH(
+        uint256 _tokenId
+    ) public view override returns (uint256 value) {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
@@ -465,12 +452,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _user The address of the user to get the total value of.
      * @return totalValue The total value of all active positions of the user in ETH.
      */
-    function totalPositionsValueInETH(address _user)
-        public
-        view
-        override
-        returns (uint256 totalValue)
-    {
+    function totalPositionsValueInETH(
+        address _user
+    ) public view override returns (uint256 totalValue) {
         totalValue = 0;
         for (uint32 i = 0; i < _positionsFromAddress[_user].length; i++) {
             if (_positionsFromAddress[_user][i].status == Status.active) {
@@ -486,23 +470,36 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // Collateral Ratio functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
     /**
      * @notice Returns the collateral ratio of a position.
      * @param _tokenId The ID of the position to get the collateral ratio of.
      * @return collRatio The collateral ratio of the position.
      */
     function computeCR(uint256 _tokenId) public returns (uint256) {
-        (uint256 fee0, uint256 fee1) = activePool.feesOwed( 
-             INonfungiblePositionManager.CollectParams(
+        (uint256 fee0, uint256 fee1) = activePool.feesOwed(
+            INonfungiblePositionManager.CollectParams(
                 _tokenId,
                 address(this),
                 type(uint128).max,
                 type(uint128).max
-        ));
-        uint256 fees = FullMath.mulDiv(fee0, priceInETH(_positionFromTokenId[_tokenId].token0), FixedPoint96.Q96) + FullMath.mulDiv(fee1, priceInETH(_positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
+            )
+        );
+        uint256 fees = FullMath.mulDiv(
+            fee0,
+            priceInETH(_positionFromTokenId[_tokenId].token0),
+            FixedPoint96.Q96
+        ) +
+            FullMath.mulDiv(
+                fee1,
+                priceInETH(_positionFromTokenId[_tokenId].token1),
+                FixedPoint96.Q96
+            );
 
-        return _computeCR(positionValueInETH(_tokenId) + fees, debtOfInETH(_tokenId));
+        return
+            _computeCR(
+                positionValueInETH(_tokenId) + fees,
+                debtOfInETH(_tokenId)
+            );
     }
 
     /**
@@ -512,11 +509,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _debt The debt of the position.
      * @return newCollRatio The collateral ratio of the position.
      */
-    function _computeCR(uint256 _collValue, uint256 _debt)
-        private
-        pure
-        returns (uint256)
-    {
+    function _computeCR(
+        uint256 _collValue,
+        uint256 _debt
+    ) private pure returns (uint256) {
         if (_debt > 0) {
             // uint256 newCollRatio = _collValue.div(_debt); // This is not accurate, because we are working with integers.
             // Solution : work with fixed point collateral ratios :
@@ -530,7 +526,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.
         else {
             // if (_debt == 0)
-            return 2**256 - 1;
+            return 2 ** 256 - 1;
         }
     }
 
@@ -540,11 +536,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _pool The address of the pool to get the risk constants of.
      * @return riskConstants The risk constants ratio of the pool.
      */
-    function getRiskConstants(address _pool)
-        public
-        view
-        returns (uint256 riskConstants)
-    {
+    function getRiskConstants(
+        address _pool
+    ) public view returns (uint256 riskConstants) {
         return _poolAddressToRiskConstants[_pool].minCR;
     }
 
@@ -571,11 +565,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to set the liquidity of.
      * @param _liquidity The new liquidity of the position.
      */
-    function setNewLiquidity(uint256 _tokenId, uint128 _liquidity)
-        public
-        onlyBorrowerOperations
-        onlyActivePosition(_tokenId)
-    {
+    function setNewLiquidity(
+        uint256 _tokenId,
+        uint128 _liquidity
+    ) public onlyBOorAP onlyActivePosition(_tokenId) {
         Position storage _position = _positionFromTokenId[_tokenId];
         _position.liquidity = _liquidity;
     }
@@ -591,7 +584,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         uint256 _tokenId,
         int24 _newMinTick,
         int24 _newMaxTick
-    ) public onlyBorrowerOperations onlyActivePosition(_tokenId) returns (uint256 _newTokenId) {
+    )
+        public
+        onlyBorrowerOperations
+        onlyActivePosition(_tokenId)
+        returns (uint256 _newTokenId)
+    {
         require(
             _newMinTick < _newMaxTick,
             "The new min tick must be smaller than the new max tick."
@@ -607,8 +605,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         Position memory _position = _positionFromTokenId[_tokenId];
 
-        (uint256 _amount0, uint256 _amount1) = activePool.decreaseLiquidity(_tokenId, _position.liquidity);
-        
+        (uint256 _amount0, uint256 _amount1) = activePool.decreaseLiquidity(
+            _tokenId,
+            _position.liquidity
+        );
+
         INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager
             .MintParams({
                 token0: _position.token0,
@@ -641,17 +642,16 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         return _newTokenId;
     }
 
-
     /**
-    * @notice Add a new position to the list of positions.
-    * @param _owner The owner of the position.
-    * @param _poolAddress The address of the pool of the position.
-    * @param _newTokenId The ID of the position.
-    * @param _status The status of the position.
-    * @param _debt The debt of the position.
-    * @param _lastUpdate The last update of the position.
-    * @return position The position.
-    */
+     * @notice Add a new position to the list of positions.
+     * @param _owner The owner of the position.
+     * @param _poolAddress The address of the pool of the position.
+     * @param _newTokenId The ID of the position.
+     * @param _status The status of the position.
+     * @param _debt The debt of the position.
+     * @param _lastUpdate The last update of the position.
+     * @return position The position.
+     */
     function setNewPosition(
         address _owner,
         address _poolAddress,
@@ -695,8 +695,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _positionFromTokenId[_newTokenId] = position;
     }
 
-
-
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Liquidation functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -707,11 +705,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to check.
      * @return isLiquidatable, true if the position is liquidatable and false otherwise.
      */
-    function liquidatable(uint256 _tokenId)
-        public
-        override
-        returns (bool)
-    {
+    function liquidatable(uint256 _tokenId) public override returns (bool) {
         Position memory position = _positionFromTokenId[_tokenId];
 
         return
@@ -726,11 +720,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _GHOToRepay The amount of GHO to repay to reimburse the debt of the position.
      * @return hasBeenLiquidated, true if the position has been liquidated and false otherwise.
      */
-    function liquidate(uint256 _tokenId, uint256 _GHOToRepay)
-        public
-        override
-        returns (bool)
-    {
+    function liquidate(
+        uint256 _tokenId,
+        uint256 _GHOToRepay
+    ) public override returns (bool) {
         require(liquidatable(_tokenId), "Position is not liquidatable");
         require(
             debtOf(_tokenId) <= _GHOToRepay,
@@ -780,7 +773,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // Modifiers and Require functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-
     /**
      * @notice Checks if a position is active.
      * @param _tokenId The ID of the position to check.
@@ -794,9 +786,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     }
 
     /**
-    * @notice Checks if the caller is the borrower operations contract.
-    * @dev This modifier is used to restrict access to the borrower operations contract.
-    */
+     * @notice Checks if the caller is the borrower operations contract.
+     * @dev This modifier is used to restrict access to the borrower operations contract.
+     */
     modifier onlyBorrowerOperations() {
         require(
             msg.sender == borrowerOperationsAddress,
@@ -805,12 +797,20 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _;
     }
 
+    modifier onlyBOorAP() {
+        require(
+            msg.sender == borrowerOperationsAddress ||
+                msg.sender == address(activePool),
+            "This operation is restricted"
+        );
+        _;
+    }
+
     // base is a fixedpoint96 number, exponent is a regular unsigned integer
-    function lessDumbPower(uint256 _base, uint256 _exponent)
-        public
-        pure
-        returns (uint256 result)
-    {
+    function lessDumbPower(
+        uint256 _base,
+        uint256 _exponent
+    ) public pure returns (uint256 result) {
         // do fast exponentiation by checking parity of exponent
         if (_exponent == 0) {
             result = FixedPoint96.Q96;

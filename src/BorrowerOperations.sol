@@ -232,11 +232,6 @@ contract BorrowerOperations is
             "You can't remove more liquidity than you have"
         );
 
-        lpPositionsManager.setNewLiquidity(
-            _tokenId,
-            position.liquidity - _liquidityToRemove
-        );
-
         // Moved this here because it should be true **after** we account for the removal of liquidity, otherwise, the transaction reverts
         require(
             !lpPositionsManager.liquidatable(_tokenId),
@@ -244,6 +239,11 @@ contract BorrowerOperations is
         );
 
         activePool.decreaseLiquidity(_tokenId, _liquidityToRemove);
+
+        require(
+            !lpPositionsManager.liquidatable(_tokenId),
+            "Collateral Ratio cannot be lower than the minimum collateral ratio."
+        );
 
         return (amount0, amount1);
     }
