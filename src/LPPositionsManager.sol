@@ -776,7 +776,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     /**
      * @notice Checks if a position is active.
      * @param _tokenId The ID of the position to check.
-     * @return true if the position exists and false otherwise.
      */
     modifier onlyActivePosition(uint256 _tokenId) {
         require(

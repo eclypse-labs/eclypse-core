@@ -39,10 +39,6 @@ contract BorrowerOperations is
         IGHOToken GHOToken;
     }
 
-
-
-    
-
     /*enum BorrowerOperation {
         openPosition,
         closePosition,
