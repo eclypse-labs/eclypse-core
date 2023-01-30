@@ -211,13 +211,45 @@ contract BorrowerOperations is
     }
 
     /**
-     * @notice Remove collateral from a position.
+     * @notice Add collateral to a position using the tokens locked in the contract.
+     * @param tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param amountAdd0 The amount of token0 to add.
+     * @param amountAdd1 The amount of token1 to add.
+     * @return liquidity The amount of liquidity added.
+     * @return amount0 The amount of token0 added.
+     * @return amount1 The amount of token1 added.
+     */
+    function addCollateralWithLockedTokens(
+        uint256 tokenId,
+        uint256 amountAdd0,
+        uint256 amountAdd1
+    )
+        public
+        returns (
+            uint128 liquidity,
+            uint256 amount0,
+            uint256 amount1
+        )
+    {
+        (liquidity, amount0, amount1) = activePool.increaseLiquidityWithLockedTockens(
+            msg.sender,
+            tokenId,
+            amountAdd0,
+            amountAdd1
+        );
+
+        lpPositionsManager.setNewLiquidity(tokenId, liquidity);
+    }
+    
+
+    /**
+     * @notice Remove collateral from a position and send it to the user.
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      * @param _liquidityToRemove The amount of liquidity to remove.
      * @return amount0 The amount of token0 removed.
      * @return amount1 The amount of token1 removed.
      */
-    function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
+    function removeCollateralToUser(uint256 _tokenId, uint128 _liquidityToRemove)
         external
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
@@ -237,7 +269,45 @@ contract BorrowerOperations is
             "Collateral Ratio cannot be lower than the minimum collateral ratio."
         );
 
-        activePool.decreaseLiquidity(_tokenId, _liquidityToRemove, msg.sender);
+        activePool.decreaseLiquidityToUser(_tokenId, _liquidityToRemove, msg.sender);
+
+        require(
+            !lpPositionsManager.liquidatable(_tokenId),
+            "Collateral Ratio cannot be lower than the minimum collateral ratio."
+        );
+
+        return (amount0, amount1);
+    }
+
+    /**
+     * @notice Remove collateral from a position and send it to the protocol where it is locked 
+     * (The user can withdraw it later or use it to increase the liquidity of other positions).
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _liquidityToRemove The amount of liquidity to remove.
+     * @return amount0 The amount of token0 removed.
+     * @return amount1 The amount of token1 removed.
+     */
+    function removeCollateralToProtocol(uint256 _tokenId, uint128 _liquidityToRemove)
+        external
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
+        returns (uint256 amount0, uint256 amount1)
+    {
+        LPPositionsManager.Position memory position = lpPositionsManager
+            .getPosition(_tokenId);
+
+        require(
+            _liquidityToRemove <= position.liquidity,
+            "You can't remove more liquidity than you have"
+        );
+
+        // Moved this here because it should be true **after** we account for the removal of liquidity, otherwise, the transaction reverts
+        require(
+            !lpPositionsManager.liquidatable(_tokenId),
+            "Collateral Ratio cannot be lower than the minimum collateral ratio."
+        );
+
+        activePool.decreaseLiquidityToProtocol(_tokenId, _liquidityToRemove, msg.sender);
 
         require(
             !lpPositionsManager.liquidatable(_tokenId),
@@ -267,6 +337,10 @@ contract BorrowerOperations is
         returns (uint256 _newTokenId)
     {
         _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
+        require(
+            !lpPositionsManager.liquidatable(_newTokenId),
+            "Collateral Ratio cannot be lower than the minimum collateral ratio."
+        );
     }
 
 

@@ -133,6 +133,20 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         return (amount0, amount1);
     }
 
+    /**
+     * @notice Returns the total amount of tokens owed to a user.
+     * @param user The address of the user.
+     * @param token The address of the token.
+     * @return amount The amount of tokens owed to the user.
+     */
+    function getTokensOwedToUser(address user, address token)
+        public
+        view
+        returns (uint256 amount)
+    {
+        return owedToUser[user][token];
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Positions interaction
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -230,6 +244,42 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         );
     }
 
+
+    /**
+     * @notice Increase the liquidity of an LP position with locked tokens.
+     * @param sender The address of the account which is increasing the liquidity of the LP position.
+     * @param _tokenId The ID of the LP position to be increased.
+     * @param amountAdd0 The minimum amount of token0 to be added from the LP position.
+     * @param amountAdd1 The minimum amount of token1 to be added from the LP position.
+     * @return liquidity The amount of liquidity added to the LP position.
+     * @return amount0 The amount of token0 added from the LP position.
+     * @return amount1 The amount of token1 added from the LP position.
+     * @dev Only the Borrower Operations contract can call this function.
+     */
+    function increaseLiquidityWithLockedTockens(address sender, uint256 _tokenId, uint256 amountAdd0, uint256 amountAdd1) public 
+    onlyBorrowerOperations
+    returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
+        address token0 = lpPositionsManager.getPosition(_tokenId).token0;
+        address token1 = lpPositionsManager.getPosition(_tokenId).token1;
+
+        require(amountAdd0 <= owedToUser[sender][token0], "Not enough token0");
+        require(amountAdd1 <= owedToUser[sender][token1], "Not enough token1");
+
+        (liquidity, amount0, amount1) = uniswapPositionsNFT.increaseLiquidity(
+            INonfungiblePositionManager.IncreaseLiquidityParams({
+                tokenId: _tokenId,
+                amount0Desired: amountAdd0,
+                amount1Desired: amountAdd1,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            })
+        );
+
+        decreaseOwedToUser(sender, token0, amountAdd0);
+        decreaseOwedToUser(sender, token1, amountAdd1);
+    }
+
     /**
      * @notice Decreases the liquidity of an LP position.
      * @param _tokenId The ID of the LP position to be decreased.
@@ -237,11 +287,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @return amount0 The amount of token0 removed from the LP position.
      * @return amount1 The amount of token1 removed from the LP position.
      * @dev Only the Borrower Operations contract can call this function.
-     */
+     */ 
     function decreaseLiquidity(
         uint256 _tokenId,
-        uint128 _liquidityToRemove,
-        address sender
+        uint128 _liquidityToRemove
     ) public returns (uint256 amount0, uint256 amount1) {
         // amount0Min and amount1Min are price slippage checks
 
@@ -275,11 +324,6 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             amount1
         );
 
-        if(sender != address(0)) {
-            owedToUser[sender][lpPositionsManager.getPosition(_tokenId).token0] += amount0;
-            owedToUser[sender][lpPositionsManager.getPosition(_tokenId).token1] += amount1;
-        }
-
         lpPositionsManager.setNewLiquidity(
             _tokenId,
             lpPositionsManager.getPosition(_tokenId).liquidity -
@@ -287,10 +331,56 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         );
     }
 
+    /**
+     * @notice Decreases the liquidity of an LP position and sends the tokens to the user.
+     * @param _tokenId The ID of the LP position to be decreased.
+     * @param _liquidityToRemove The amount of liquidity to be removed from the LP position.
+     * @param sender The address of the account which is decreasing the liquidity of the LP position.
+     * @return amount0 The amount of token0 removed from the LP position.
+     * @return amount1 The amount of token1 removed from the LP position.
+     * @dev Only the Borrower Operations contract can call this function.
+     */
+    function decreaseLiquidityToUser (uint256 _tokenId,
+        uint128 _liquidityToRemove,
+        address sender) public returns (uint256 amount0, uint256 amount1) {
+        (amount0, amount1) = decreaseLiquidity(_tokenId, _liquidityToRemove);
+        sendToken(lpPositionsManager.getPosition(_tokenId).token0, sender, amount0);
+        sendToken(lpPositionsManager.getPosition(_tokenId).token1, sender, amount1);
+        }
+
+    /**
+     * @notice Decreases the liquidity of an LP position and sends the tokens to the protocol.
+     * @param _tokenId The ID of the LP position to be decreased.
+     * @param _liquidityToRemove The amount of liquidity to be removed from the LP position.
+     * @param sender The address of the account which is decreasing the liquidity of the LP position.
+     * @return amount0 The amount of token0 removed from the LP position.
+     * @return amount1 The amount of token1 removed from the LP position.
+     * @dev Only the Borrower Operations contract can call this function.
+     */
+    function decreaseLiquidityToProtocol(uint256 _tokenId, uint128 _liquidityToRemove, address sender) public returns (uint256 amount0, uint256 amount1) {
+        (amount0, amount1) = decreaseLiquidity(_tokenId, _liquidityToRemove);
+        increaseOwedToUser(sender, lpPositionsManager.getPosition(_tokenId).token0, amount0);
+        increaseOwedToUser(sender, lpPositionsManager.getPosition(_tokenId).token1, amount1);
+    }
+
+    /**
+     * @notice Increases the amount of a token a user has locked in the protocol.
+     * @param sender The address of the account which is increasing the amount of a token locked in the protocol.
+     * @param token The address of the token to be increased.
+     * @param amount The amount of the token to be increased.
+     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.    
+     */
     function increaseOwedToUser(address sender, address token, uint256 amount) public onlyBOorLPPMorSP {
         owedToUser[sender][token] += amount;
     }
 
+    /**
+     * @notice Decreases the amount of a token a user has locked in the protocol.
+     * @param sender The address of the account which is decreasing the amount of a token locked in the protocol.
+     * @param token The address of the token to be decreased.
+     * @param amount The amount of the token to be decreased.
+     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
+     */
     function decreaseOwedToUser(address sender, address token, uint256 amount) public onlyBOorLPPMorSP {
         require(owedToUser[sender][token] >= amount, "Insufficient amount");
         owedToUser[sender][token] -= amount;
