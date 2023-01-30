@@ -53,7 +53,7 @@ contract BorrowerOperationsTest is UniswapTest {
             .getPosition(facticeUser1_tokenId)
             .liquidity;
 
-        borrowerOperation.removeCollateralToUser(
+        borrowerOperation.removeCollateral(
             facticeUser1_tokenId,
             1_000_000_000_000
         );
@@ -74,7 +74,7 @@ contract BorrowerOperationsTest is UniswapTest {
         borrowerOperation.closePosition(facticeUser1_tokenId);
 
         vm.expectRevert();
-        borrowerOperation.removeCollateralToUser(
+        borrowerOperation.removeCollateral(
             facticeUser1_tokenId,
             1_000_000_000_000
         );
@@ -88,7 +88,7 @@ contract BorrowerOperationsTest is UniswapTest {
             .liquidity;
 
         vm.expectRevert(bytes("You can't remove more liquidity than you have"));
-        borrowerOperation.removeCollateralToUser(
+        borrowerOperation.removeCollateral(
             facticeUser1_tokenId,
             initialLiquidity + 1_000_000_000_000
         );
@@ -113,7 +113,7 @@ contract BorrowerOperationsTest is UniswapTest {
 
     
         vm.expectRevert(bytes("Collateral Ratio cannot be lower than the minimum collateral ratio."));
-        borrowerOperation.removeCollateralToUser(
+        borrowerOperation.removeCollateral(
             facticeUser1_tokenId,
             initialLiquidity - 1_000_000_000_000
         );

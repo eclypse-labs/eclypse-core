@@ -50,23 +50,7 @@ interface IBorrowerOperations {
             uint256 amount1
         );
 
-    function addCollateralWithLockedTokens(
-        uint256 tokenId,
-        uint256 amountAdd0,
-        uint256 amountAdd1
-    )
-        external 
-                returns (
-            uint128 liquidity,
-            uint256 amount0,
-            uint256 amount1
-        );
-
-    function removeCollateralToUser(uint256 _tokenId, uint128 _liquidityToRemove)
-        external
-        returns (uint256 amount0, uint256 amount1);
-    
-    function removeCollateralToProtocol(uint256 _tokenId, uint128 _liquidityToRemove)
+    function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
         external
         returns (uint256 amount0, uint256 amount1);
 }
