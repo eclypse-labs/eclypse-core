@@ -42,8 +42,20 @@ contract BorrowerOperationsTest is UniswapTest {
         assertGt(
             endLiquidity,
             initialLiquidity,
-            "adding collateral should increase liquidity"
+            "Adding collateral should increase liquidity"
         );
+    }
+
+    function testAdd0Collateral() public {
+        vm.expectRevert(bytes("Cannot add 0 liquidity."));
+        vm.startPrank(address(facticeUser1));
+
+        borrowerOperation.addCollateral(
+            facticeUser1_tokenId,
+            0,
+            0
+        );
+        vm.stopPrank();
     }
 
     function testRemoveCollateral() public {
@@ -163,7 +175,7 @@ contract BorrowerOperationsTest is UniswapTest {
 
     }
 
-        function testDepositAndWithdraw() public {
+    function testDepositAndWithdraw() public {
         uint256 initBalanceUsdc = USDC.balanceOf(facticeUser1);
         uint256 initBalanceWeth = WETH.balanceOf(facticeUser1);
 

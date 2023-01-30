@@ -195,18 +195,26 @@ contract BorrowerOperations is
     )
         external
         override
+        onlyActivePosition(tokenId)
         returns (
             uint128 liquidity,
             uint256 amount0,
             uint256 amount1
         )
     {
+
+        require(
+            amountAdd0 > 0 || amountAdd1 > 0,
+            "Cannot add 0 liquidity."
+        );
+
         (liquidity, amount0, amount1) = activePool.increaseLiquidity(
             msg.sender,
             tokenId,
             amountAdd0,
             amountAdd1
         );
+        
         lpPositionsManager.setNewLiquidity(tokenId, liquidity);
     }
 
