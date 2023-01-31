@@ -19,6 +19,9 @@ import "@openzeppelin/contracts/interfaces/IERC20.sol";
 abstract contract UniswapTest is Test {
     IGHOToken ghoToken;
 
+    uint256 constant TOKEN18 = 10**18;
+    uint256 constant TOKEN6 = 10**6;
+
     address deployer = makeAddr("deployer");
     address oracleLiquidityDepositor = makeAddr("oracleLiquidityDepositor");
     address user1 = 0x7C28C02aF52c1Ddf7Ae6f3892cCC8451a17f2842; //	tokenID = 549666
@@ -122,11 +125,11 @@ abstract contract UniswapTest is Test {
 
     function addFacticeUser() private {
         vm.startPrank(facticeUser1);
-        deal(usdcAddr, facticeUser1, 100_000 ether);
+        deal(usdcAddr, facticeUser1, 100_000_000_000_000_000 * TOKEN6);
         deal(wethAddr, facticeUser1, 100 ether);
 
-        USDC.approve(address(uniswapPositionsNFT), 100_000 ether);
-        WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        USDC.approve(address(uniswapPositionsNFT), 100_000_000_000_000_000 * TOKEN6);
+        WETH.approve(address(uniswapPositionsNFT), 100 ether);
 
         // uniswapPositionsNFT::mint((0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174,
         // 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, 500, 204920, 204930, 0,
@@ -144,13 +147,15 @@ abstract contract UniswapTest is Test {
                 fee: 500,
                 tickLower: int24(104920),
                 tickUpper: int24(204930),
-                amount0Desired: 10**6 * 1000,
-                amount1Desired: 10**18,
+                amount0Desired: 1000 * TOKEN6,
+                amount1Desired: TOKEN18,
                 amount0Min: 0,
                 amount1Min: 0,
                 recipient: facticeUser1,
                 deadline: block.timestamp
             });
+
+        
 
         (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
 
@@ -163,7 +168,7 @@ abstract contract UniswapTest is Test {
         vm.stopPrank();
 
         vm.startPrank(address(borrowerOperation));
-        ghoToken.mint(facticeUser2, 10**18 * 1000);
+        ghoToken.mint(facticeUser2, 1000 * TOKEN18);
         vm.stopPrank();
     }
 
@@ -175,12 +180,12 @@ abstract contract UniswapTest is Test {
             uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
         );
 
-        deal(address(ghoToken), deployer, 10**18 * 1225 * 2000);
+        deal(address(ghoToken), deployer, 1225 * 2000 * TOKEN18);
 
         vm.deal(deployer, 3000 ether);
         // address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
 
-        ghoToken.approve(address(uniswapPositionsNFT), 10**18 * 1225 * 2000);
+        ghoToken.approve(address(uniswapPositionsNFT), 1225 * 2000 * TOKEN18);
 
         INonfungiblePositionManager.MintParams memory mintParams;
         if (uniPoolGhoEth.token0() == address(ghoToken)) {
@@ -193,10 +198,10 @@ abstract contract UniswapTest is Test {
                 fee: 500,
                 tickLower: -72000,
                 tickUpper: -70000,
-                amount0Desired: 10**18 * 1000 * 1225, // 12250 GHO
-                amount1Desired: 10**18 * 1000, // 10 ETH
-                amount0Min: 10**18 * 500 * 1225,
-                amount1Min: 10**18 * 500,
+                amount0Desired: 1000 * 1225 * TOKEN18, // 12250 GHO
+                amount1Desired: 1000 * TOKEN18, // 10 ETH
+                amount0Min: 500 * 1225 * TOKEN18,
+                amount1Min: 500 * TOKEN18,
                 recipient: deployer,
                 deadline: block.timestamp
             });
@@ -210,10 +215,10 @@ abstract contract UniswapTest is Test {
                 fee: 500,
                 tickLower: 70000,
                 tickUpper: 72000,
-                amount0Desired: 10**18 * 1000, // 1000 ETH
-                amount1Desired: 10**18 * 1000 * 1225, // 1225000 GHO
-                amount0Min: 10**18 * 500,
-                amount1Min: 10**18 * 500 * 1225,
+                amount0Desired: 1000 * TOKEN18, // 1000 ETH
+                amount1Desired: 1000 * 1225 * TOKEN18, // 1225000 GHO
+                amount0Min: 500 * TOKEN18,
+                amount1Min: 500 * 1225 * TOKEN18,
                 recipient: deployer,
                 deadline: block.timestamp
             });
@@ -230,7 +235,7 @@ abstract contract UniswapTest is Test {
             true
         );
 
-        ghoToken.approve(swapRouterAddr, 10**18 * 25 * 2);
+        ghoToken.approve(swapRouterAddr, 25 * 2 * TOKEN18);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
@@ -239,7 +244,7 @@ abstract contract UniswapTest is Test {
                 fee: 500,
                 recipient: deployer,
                 deadline: block.timestamp + 5 minutes,
-                amountIn: 10**18 * 25,
+                amountIn: 25 * TOKEN18,
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });

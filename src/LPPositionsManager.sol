@@ -129,7 +129,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         address _ETHpoolToken1,
         bool _inv0,
         bool _inv1
-    ) public override {
+    ) public override onlyOwner {
         _acceptedPoolAddresses[_poolAddress] = true;
         _tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
         _tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
@@ -156,7 +156,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @notice Returns the total number of positions owned by all users.
      * @return totalCount The number of positions owned by all users.
      */
-    function getPositionsOwnersCount() external view returns (uint256) {
+    function getPositionsCount() external view returns (uint256) {
         return _allPositions.length;
     }
 
@@ -173,7 +173,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     function changePositionStatus(
         uint256 _tokenId,
         Status _status
-    ) public override onlyBorrowerOperations {
+    ) public onlyBorrowerOperations {
         require(
             _positionFromTokenId[_tokenId].status != _status,
             "A position status cannot be changed to its current one."
@@ -443,7 +443,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
         return
-            FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
+            FullMath.mulDiv(amount0, priceInETH(token0), 10**12 * FixedPoint96.Q96) +
             FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
     }
 

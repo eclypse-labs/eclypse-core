@@ -39,8 +39,7 @@ interface ILPPositionsManager is IEclypseBase {
         nonExistent,
         active,
         closedByOwner,
-        closedByLiquidation,
-        closedByRedemption
+        closedByLiquidation
     }
 
     //The structure of a position.

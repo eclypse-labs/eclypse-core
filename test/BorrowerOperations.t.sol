@@ -109,7 +109,7 @@ contract BorrowerOperationsTest is UniswapTest {
 
     function testRemoveCollateralMakesLiquidatable() public {
         vm.startPrank(deployer);
-        uint256 _minCR = Math.mulDiv(16, 1 << 96, 10);
+        uint256 _minCR = Math.mulDiv(16, FixedPoint96.Q96, 10);
         lpPositionsManager.updateRiskConstants(
             address(uniPoolUsdcETHAddr),
             _minCR
@@ -117,7 +117,7 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.stopPrank();
 
         vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10**18 * 100, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(100 * TOKEN18, facticeUser1_tokenId);
 
         uint128 initialLiquidity = lpPositionsManager
             .getPosition(facticeUser1_tokenId)
@@ -192,19 +192,36 @@ contract BorrowerOperationsTest is UniswapTest {
         assertEq(initBalanceWeth, endBalanceWeth);
     }
 
+    function testBorrowGHO() public {
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
+        vm.stopPrank();
+        assertEq(ghoToken.balanceOf(facticeUser1), 10 * TOKEN18);
+    }
+
+    function testRepayGHO() public {
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
+        vm.stopPrank();
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId);
+        assertEq(ghoToken.balanceOf(facticeUser1), 0);
+        vm.stopPrank();
+    }
+
     function testBorrowAndRepayGHO_wrongUserBorrow() public {
         vm.startPrank(address(facticeUser2));
         vm.expectRevert(bytes("You are not the owner of this position."));
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
     }
 
     function testBorrowAndRepayGHO_wrongUserRepay() public {
         vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
         vm.startPrank(address(facticeUser2));
-        borrowerOperation.repayGHO(10, facticeUser1_tokenId);
+        borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
     }
@@ -213,7 +230,7 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.startPrank(address(facticeUser1));
         uint256 initialDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
 
-        borrowerOperation.borrowGHO(10**18, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(TOKEN18, facticeUser1_tokenId);
         uint256 currentDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGt(
             currentDebt,
@@ -222,6 +239,13 @@ contract BorrowerOperationsTest is UniswapTest {
         );
         vm.warp(block.timestamp + 365 days);
         uint256 afterYearDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
+
+        assertGt(
+            afterYearDebt,
+            currentDebt,
+            "Borrowing GHO should increase the debt."
+        );
+
         deal(address(ghoToken), facticeUser1, currentDebt * 51/50 + 1); // deal ourselves the interest to pay : 2% per year
         borrowerOperation.repayGHO(afterYearDebt, facticeUser1_tokenId);
         uint256 finalDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
@@ -242,12 +266,13 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.startPrank(address(facticeUser1));
         vm.expectRevert(bytes("Cannot withdraw 0 GHO."));
         borrowerOperation.borrowGHO(0, facticeUser1_tokenId);
+        assertEq(ghoToken.balanceOf(facticeUser1), 0);
         vm.stopPrank();
     }
 
     function testBorrowAndRepayGHO_repay0GHO() public {
         vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.expectRevert(bytes("Cannot repay 0 GHO."));
         borrowerOperation.repayGHO(0, facticeUser1_tokenId);
         vm.stopPrank();
@@ -255,9 +280,9 @@ contract BorrowerOperationsTest is UniswapTest {
 
     function testBorrowAndRepayGHO_repayMoreThanDebt() public {
         vm.startPrank(address(facticeUser1));
-        borrowerOperation.borrowGHO(10, facticeUser1_tokenId);
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         //vm.expectRevert(bytes("Cannot repay more GHO than the position's debt."));
-        borrowerOperation.repayGHO(11, facticeUser1_tokenId);
+        borrowerOperation.repayGHO(11 * TOKEN18, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
     }
