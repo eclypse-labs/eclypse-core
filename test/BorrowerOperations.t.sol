@@ -287,7 +287,52 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.stopPrank();
     }
 
+    function testPositionIsLiquidatableWhenMinCRIsReached() public {
+        vm.startPrank(deployer);
+        uint256 _minCR = Math.mulDiv(15, FixedPoint96.Q96, 10);
+        lpPositionsManager.updateRiskConstants(
+            address(uniPoolUsdcETHAddr),
+            _minCR
+        );
+        vm.stopPrank();
 
+        (
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            uint128 liquidity,
+            ,
+            ,
+            ,
+
+        ) = uniswapPositionsNFT.positions(facticeUser1_tokenId);
+
+        console.log("Liquidity:", liquidity);
+        console.log("Price:", lpPositionsManager.positionValueInETH(facticeUser1_tokenId));
+        console.log("GHO In ETH:", lpPositionsManager.priceInETH(address(ghoToken)));
+        uint256 ghoInETH = lpPositionsManager.priceInETH(address(ghoToken));
+
+        uint256 positionInGHO = 2**96 * lpPositionsManager.positionValueInETH(facticeUser1_tokenId)  / ghoInETH;
+
+        console.log("Position", positionInGHO / 10**18);
+        console.log(lpPositionsManager.liquidatable(facticeUser1_tokenId));
+
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(
+        positionInGHO * 10 / 15 - 1000000,
+        facticeUser1_tokenId
+        );
+
+        vm.stopPrank();
+        uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
+        console.log("CR: ", cr);
+        console.log("min CR", _minCR);
+        assertTrue(cr > _minCR);
+    }
 
     
 }

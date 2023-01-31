@@ -45,6 +45,8 @@ abstract contract UniswapTest is Test {
     IERC20 WETH = IERC20(wethAddr);
     IERC20 USDC = IERC20(usdcAddr);
 
+    
+
     ActivePool activePool;
     BorrowerOperations borrowerOperation;
     LPPositionsManager lpPositionsManager;
