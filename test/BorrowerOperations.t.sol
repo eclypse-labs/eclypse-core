@@ -133,47 +133,47 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.stopPrank();
     }
 
-        function testChangeTicks() public {
+    //     function testChangeTicks() public {
         
-        int24 initialLowerTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickLower;
-        int24 initialUpperTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickUpper;
+    //     int24 initialLowerTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickLower;
+    //     int24 initialUpperTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickUpper;
 
-        int24 newLowerTick = initialLowerTick + 10;
-        int24 newUpperTick = initialUpperTick + 10;
-        vm.startPrank(address(facticeUser1));
-        uint256 _newTokenId = borrowerOperation.changeTick(facticeUser1_tokenId, newLowerTick, newUpperTick);
-        vm.stopPrank();
+    //     int24 newLowerTick = initialLowerTick + 10;
+    //     int24 newUpperTick = initialUpperTick + 10;
+    //     vm.startPrank(address(facticeUser1));
+    //     uint256 _newTokenId = borrowerOperation.changeTick(facticeUser1_tokenId, newLowerTick, newUpperTick);
+    //     vm.stopPrank();
 
-        assertEq(
-            uint256(lpPositionsManager.getPosition(_newTokenId).status),
-            1,
-            "Position should be active."
-        );
-        assertEq(
-            lpPositionsManager.getPosition(_newTokenId).tickLower,
-            newLowerTick,
-            "Position should have new lower tick."
-        );
-        assertEq(
-            lpPositionsManager.getPosition(_newTokenId).tickUpper,
-            newUpperTick,
-            "Position should have new upper tick."
-        );
-        assertEq(
-            uint256(
-                lpPositionsManager.getPosition(facticeUser1_tokenId).status
-            ),
-            2,
-            "Position should be closed by owner."
-        );
+    //     assertEq(
+    //         uint256(lpPositionsManager.getPosition(_newTokenId).status),
+    //         1,
+    //         "Position should be active."
+    //     );
+    //     assertEq(
+    //         lpPositionsManager.getPosition(_newTokenId).tickLower,
+    //         newLowerTick,
+    //         "Position should have new lower tick."
+    //     );
+    //     assertEq(
+    //         lpPositionsManager.getPosition(_newTokenId).tickUpper,
+    //         newUpperTick,
+    //         "Position should have new upper tick."
+    //     );
+    //     assertEq(
+    //         uint256(
+    //             lpPositionsManager.getPosition(facticeUser1_tokenId).status
+    //         ),
+    //         2,
+    //         "Position should be closed by owner."
+    //     );
 
-        assertEq(
-            lpPositionsManager.getPosition(facticeUser1_tokenId).debt,
-            lpPositionsManager.getPosition(_newTokenId).debt,
-            "Position should have same debt."
-        );
+    //     assertEq(
+    //         lpPositionsManager.getPosition(facticeUser1_tokenId).debt,
+    //         lpPositionsManager.getPosition(_newTokenId).debt,
+    //         "Position should have same debt."
+    //     );
 
-    }
+    // }
 
     function testDepositAndWithdraw() public {
         uint256 initBalanceUsdc = USDC.balanceOf(facticeUser1);
@@ -261,4 +261,8 @@ contract BorrowerOperationsTest is UniswapTest {
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
     }
+
+
+
+    
 }

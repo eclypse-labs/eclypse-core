@@ -30,6 +30,7 @@ import "forge-std/Test.sol";
 contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // -- Integer Constants --
 
+    uint256 constant MAX_UINT256 = 2**256 - 1;
     uint32 constant lookBackTWAP = 60; // Number of seconds to calculate the TWAP
     uint256 constant interestRate = 79228162564014647528974148095; // 2% APY interest rate : fixedpoint96 value found by evaluating "1.02^(1/(31536000))*2^96" on https://www.mathsisfun.com/calculator-precision.html (31556952 is the number of seconds in a year)
 
@@ -495,39 +496,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 FixedPoint96.Q96
             );
 
-        return
-            _computeCR(
-                positionValueInETH(_tokenId) + fees,
-                debtOfInETH(_tokenId)
-            );
-    }
-
-    /**
-     * @notice Returns the collateral ratio of a position.
-     * @dev The collateral ratio is calculated using the value of the position in ETH and the debt of the position in ETH.
-     * @param _collValue The value of the collateral of the position.
-     * @param _debt The debt of the position.
-     * @return newCollRatio The collateral ratio of the position.
-     */
-    function _computeCR(
-        uint256 _collValue,
-        uint256 _debt
-    ) private pure returns (uint256) {
-        if (_debt > 0) {
-            // uint256 newCollRatio = _collValue.div(_debt); // This is not accurate, because we are working with integers.
-            // Solution : work with fixed point collateral ratios :
-            uint256 newCollRatio = FullMath.mulDiv(
-                _collValue,
+        uint256 debt = debtOfInETH(_tokenId);
+        uint256 collValue = positionValueInETH(_tokenId) + fees;
+        return debt > 0 ? FullMath.mulDiv(
+                collValue,
                 FixedPoint96.Q96,
-                _debt
-            );
-            return newCollRatio;
-        }
-        // Return the maximal value for uint256 if the Trove has a debt of 0. Represents "infinite" CR.
-        else {
-            // if (_debt == 0)
-            return 2 ** 256 - 1;
-        }
+                debt
+            ) : MAX_UINT256;
     }
 
     /**
@@ -573,75 +548,75 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _position.liquidity = _liquidity;
     }
 
-    /**
-     * @notice Changes the ticks of a position.
-     * @dev The new ticks must be smaller than the maximum tick and greater than the minimum tick.
-     * @param _tokenId The ID of the position to change the ticks of.
-     * @param _newMinTick The new minimum tick of the position.
-     * @param _newMaxTick The new maximum tick of the position.
-     */
-    function _changeTicks(
-        uint256 _tokenId,
-        int24 _newMinTick,
-        int24 _newMaxTick
-    )
-        public
-        onlyBorrowerOperations
-        onlyActivePosition(_tokenId)
-        returns (uint256 _newTokenId)
-    {
-        require(
-            _newMinTick < _newMaxTick,
-            "The new min tick must be smaller than the new max tick."
-        );
-        require(
-            _newMinTick >= -887272,
-            "The new min tick must be greater than -887272."
-        );
-        require(
-            _newMaxTick <= 887272,
-            "The new max tick must be smaller than 887272."
-        );
+    // /**
+    //  * @notice Changes the ticks of a position.
+    //  * @dev The new ticks must be smaller than the maximum tick and greater than the minimum tick.
+    //  * @param _tokenId The ID of the position to change the ticks of.
+    //  * @param _newMinTick The new minimum tick of the position.
+    //  * @param _newMaxTick The new maximum tick of the position.
+    //  */
+    // function _changeTicks(
+    //     uint256 _tokenId,
+    //     int24 _newMinTick,
+    //     int24 _newMaxTick
+    // )
+    //     public
+    //     onlyBorrowerOperations
+    //     onlyActivePosition(_tokenId)
+    //     returns (uint256 _newTokenId)
+    // {
+    //     require(
+    //         _newMinTick < _newMaxTick,
+    //         "The new min tick must be smaller than the new max tick."
+    //     );
+    //     require(
+    //         _newMinTick >= -887272,
+    //         "The new min tick must be greater than -887272."
+    //     );
+    //     require(
+    //         _newMaxTick <= 887272,
+    //         "The new max tick must be smaller than 887272."
+    //     );
 
-        Position memory _position = _positionFromTokenId[_tokenId];
+    //     Position memory _position = _positionFromTokenId[_tokenId];
 
-        (uint256 _amount0, uint256 _amount1) = activePool.decreaseLiquidity(
-            _tokenId,
-            _position.liquidity,
-            address(activePool)
-                    );
+    //     (uint256 _amount0, uint256 _amount1) = activePool.decreaseLiquidity(
+    //         _tokenId,
+    //         _position.liquidity,
+    //         address(activePool)
+    //                 );
 
-        INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager
-            .MintParams({
-                token0: _position.token0,
-                token1: _position.token1,
-                fee: _position.fee,
-                tickLower: _newMinTick,
-                tickUpper: _newMaxTick,
-                amount0Desired: _amount0,
-                amount1Desired: _amount1,
-                amount0Min: 0, //TODO: Change that cause it represents a vulnerability
-                amount1Min: 0, //TODO: Change that cause it represents a vulnerability
-                recipient: address(activePool),
-                deadline: block.timestamp
-            });
+    //     INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager
+    //         .MintParams({
+    //             token0: _position.token0,
+    //             token1: _position.token1,
+    //             fee: _position.fee,
+    //             tickLower: _newMinTick,
+    //             tickUpper: _newMaxTick,
+    //             amount0Desired: _amount0,
+    //             amount1Desired: _amount1,
+    //             amount0Min: 0, //TODO: Change that cause it represents a vulnerability
+    //             amount1Min: 0, //TODO: Change that cause it represents a vulnerability
+    //             recipient: address(activePool),
+    //             deadline: block.timestamp
+    //         });
 
-        _newTokenId = activePool.mintPosition(mintParams);
+    //     _newTokenId = activePool.mintPosition(mintParams);
 
-        setNewPosition(
-            address(activePool),
-            _position.poolAddress,
-            _newTokenId,
-            Status.active,
-            _position.debt,
-            _position.lastUpdateTimestamp
-        );
+    //     setNewPosition(
+    //         address(activePool),
+    //         _position.poolAddress,
+    //         _newTokenId,
+    //         Status.active,
+    //         _position.debt,
+    //         _position.lastUpdateTimestamp
+    //     );
 
-        activePool.burnPosition(_tokenId);
-        changePositionStatus(_tokenId, Status.closedByOwner);
+    //     activePool.burnPosition(_tokenId);
+    //     changePositionStatus(_tokenId, Status.closedByOwner);
 
-        return _newTokenId;
-    }
+    //     return _newTokenId;
+    // }
 
     /**
      * @notice Add a new position to the list of positions.

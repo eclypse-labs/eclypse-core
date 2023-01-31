@@ -214,7 +214,7 @@ contract BorrowerOperations is
             amountAdd0,
             amountAdd1
         );
-        
+
         lpPositionsManager.setNewLiquidity(tokenId, liquidity);
     }
 
@@ -227,14 +227,13 @@ contract BorrowerOperations is
      */
     function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
         external
-        override
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
         returns (uint256 amount0, uint256 amount1)
     {
         LPPositionsManager.Position memory position = lpPositionsManager
             .getPosition(_tokenId);
-
+        
         require(
             _liquidityToRemove <= position.liquidity,
             "You can't remove more liquidity than you have"
@@ -256,27 +255,27 @@ contract BorrowerOperations is
         return (amount0, amount1);
     }
 
-    /**
-     * @notice Change the tick range of a position.
-     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-     * @param _newMinTick The new minimum tick.
-     * @param _newMaxTick The new maximum tick.
-     * @return _newTokenId The ID of the new Uniswap V3 NFT representing the position.
-     */
-    function changeTick(
-        uint256 _tokenId,
-        int24 _newMinTick,
-        int24 _newMaxTick
-    )
-        public
-        payable
-        onlyPositionOwner(_tokenId, msg.sender)
-        onlyActivePosition(_tokenId)
-        onlyPositionOwner(_tokenId, msg.sender)
-        returns (uint256 _newTokenId)
-    {
-        _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
-    }
+    // /**
+    //  * @notice Change the tick range of a position.
+    //  * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+    //  * @param _newMinTick The new minimum tick.
+    //  * @param _newMaxTick The new maximum tick.
+    //  * @return _newTokenId The ID of the new Uniswap V3 NFT representing the position.
+    //  */
+    // function changeTick(
+    //     uint256 _tokenId,
+    //     int24 _newMinTick,
+    //     int24 _newMaxTick
+    // )
+    //     public
+    //     payable
+    //     onlyPositionOwner(_tokenId, msg.sender)
+    //     onlyActivePosition(_tokenId)
+    //     onlyPositionOwner(_tokenId, msg.sender)
+    //     returns (uint256 _newTokenId)
+    // {
+    //     _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
+    // }
     
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
