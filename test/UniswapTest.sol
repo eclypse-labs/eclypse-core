@@ -59,6 +59,19 @@ abstract contract UniswapTest is Test {
     IUniswapV3Factory uniswapFactory =
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
+
+    function consoleLogQ96(uint256 x) public {
+        console.log(FullMath.mulDiv(x, 1, 2**96));
+    }
+
+    function consoleLogDecimals18(uint256 x) public {
+        console.log(FullMath.mulDiv(x, 1, 10**18));
+    }
+
+    function consoleLogDecimals6(uint256 x) public {
+        console.log(FullMath.mulDiv(x, 1, 10**6));
+    }
+
     function uniswapTest() public {
         vm.createSelectFork("https://rpc.ankr.com/eth", 16_153_817); // eth mainet at block 16_153_817
 
@@ -156,10 +169,12 @@ abstract contract UniswapTest is Test {
                 recipient: facticeUser1,
                 deadline: block.timestamp
             });
+        // Position is worth approximately 1225 GHO
 
         
 
         (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+
 
         uniswapPositionsNFT.approve(
             address(borrowerOperation),

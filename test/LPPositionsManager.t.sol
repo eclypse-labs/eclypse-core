@@ -282,12 +282,6 @@ contract LPPositionsManagerTest is UniswapTest {
 
         vm.startPrank(address(facticeUser2));
 
-        uint256 initialUSDCBalanceFacticeUser2 = USDC.balanceOf(address(facticeUser2));
-        uint256 initialWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
-
-        uint256 initialUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
-        uint256 initialWETHBalanceActivePool = WETH.balanceOf(address(activePool));
-
         uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
         lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
@@ -299,18 +293,10 @@ contract LPPositionsManagerTest is UniswapTest {
             "Position should be closed by liquidation."
         );
 
-        uint256 finalUSDCBalanceFacticeUser2  = USDC.balanceOf(address(facticeUser2));
-        uint256 finalWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
+        uniswapPositionsNFT.positions(facticeUser1_tokenId);
 
-        uint256 finalUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
-        uint256 finalWETHBalanceActivePool = WETH.balanceOf(address(activePool));
-
-        assertGe(finalUSDCBalanceFacticeUser2 , initialUSDCBalanceActivePool );
-        assertGe(finalWETHBalanceFacticeUser2 , initialWETHBalanceActivePool );
-
-        assertGe(finalUSDCBalanceActivePool , initialUSDCBalanceFacticeUser2 );
-        assertGe(finalWETHBalanceActivePool , initialWETHBalanceFacticeUser2 );
-    }
+        assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2);
+        }
 
 
     function testLiquidate_swap() public {
@@ -357,12 +343,6 @@ contract LPPositionsManagerTest is UniswapTest {
         assertTrue(lpPositionsManager.liquidatable(facticeUser1_tokenId));
         vm.startPrank(address(facticeUser2));
 
-        uint256 initialUSDCBalanceFacticeUser2 = USDC.balanceOf(address(facticeUser2));
-        uint256 initialWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
-
-        uint256 initialUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
-        uint256 initialWETHBalanceActivePool = WETH.balanceOf(address(activePool));
-
         uint256 amountToRepay = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
 
@@ -375,18 +355,40 @@ contract LPPositionsManagerTest is UniswapTest {
             "Position should be closed by liquidation."
         );
 
-        uint256 finalUSDCBalanceFacticeUser2  = USDC.balanceOf(address(facticeUser2));
-        uint256 finalWETHBalanceFacticeUser2  = WETH.balanceOf(address(facticeUser2));
-
-        uint256 finalUSDCBalanceActivePool = USDC.balanceOf(address(activePool));
-        uint256 finalWETHBalanceActivePool = WETH.balanceOf(address(activePool));
-
-        assertGe(finalUSDCBalanceFacticeUser2 , initialUSDCBalanceActivePool );
-        assertGe(finalWETHBalanceFacticeUser2 , initialWETHBalanceActivePool );
-        assertGe(finalUSDCBalanceActivePool , initialUSDCBalanceFacticeUser2 );
-        assertGe(finalWETHBalanceActivePool , initialWETHBalanceFacticeUser2 );
+        assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2);
 
     }
+
+    function testPositionIsLiquidatableWhenMinCRIsReached() public {
+
+        vm.startPrank(deployer);
+        uint256 minCRNum = 15;
+        uint256 minCRDen = 10;
+        uint256 _minCR = Math.mulDiv(minCRNum, FixedPoint96.Q96, minCRDen);
+        lpPositionsManager.updateRiskConstants(
+            address(uniPoolUsdcETHAddr),
+            _minCR
+        );
+        vm.stopPrank();
+
+        uint256 ghoInETH = lpPositionsManager.priceInETH(address(ghoToken));
+
+        uint256 positionInGHO = 2**96 * lpPositionsManager.positionValueInETH(facticeUser1_tokenId)  / ghoInETH;
+
+        vm.startPrank(address(facticeUser1));
+
+        borrowerOperation.borrowGHO(
+            (FullMath.mulDiv(positionInGHO, minCRDen, minCRNum)), // Trying to borrow exatcly the amount needed to reach minCR might result in an error due to some computation approximation.
+                                                                                    // Since GHO has 18 decimals, we can just round down to the nearest thousandth.
+        facticeUser1_tokenId
+        );
+
+        vm.stopPrank();
+        uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
+        assertTrue(cr > _minCR);
+    }
+
+
 
 }
 

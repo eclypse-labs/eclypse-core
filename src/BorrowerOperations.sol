@@ -100,6 +100,8 @@ contract BorrowerOperations is
             _tokenId
         );
 
+        
+
         ContractsCache memory contractsCache = ContractsCache(
             lpPositionsManager,
             activePool,

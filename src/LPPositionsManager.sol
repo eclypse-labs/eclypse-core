@@ -444,8 +444,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         uint256 decimals0 = 10**(18 - ERC20(token0).decimals());
         uint256 decimals1 = 10**(18 - ERC20(token1).decimals());
         return
-            FullMath.mulDiv(amount0, priceInETH(token0),  decimals0 * FixedPoint96.Q96) +
-            FullMath.mulDiv(amount1, priceInETH(token1), decimals1 * FixedPoint96.Q96);
+            FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
+            FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
     }
 
     /**
