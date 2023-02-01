@@ -17,6 +17,7 @@ import "@uniswap-periphery/interfaces/ISwapRouter.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 abstract contract UniswapTest is Test {
+
     IGHOToken ghoToken;
 
     uint256 constant TOKEN18 = 10**18;
@@ -30,6 +31,7 @@ abstract contract UniswapTest is Test {
     address facticeUser1 = makeAddr("facticeUser1");
     address facticeUser2 = makeAddr("facticeUser2");
     uint256 facticeUser1_tokenId;
+    uint256 facticeUser1_tokenId2;
 
     address public constant wethAddr =
         0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
@@ -174,14 +176,20 @@ abstract contract UniswapTest is Test {
         
 
         (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+        (facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
 
 
         uniswapPositionsNFT.approve(
             address(borrowerOperation),
             facticeUser1_tokenId
         );
+        uniswapPositionsNFT.approve(
+            address(borrowerOperation),
+            facticeUser1_tokenId2
+        );
 
         borrowerOperation.openPosition(facticeUser1_tokenId);
+        borrowerOperation.openPosition(facticeUser1_tokenId2);
         vm.stopPrank();
 
         vm.startPrank(address(borrowerOperation));

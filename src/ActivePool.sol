@@ -112,7 +112,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @notice Returns the total amount of GHO debt in the Active Pool.
      * @return ghoDebt, The total amount of GHO debt in the Active Pool.
      */
-    function getGHODebt() external view override returns (uint256) {
+    function getGHODebt() external view returns (uint256) {
         return GHODebt;
     }
 

@@ -68,6 +68,12 @@ interface ILPPositionsManager is IEclypseBase {
         bool inv; // true if and only if WETH is token0 of the pool.
     }
 
+    struct BorrowData {
+        uint256 amount;
+        uint256 timestamp;
+        uint256 interestRate;
+    }
+
     // --- Functions ---
 
     function setAddresses(
@@ -124,8 +130,7 @@ interface ILPPositionsManager is IEclypseBase {
     function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
 
     function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
-        external
-        returns (uint256);
+        external;
 
     function setNewLiquidity(uint256 _tokenId, uint128 _liquidity) external;
 

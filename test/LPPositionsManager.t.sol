@@ -20,15 +20,8 @@ contract LPPositionsManagerTest is UniswapTest {
     }
 
     function testGetPositionsCount() public {
-        assertEq(lpPositionsManager.getPositionsCount(), 1, "There should be 1 position.");
+        assertEq(lpPositionsManager.getPositionsCount(), 2, "There should be 2 position.");
     }
-
-    function testAmounts() public {
-        (uint256 amount0, uint256 amount1) = lpPositionsManager.positionAmounts(facticeUser1_tokenId);
-        console.log("amount0: %s", amount0);
-        console.log("amount1: %s", amount1);
-        }
-
 
     function testPositionStatus_changeToCurrentOne() public {
         assertEq(

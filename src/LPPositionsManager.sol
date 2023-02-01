@@ -75,6 +75,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // An array of all positions.
     Position[] private _allPositions;
 
+    mapping(uint256 => BorrowData[]) private _borrowDataFromTokenId;
     // -- Methods --
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -290,13 +291,25 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     function debtOf(
         uint256 _tokenId
     ) public view override returns (uint256 currentDebt) {
-        uint256 _lastUpdateTimestamp = _positionFromTokenId[_tokenId]
-            .lastUpdateTimestamp;
-        currentDebt = FullMath.mulDivRoundingUp(
-            _positionFromTokenId[_tokenId].debt,
-            lessDumbPower(interestRate, block.timestamp - _lastUpdateTimestamp),
+        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[
+            _tokenId
+        ];
+        for (uint256 i = 0; i < _borrowDataArray.length; i++) {
+            currentDebt += _debtOf(_borrowDataArray[i]);
+        }
+        return currentDebt;
+    }
+
+    function _debtOf(
+        BorrowData memory _borrowData
+    ) private view returns (uint256 _currentDebt) {
+        uint256 _lastUpdateTimestamp = _borrowData.timestamp;
+        _currentDebt = FullMath.mulDivRoundingUp(
+            _borrowData.amount,
+            lessDumbPower(_borrowData.interestRate, block.timestamp - _lastUpdateTimestamp),
             FixedPoint96.Q96
         );
+        return _currentDebt;
     }
 
     /**
@@ -337,6 +350,16 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _positionFromTokenId[_tokenId].debt = prevDebt + _amount;
         _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
 
+        _borrowDataFromTokenId[_tokenId].push(
+            BorrowData(
+                _amount,
+                block.timestamp,
+                interestRate
+            )
+        );
+
+        activePool.increaseGHODebt(_amount);
+
         emit IncreasedDebt(
             _positionFromTokenId[_tokenId].user,
             _tokenId,
@@ -351,7 +374,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @dev The debt is decreased by the given amount, and the last update timestamp is set to the current block timestamp.
      * @param _tokenId The ID of the position to decrease the debt of.
      * @param _amount The amount to decrease the debt of the position by.
-     * @return leftOver The amount of debt that could not be decreased.
      */
     function decreaseDebtOf(
         uint256 _tokenId,
@@ -361,7 +383,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         override
         onlyBorrowerOperations
         onlyActivePosition(_tokenId)
-        returns (uint256 leftOver)
     {
         require(
             _amount > 0,
@@ -369,9 +390,32 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         );
 
         uint256 prevDebt = debtOf(_tokenId);
+        uint256 repayAmount = _amount;
+        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[
+            _tokenId
+        ];
+        for (uint32 i = 0; i < _borrowDataArray.length; i++) {
+            if(repayAmount == 0) {
+                break;
+            }
+        
+            else if (repayAmount >= _debtOf(_borrowDataArray[i])){
+                repayAmount -= _debtOf(_borrowDataArray[i]);
+                activePool.decreaseGHODebt(_borrowDataArray[i].amount);
+                delete _borrowDataFromTokenId[_tokenId][i];
+
+            }
+            else {
+                _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
+                activePool.decreaseGHODebt(repayAmount);
+                repayAmount = 0;
+            }
+        }
+        
         _positionFromTokenId[_tokenId].debt = Math.max(prevDebt - _amount, 0);
         _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
-        leftOver = Math.max(_amount - prevDebt, 0);
+
+        
 
         emit DecreasedDebt(
             _positionFromTokenId[_tokenId].user,

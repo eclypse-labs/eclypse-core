@@ -15,4 +15,17 @@ contract ActivePoolTest is UniswapTest {
         vm.stopPrank();
         assertEq(lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity, previousLiquidity / 2, "Position should have half liquidity.");
         }
+
+    function testGHOAmount_MultiplePositions() public {
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
+        assertEq(activePool.getGHODebt(), 10 * TOKEN18);
+        borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId2);
+        assertEq(activePool.getGHODebt(), 20 * TOKEN18);
+        borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId);
+        assertEq(activePool.getGHODebt(), 10 * TOKEN18);
+        borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId2);
+        assertEq(activePool.getGHODebt(), 0);
+        vm.stopPrank();
+    }
 }
