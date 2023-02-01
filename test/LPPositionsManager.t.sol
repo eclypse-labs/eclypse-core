@@ -376,9 +376,9 @@ contract LPPositionsManagerTest is UniswapTest {
         uint256 positionInGHO = 2**96 * lpPositionsManager.positionValueInETH(facticeUser1_tokenId)  / ghoInETH;
 
         vm.startPrank(address(facticeUser1));
-
+        console.log("GHO:", convertDecimals18(positionInGHO));
         borrowerOperation.borrowGHO(
-            (FullMath.mulDiv(positionInGHO, minCRDen, minCRNum)), // Trying to borrow exatcly the amount needed to reach minCR might result in an error due to some computation approximation.
+            (FullMath.mulDiv(positionInGHO, minCRDen, minCRNum) - 1000), // Trying to borrow exatcly the amount needed to reach minCR might result in an error due to some computation approximation.
                                                                                     // Since GHO has 18 decimals, we can just round down to the nearest thousandth.
         facticeUser1_tokenId
         );

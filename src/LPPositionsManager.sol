@@ -441,8 +441,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
         address token0 = _positionFromTokenId[_tokenId].token0;
         address token1 = _positionFromTokenId[_tokenId].token1;
-        uint256 decimals0 = 10**(18 - ERC20(token0).decimals());
-        uint256 decimals1 = 10**(18 - ERC20(token1).decimals());
         return
             FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96) +
             FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
