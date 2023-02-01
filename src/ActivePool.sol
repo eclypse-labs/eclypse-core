@@ -22,7 +22,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     // -- Datas --
     uint256 internal liquidationFees = 5;
     //uint256 internal ETH;
-    uint256 internal GHODebt;
+    uint256 internal mintedSupply;
+
+    //Amount of GHO we can supply
+    uint256 internal MAX_SUPPLY = 2**256 - 1;
 
     string public constant NAME = "ActivePool";
 
@@ -46,7 +49,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         address _newBorrowerOperationsAddress
     );
     event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    event ActivePoolGHODebtUpdated(uint256 _GHODebt);
+    event ActivePoolMintedSupplyUpdated(uint256 mintedSupply);
     event ActivePoolCollateralBalanceUpdated(uint256 _collateralValue);
 
     // -- Methods --
@@ -86,6 +89,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         //renounceOwnership(); //too early to renounce ownership of the contract yet
     }
 
+    function setNewMaxSupply(uint256 _newMaxSupply) external onlyOwner {
+        MAX_SUPPLY = _newMaxSupply;
+    }
+
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Getters
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -109,11 +116,11 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     }
 
     /**
-     * @notice Returns the total amount of GHO debt in the Active Pool.
-     * @return ghoDebt, The total amount of GHO debt in the Active Pool.
+     * @notice Returns the total amount of GHO minted by the protocol.
+     * @return mintedSupply The total amount of GHO minted by the protocol.
      */
-    function getGHODebt() external view returns (uint256) {
-        return GHODebt;
+    function getMintedSupply() external view returns (uint256) {
+        return mintedSupply;
     }
 
     /**
@@ -128,6 +135,10 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     ) public onlyBOorLPPMorSP returns (uint256 amount0, uint256 amount1) {
         (amount0, amount1) = uniswapPositionsNFT.collect(params);
         return (amount0, amount1);
+    }
+
+    function getMaxSupply() external view returns (uint256) {
+        return MAX_SUPPLY;
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -285,24 +296,24 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
     /**
      * @notice Increases the protocol debt.
-     * @param _amount The amount of debt to be added to the protocol.
+     * @param _amount The amount of minted supply to be added to the protocol.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function increaseGHODebt(uint256 _amount) external override onlyBOorLPPM {
-        GHODebt += _amount;
-        emit ActivePoolGHODebtUpdated(GHODebt);
+    function increaseMintedSupply(uint256 _amount) external override onlyBOorLPPM {
+        mintedSupply += _amount;
+        emit ActivePoolMintedSupplyUpdated(mintedSupply);
     }
 
     /**
      * @notice Decreases the protocol debt.
-     * @param _amount The amount of debt to be removed from the protocol.
+     * @param _amount The amount of minted supply to be removed from the protocol.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function decreaseGHODebt(
+    function decreaseMintedSupply(
         uint256 _amount
     ) external override onlyBOorLPPMorSP {
-        GHODebt -= _amount;
-        emit ActivePoolGHODebtUpdated(GHODebt);
+        mintedSupply -= _amount;
+        emit ActivePoolMintedSupplyUpdated(mintedSupply);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//

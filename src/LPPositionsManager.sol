@@ -358,7 +358,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             )
         );
 
-        activePool.increaseGHODebt(_amount);
+        activePool.increaseMintedSupply(_amount);
 
         emit IncreasedDebt(
             _positionFromTokenId[_tokenId].user,
@@ -401,13 +401,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         
             else if (repayAmount >= _debtOf(_borrowDataArray[i])){
                 repayAmount -= _debtOf(_borrowDataArray[i]);
-                activePool.decreaseGHODebt(_borrowDataArray[i].amount);
+                activePool.decreaseMintedSupply(_borrowDataArray[i].amount);
                 delete _borrowDataFromTokenId[_tokenId][i];
 
             }
             else {
                 _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
-                activePool.decreaseGHODebt(repayAmount);
+                activePool.decreaseMintedSupply(repayAmount);
                 repayAmount = 0;
             }
         }
@@ -466,7 +466,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         uint256 _tokenId
     ) public view override returns (uint256) {
         return
-            FullMath.mulDivRoundingUp(
+            FullMath.mulDivRoundingUp( 
                 debtOf(_tokenId),
                 priceInETH(address(GHOToken)),
                 FixedPoint96.Q96

@@ -151,6 +151,7 @@ contract BorrowerOperations is
         onlyPositionOwner(_tokenId, msg.sender)
     {
         require(_GHOAmount > 0, "Cannot withdraw 0 GHO.");
+        require(activePool.getMintedSupply() + _GHOAmount <= activePool.getMaxSupply() , "Supply not available.");
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
         require(!lpPositionsManager.liquidatable(_tokenId));
         GHOToken.mint(msg.sender, _GHOAmount);

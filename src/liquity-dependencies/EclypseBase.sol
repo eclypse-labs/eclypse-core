@@ -60,7 +60,7 @@ contract EclypseBase is BaseMath, IEclypseBase {
     }
 
     function getEntireSystemDebt() public view returns (uint entireSystemDebt) {
-        uint activeDebt = activePool.getGHODebt();
+        uint activeDebt = activePool.getMintedSupply();
 
         return activeDebt;
     }

@@ -314,10 +314,10 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18, "Debt should be 10 GHO.");
-        assertEq(activePool.getGHODebt(), 10 * TOKEN18, "GHO debt should be 10 GHO.");
+        assertEq(activePool.getMintedSupply(), 10 * TOKEN18, "GHO debt should be 10 GHO.");
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 20 * TOKEN18, "Debt should be 20 GHO.");
-        assertEq(activePool.getGHODebt(), 20 * TOKEN18, "GHO debt should be 20 GHO.");
+        assertEq(activePool.getMintedSupply(), 20 * TOKEN18, "GHO debt should be 20 GHO.");
         borrowerOperation.repayGHO(5 * TOKEN18, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 15 * TOKEN18, "Debt should be 15 GHO.");
         vm.stopPrank();
@@ -344,7 +344,5 @@ contract BorrowerOperationsTest is UniswapTest {
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId2), 0);
         vm.stopPrank();
     }
-
-
     
 }

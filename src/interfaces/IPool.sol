@@ -18,9 +18,9 @@ interface IPool {
     
     function getCollateralValue() external view returns (uint);
 
-    function getGHODebt() external view returns (uint);
+    function getMintedSupply() external view returns (uint);
 
-    function increaseGHODebt(uint _amount) external;
+    function increaseMintedSupply(uint _amount) external;
 
-    function decreaseGHODebt(uint _amount) external;
+    function decreaseMintedSupply(uint _amount) external;
 }

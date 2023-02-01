@@ -111,6 +111,7 @@ abstract contract UniswapTest is Test {
             address(lpPositionsManager)
         );
 
+
         // whitelist la pool: updateRiskConstants
         // pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
         lpPositionsManager.addPairToProtocol(
