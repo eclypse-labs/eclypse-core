@@ -119,7 +119,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @notice Returns the total amount of GHO minted by the protocol.
      * @return mintedSupply The total amount of GHO minted by the protocol.
      */
-    function getMintedSupply() external view returns (uint256) {
+    function getMintedSupply() external override view returns (uint256) {
         return mintedSupply;
     }
 
@@ -132,12 +132,12 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
     function feesOwed(
         INonfungiblePositionManager.CollectParams memory params
-    ) public onlyBOorLPPMorSP returns (uint256 amount0, uint256 amount1) {
+    ) public onlyBOorLPPMorSP override returns (uint256 amount0, uint256 amount1) {
         (amount0, amount1) = uniswapPositionsNFT.collect(params);
         return (amount0, amount1);
     }
 
-    function getMaxSupply() external view returns (uint256) {
+    function getMaxSupply() external override view returns (uint256) {
         return MAX_SUPPLY;
     }
 
@@ -153,7 +153,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      */
     function mintPosition(
         INonfungiblePositionManager.MintParams memory params
-    ) public onlyBOorLPPMorSP returns (uint256 tokenId) {
+    ) public onlyBOorLPPMorSP override returns (uint256 tokenId) {
         TransferHelper.safeApprove(
             params.token0,
             address(uniswapPositionsNFT),
@@ -173,7 +173,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @param tokenId The ID of the LP position to be burned.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function burnPosition(uint256 tokenId) public onlyBOorLPPMorSP {
+    function burnPosition(uint256 tokenId) public onlyBOorLPPMorSP override {
         uniswapPositionsNFT.burn(tokenId);
     }
 
@@ -250,7 +250,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         uint256 _tokenId,
         uint128 _liquidityToRemove,
         address sender
-    ) public returns (uint256 amount0, uint256 amount1) {
+    ) public override returns (uint256 amount0, uint256 amount1) {
         // amount0Min and amount1Min are price slippage checks
 
         uniswapPositionsNFT.decreaseLiquidity(
@@ -329,7 +329,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     function sendPosition(
         address _account,
         uint256 _tokenId
-    ) public onlyBOorLPPMorSP onlyBOorLPPM {
+    ) public onlyBOorLPPMorSP onlyBOorLPPM override{
         //emit ActivePoolCollateralBalanceUpdated(getCollateralValue());
         emit LpSent(_account, _tokenId);
         uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
@@ -346,7 +346,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         address _token,
         address _account,
         uint256 _amount
-    ) public onlyBOorLPPMorSP onlyBOorLPPM {
+    ) public onlyBOorLPPMorSP onlyBOorLPPM override{
         uint256 amountToSend = FullMath.mulDiv(
             _amount,
             100 - liquidationFees,
