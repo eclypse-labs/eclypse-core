@@ -973,7 +973,7 @@ contract CompleteTest is Test {
         return FullMath.mulDiv(x, 1, 10 ** 6);
     }
 
-    function setUpForUser(address user, MintParams calldata mintParamsNFT1, MintParams calldata mintParamsNFT2, MintParams calldata mintParamsNFT3) public returns (uint256 tokenId) {
+    function setUpForUser(address user, INonfungiblePositionManager.MintParams calldata mintParamsNFT1, INonfungiblePositionManager.MintParams calldata mintParamsNFT2,INonfungiblePositionManager.MintParams calldata mintParamsNFT3) public returns (uint256 tokenId) {
     }
 
 }
