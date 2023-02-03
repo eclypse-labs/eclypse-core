@@ -150,10 +150,12 @@ contract CompleteTest is Test {
 
         deal(usdcAddr, user1, 100_000_000_000 * TOKEN6); //100Md $
         deal(wethAddr, user1, 100_000 ether); //100K ETH
-        ghoToken.approve(address(activePool), 100 * TOKEN18);
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        USDC.approve(address(activePool), 100_000_000_000 * TOKEN6);
+        WETH.approve(address(activePool), 100_000 ether);
+        ghoToken.approve(address(activePool), 100 * TOKEN18);
 
 
 
@@ -216,6 +218,8 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        USDC.approve(address(activePool), 100_000_000_000 * TOKEN6);
+        WETH.approve(address(activePool), 100_000 ether);
         ghoToken.approve(address(activePool), 100 * TOKEN18);
 
     
@@ -282,6 +286,8 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        USDC.approve(address(activePool), 100_000_000_000 * TOKEN6);
+        WETH.approve(address(activePool), 100_000 ether);
         ghoToken.approve(address(activePool), 100 * TOKEN18);
 
 
@@ -347,6 +353,8 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        USDC.approve(address(activePool), 100_000_000_000 * TOKEN6);
+        WETH.approve(address(activePool), 100_000 ether);
         ghoToken.approve(address(activePool), 100 * TOKEN18);
         
         //uint24 fees, int24 lower, int24 upper, uint256 amount0, uint256 amount1, address sender 
@@ -407,6 +415,8 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        USDC.approve(address(activePool), 100_000_000_000 * TOKEN6);
+        WETH.approve(address(activePool), 100_000 ether);
         ghoToken.approve(address(activePool), 100 * TOKEN18);
 
         (user5_tokenId1, , , ) = uniswapPositionsNFT.mint(createMintParams(
@@ -759,6 +769,21 @@ contract CompleteTest is Test {
         borrowerOperation.closePosition(user1_tokenId1);
         borrowerOperation.closePosition(user1_tokenId2);
         borrowerOperation.closePosition(user1_tokenId3);
+        vm.stopPrank();
+
+        vm.startPrank(user2);
+        borrowerOperation.addCollateral(user2_tokenId1, 1000 * TOKEN6, 10 * TOKEN18);
+        //GITAN mais fonctionne.
+        
+        uint128 liquidity = lpPositionsManager.getPosition(user2_tokenId1).liquidity;
+        borrowerOperation.removeCollateral(user2_tokenId1, liquidity / 2);
+
+        assertEq(lpPositionsManager.getPosition(user2_tokenId1).liquidity, liquidity / 2, "The liquidity of user2 position 1 should be half of the initial liquidity.");
+        vm.stopPrank();
+
+        vm.expectRevert("Collateral Ratio cannot be lower than the minimum collateral ratio.");
+        vm.startPrank(user2);        
+        borrowerOperation.removeCollateral(user2_tokenId2, lpPositionsManager.getPosition(user2_tokenId2).liquidity);
         vm.stopPrank();
     }
 

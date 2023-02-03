@@ -219,7 +219,7 @@ contract BorrowerOperations is
             amountAdd1
         );
 
-        lpPositionsManager.setNewLiquidity(tokenId, liquidity);
+        lpPositionsManager.setNewLiquidity(tokenId, lpPositionsManager.getPosition(tokenId).liquidity + liquidity);
     }
 
     /**

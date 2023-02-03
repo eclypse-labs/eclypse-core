@@ -241,6 +241,9 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
                 deadline: block.timestamp
             })
         );
+
+        TransferHelper.safeTransfer(token0, sender, amountAdd0-amount0);
+        TransferHelper.safeTransfer(token1, sender, amountAdd1-amount1);
     }
 
     /**

@@ -376,17 +376,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         );
     }
 
-    function getdebt(uint256 tokenId) public {
-        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[
-            tokenId
-        ];
-        for (uint256 i = 0; i < _borrowDataArray.length; i++) {
-            console.log("debtOf: ", _debtOf(_borrowDataArray[i]));
-            console.log("mintedAmount: ", _borrowDataArray[i].mintedAmount);
-            console.log("timestamp: ", _borrowDataArray[i].timestamp);
-        }
-    }
-
     /**
      * @notice Decreases the debt of a position by a given amount.
      * @dev The debt is decreased by the given amount, and the last update timestamp is set to the current block timestamp.
