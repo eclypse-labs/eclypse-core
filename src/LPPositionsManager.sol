@@ -815,7 +815,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         }
 
-        //activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
+        activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
         Position memory position = _positionFromTokenId[_tokenId];
         position.debt = 0;
         position.status = Status.closedByLiquidation;

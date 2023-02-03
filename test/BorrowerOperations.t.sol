@@ -193,19 +193,21 @@ contract BorrowerOperationsTest is UniswapTest {
     }
 
     function testBorrowGHO() public {
+        uint256 initialBalance = ghoToken.balanceOf(facticeUser1);
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
-        assertEq(ghoToken.balanceOf(facticeUser1), 10 * TOKEN18);
+        assertEq(ghoToken.balanceOf(facticeUser1), initialBalance + 10 * TOKEN18);
     }
 
     function testRepayGHO() public {
+        uint256 initialBalance = ghoToken.balanceOf(facticeUser1);
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
         vm.startPrank(address(facticeUser1));
         borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId);
-        assertEq(ghoToken.balanceOf(facticeUser1), 0);
+        assertEq(ghoToken.balanceOf(facticeUser1), initialBalance);
         vm.stopPrank();
     }
 
@@ -263,10 +265,11 @@ contract BorrowerOperationsTest is UniswapTest {
     }
 
     function testBorrowAndRepayGHO_borrow0GHO() public {
+        uint256 initialBalance = ghoToken.balanceOf(facticeUser1);
         vm.startPrank(address(facticeUser1));
         vm.expectRevert(bytes("Cannot withdraw 0 GHO."));
         borrowerOperation.borrowGHO(0, facticeUser1_tokenId);
-        assertEq(ghoToken.balanceOf(facticeUser1), 0);
+        assertEq(ghoToken.balanceOf(facticeUser1), initialBalance);
         vm.stopPrank();
     }
 

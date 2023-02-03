@@ -171,11 +171,7 @@ contract BorrowerOperations is
         require(_GHOAmount > 0, "Cannot repay 0 GHO.");
 
         uint256 GHOfees = lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
-        // console.log("GHO Fees:", GHOfees);
-        // console.log("Balance GHO:", GHOToken.balanceOf(msg.sender));
-        // GHOToken.approve(address(activePool), GHOfees);
-        // console.log("Allowance:", GHOToken.allowance(msg.sender, address(activePool)));
-        // activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
+        activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
 
         //emit RepaidGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
     }

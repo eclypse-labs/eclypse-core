@@ -149,6 +149,7 @@ abstract contract UniswapTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100 ether);
+        ghoToken.approve(address(activePool), 1000 * TOKEN18);
 
         // uniswapPositionsNFT::mint((0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174,
         // 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, 500, 204920, 204930, 0,
@@ -194,7 +195,12 @@ abstract contract UniswapTest is Test {
         vm.stopPrank();
 
         vm.startPrank(address(activePool));
+        ghoToken.mint(facticeUser1, 1000 * TOKEN18);
         ghoToken.mint(facticeUser2, 1000 * TOKEN18);
+        vm.stopPrank();
+
+        vm.startPrank(facticeUser2);
+        ghoToken.approve(address(activePool), 100 * TOKEN18);
         vm.stopPrank();
     }
 

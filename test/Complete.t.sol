@@ -140,11 +140,17 @@ contract CompleteTest is Test {
         
         vm.startPrank(address(activePool));
         ghoToken.mint(address(user1), 100 * TOKEN18);
+        ghoToken.mint(address(user2), 100 * TOKEN18);
+        ghoToken.mint(address(user3), 100 * TOKEN18);
+        ghoToken.mint(address(user4), 100 * TOKEN18);
+        ghoToken.mint(address(user5), 100 * TOKEN18);
         vm.stopPrank();
 
         vm.startPrank(user1);
+
         deal(usdcAddr, user1, 100_000_000_000 * TOKEN6); //100Md $
         deal(wethAddr, user1, 100_000 ether); //100K ETH
+        ghoToken.approve(address(activePool), 100 * TOKEN18);
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
@@ -210,6 +216,8 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        ghoToken.approve(address(activePool), 100 * TOKEN18);
+
     
 
         (user2_tokenId1, , , ) = uniswapPositionsNFT.mint(
@@ -274,6 +282,7 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
+        ghoToken.approve(address(activePool), 100 * TOKEN18);
 
 
         (user3_tokenId1, , , ) = uniswapPositionsNFT.mint(
@@ -338,7 +347,7 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
-
+        ghoToken.approve(address(activePool), 100 * TOKEN18);
         
         //uint24 fees, int24 lower, int24 upper, uint256 amount0, uint256 amount1, address sender 
         (user4_tokenId1, , , ) = uniswapPositionsNFT.mint(createMintParams(
@@ -398,7 +407,7 @@ contract CompleteTest is Test {
 
         USDC.approve(address(uniswapPositionsNFT), 100_000_000_000 * TOKEN6);
         WETH.approve(address(uniswapPositionsNFT), 100_000 ether);
-
+        ghoToken.approve(address(activePool), 100 * TOKEN18);
 
         (user5_tokenId1, , , ) = uniswapPositionsNFT.mint(createMintParams(
             100,
