@@ -833,9 +833,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         //     });
         //(uint256 amount0, uint256 amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
 
-        console.log("BONJOUR 3");
         activePool.sendPosition(msg.sender, _tokenId);
-        console.log("BONJOUR 4");
 
         return true;
     }
