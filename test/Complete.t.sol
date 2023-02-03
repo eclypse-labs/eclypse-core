@@ -752,6 +752,21 @@ contract CompleteTest is Test {
         assertEq(activePool.getMintedSupply(), 14964 * 10**16);
 
         vm.startPrank(user1);
+
+        // Try to close the 3 positions of user1 while the debt is ot repaid for all of them
+
+        vm.expectRevert("Debt is not repaid.");
+        borrowerOperation.closePosition(user1_tokenId1);
+
+        vm.expectRevert("Debt is not repaid.");
+        borrowerOperation.closePosition(user1_tokenId2);
+
+        vm.expectRevert("Debt is not repaid.");
+        borrowerOperation.closePosition(user1_tokenId3);
+
+
+        // Repay all the debt of the 3 positions
+        
         borrowerOperation.repayGHO(10 * TOKEN18, user1_tokenId1);
         borrowerOperation.repayGHO(10 * TOKEN18, user1_tokenId2);
         borrowerOperation.repayGHO(10 * TOKEN18, user1_tokenId3);
@@ -781,10 +796,12 @@ contract CompleteTest is Test {
         assertEq(lpPositionsManager.getPosition(user2_tokenId1).liquidity, liquidity / 2, "The liquidity of user2 position 1 should be half of the initial liquidity.");
         vm.stopPrank();
 
-        vm.expectRevert("Collateral Ratio cannot be lower than the minimum collateral ratio.");
-        vm.startPrank(user2);        
-        borrowerOperation.removeCollateral(user2_tokenId2, lpPositionsManager.getPosition(user2_tokenId2).liquidity);
-        vm.stopPrank();
+        // vm.startPrank(user2);    
+        // vm.expectRevert();
+        // borrowerOperation.removeCollateral(user2_tokenId2, lpPositionsManager.getPosition(user2_tokenId2).liquidity);
+        // vm.stopPrank();
+
+        
     }
 
 

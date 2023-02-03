@@ -122,8 +122,7 @@ contract BorrowerOperations is
     {
         uint256 debt = lpPositionsManager.debtOf(_tokenId);
 
-        if (debt > 0) repayGHO(debt, _tokenId); // try to repay all debt
-        require(debt == 0, "Debt is not repaid."); // should be 0 or the tx would have reverted, but just in case
+        require(debt == 0, "Debt is not repaid.");
 
         // send LP to owner
         activePool.sendPosition(msg.sender, _tokenId);
