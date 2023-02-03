@@ -25,8 +25,6 @@ contract BorrowerOperations is
     LPPositionsManager private lpPositionsManager;
     IGHOToken private GHOToken;
 
-    //address stabilityPoolAddress;
-    //address gasPoolAddress;
 
     // --- Interfaces ---
     INonfungiblePositionManager constant uniswapPositionsNFT =
@@ -38,13 +36,6 @@ contract BorrowerOperations is
         IActivePool activePool;
         IGHOToken GHOToken;
     }
-
-    /*enum BorrowerOperation {
-        openPosition,
-        closePosition,
-        adjustPosition
-    }*/
-    // Not used, commented it in case we need it in the future
 
     // --- Methods ---
 
@@ -62,26 +53,19 @@ contract BorrowerOperations is
     function setAddresses(
         address _lpPositionsManagerAddress,
         address _activePoolAddress,
-        //address _stabilityPoolAddress,
-        //address _gasPoolAddress,
+
         address _GHOTokenAddress
     ) external onlyOwner {
-        // This makes it impossible to open a trove with zero withdrawn GHO
-        assert(MIN_NET_DEBT > 0);
 
         lpPositionsManager = LPPositionsManager(_lpPositionsManagerAddress);
         activePool = IActivePool(_activePoolAddress);
-        //stabilityPoolAddress = _stabilityPoolAddress;
-        //gasPoolAddress = _gasPoolAddress;
         GHOToken = IGHOToken(_GHOTokenAddress);
 
         emit LPPositionsManagerAddressChanged(_lpPositionsManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
-        //emit StabilityPoolAddressChanged(_stabilityPoolAddress);
-        //emit GasPoolAddressChanged(_gasPoolAddress);
         emit GHOTokenAddressChanged(_GHOTokenAddress);
 
-        renounceOwnership();
+        //renounceOwnership();
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -100,14 +84,14 @@ contract BorrowerOperations is
             _tokenId
         );
 
-        
-
         ContractsCache memory contractsCache = ContractsCache(
             lpPositionsManager,
             activePool,
             GHOToken
         );
         contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
+        require(!contractsCache.lpPositionsManager.liquidatable(_tokenId));
+        emit OpenedPosition(msg.sender, _tokenId);
     }
 
     /**
@@ -124,13 +108,13 @@ contract BorrowerOperations is
 
         require(debt == 0, "Debt is not repaid.");
 
-        // send LP to owner
         activePool.sendPosition(msg.sender, _tokenId);
 
         lpPositionsManager.changePositionStatus(
             _tokenId,
             ILPPositionsManager.Status.closedByOwner
         );
+        emit ClosedPosition(msg.sender, _tokenId);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -153,7 +137,7 @@ contract BorrowerOperations is
         require(activePool.getMintedSupply() + _GHOAmount <= activePool.getMaxSupply() , "Supply not available.");
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
         require(!lpPositionsManager.liquidatable(_tokenId));
-        emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
+        emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId);
     }
 
     /**
@@ -172,7 +156,7 @@ contract BorrowerOperations is
         uint256 GHOfees = lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
         activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
 
-        //emit RepaidGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
+        emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//

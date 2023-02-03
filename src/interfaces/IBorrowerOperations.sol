@@ -13,12 +13,13 @@ interface IBorrowerOperations {
         address _newLPPositionsManagerAddress
     );
     event ActivePoolAddressChanged(address _activePoolAddress);
-    event StabilityPoolAddressChanged(address _stabilityPoolAddress);
-    event GasPoolAddressChanged(address _gasPoolAddress);
     event GHOTokenAddressChanged(address _GHOTokenAddress);
 
-    event WithdrawnGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId, uint256 _time);
-    event RepaidGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId, uint256 _time);
+    event OpenedPosition(address _borrower, uint256 _tokenId);
+    event ClosedPosition(address _borrower, uint256 _tokenId);
+
+    event WithdrawnGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId);
+    event RepaidGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId);
 
     // --- Functions ---
 

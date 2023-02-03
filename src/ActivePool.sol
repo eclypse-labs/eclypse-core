@@ -20,13 +20,18 @@ import "./LPPositionsManager.sol";
  */
 
 contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
+
     // -- Datas --
+
+    //The liquidation Fee (in %).
     uint256 internal liquidationFees = 5;
-    //uint256 internal ETH;
+
+    //Amounto of GHO minted by the protocol.
     uint256 internal mintedSupply;
 
-    //Amount of GHO we can supply
+    //Amount of GHO we can supply.
     uint256 internal MAX_SUPPLY = 2**256 - 1;
+
 
     string public constant NAME = "ActivePool";
 
@@ -47,14 +52,6 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
     IGHOToken public GHO;
 
-    // --- Events ---
-    event BorrowerOperationsAddressChanged(
-        address _newBorrowerOperationsAddress
-    );
-    event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    event ActivePoolMintedSupplyUpdated(uint256 mintedSupply);
-    event ActivePoolCollateralBalanceUpdated(uint256 _collateralValue);
-
     // -- Methods --
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -74,26 +71,32 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         address _GHOAddress
     )
         external
-        //address _stabilityPoolAddress
         onlyOwner
     {
-        checkContract(_borrowerOperationsAddress);
-        checkContract(_lpPositionsManagerAddress);
-        //checkContract(_stabilityPoolAddress);
 
         borrowerOperationsAddress = _borrowerOperationsAddress;
         lpPositionsManagerAddress = _lpPositionsManagerAddress;
+
         GHO = IGHOToken(_GHOAddress);
-        //stabilityPoolAddress = _stabilityPoolAddress;
 
         lpPositionsManager = LPPositionsManager(lpPositionsManagerAddress);
 
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
-        //emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+        emit LPPositionsManagerAddressChanged(_lpPositionsManagerAddress);
+        emit GHOAddressChanged(_GHOAddress);
 
         //renounceOwnership(); //too early to renounce ownership of the contract yet
     }
 
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // Setters
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    
+    /**
+     * @notice Sets the maximum supply the protocol can mint.
+     * @param _newMaxSupply The new maximum supply.
+     * @dev Only the contract owner can call this function.
+     */
     function setNewMaxSupply(uint256 _newMaxSupply) external onlyOwner {
         MAX_SUPPLY = _newMaxSupply;
     }
@@ -104,10 +107,9 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
     /**
      * @notice Returns the total amount of ETH collateral in the Active Pool.
-     * @return collateralValue, The total amount of ETH collateral in the Active Pool.
+     * @return sum The total amount of ETH collateral in the Active Pool.
      */
-    function getCollateralValue() public view override returns (uint256) {
-        uint256 sum = 0;
+    function getCollateralValue() public view override returns (uint256 sum) {
         for (
             uint32 i = 0;
             i < uniswapPositionsNFT.balanceOf(address(this));
@@ -129,21 +131,24 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     }
 
     /**
+     * @notice Returns the maximum amount of GHO the protocol can mint.
+     * @return MAX_SUPPLY The maximum amount of GHO the protocol can mint.
+     */
+    function getMaxSupply() external override view returns (uint256) {
+        return MAX_SUPPLY;
+    }
+
+    /**
      * @notice Returns the total amount of tokens owed to a position.
      * @param params The parameters for the position.
      * @return amount0 The amount of token0 owed to the position.
      * @return amount1 The amount of token1 owed to the position.
      */
-
     function feesOwed(
         INonfungiblePositionManager.CollectParams memory params
     ) public onlyBOorLPPMorSP override returns (uint256 amount0, uint256 amount1) {
         (amount0, amount1) = uniswapPositionsNFT.collect(params);
         return (amount0, amount1);
-    }
-
-    function getMaxSupply() external override view returns (uint256) {
-        return MAX_SUPPLY;
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -170,6 +175,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             params.amount1Desired
         );
         (tokenId, , , ) = uniswapPositionsNFT.mint(params);
+
+        emit PositionMinted(tokenId);
         return tokenId;
     }
 
@@ -180,6 +187,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      */
     function burnPosition(uint256 tokenId) public onlyBOorLPPMorSP override {
         uniswapPositionsNFT.burn(tokenId);
+        emit PositionBurned(tokenId);
     }
 
     /**
@@ -244,6 +252,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
         TransferHelper.safeTransfer(token0, sender, amountAdd0-amount0);
         TransferHelper.safeTransfer(token1, sender, amountAdd1-amount1);
+
+        emit LiquidityIncreased(_tokenId, liquidity);
     }
 
     /**
@@ -296,6 +306,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             lpPositionsManager.getPosition(_tokenId).liquidity -
                 _liquidityToRemove
         );
+
+        emit LiquidityDecreased(_tokenId, _liquidityToRemove);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -310,7 +322,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     function increaseMintedSupply(uint256 _amount, address sender) external override onlyBOorLPPM {
         mintedSupply += _amount;
         GHO.mint(sender, _amount);
-        emit ActivePoolMintedSupplyUpdated(mintedSupply);
+        emit MintedSupplyUpdated(int256(mintedSupply));
     }
 
     /**
@@ -324,11 +336,18 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     ) external override onlyBOorLPPMorSP {
         mintedSupply -= _amount;
         GHO.burn(sender, _amount);
-        emit ActivePoolMintedSupplyUpdated(mintedSupply);
+        emit MintedSupplyUpdated(-int256(mintedSupply));
     }
 
+    /**
+     * @notice Repays the interest of a user.
+     * @param sender The address of the user that will repay the interest.
+     * @param amount The amount of interest to be repaid.
+     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
+     */
     function repayInterestFromUserToProtocol(address sender, uint256 amount) external override onlyBOorLPPM {
         GHO.transferFrom(sender, 0x53A5a93e8b82030C3a52e9ff36801956b8661333, amount);
+        emit InterestRepaid(sender, amount);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -345,9 +364,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         address _account,
         uint256 _tokenId
     ) public onlyBOorLPPMorSP onlyBOorLPPM override{
-        //emit ActivePoolCollateralBalanceUpdated(getCollateralValue());
-        emit LpSent(_account, _tokenId);
         uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
+        emit PositionSent(_account, _tokenId);
     }
 
     /**
@@ -368,6 +386,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             100
         );
         IERC20(_token).transfer(_account, amountToSend);
+        emit TokenSent(_token, _account, _amount);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//

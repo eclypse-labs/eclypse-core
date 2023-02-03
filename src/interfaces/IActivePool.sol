@@ -8,14 +8,19 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
 interface IActivePool is IPool {
     // --- Events ---
-    //event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
-    //event TroveManagerAddressChanged(address _newTroveManagerAddress);
-    //event ActivePoolGHODebtUpdated(uint _GHODebt);
-    //event ActivePoolCollateralBalanceUpdated(uint _collateralValue);
+    event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
+    event LPPositionsManagerAddressChanged(address _newLPPositionsManagerAddress);
+    event GHOAddressChanged(address _newGHOAddress);
+    event PositionMinted(uint256 _tokenId);
+    event PositionBurned(uint256 _tokenId);
+    event LiquidityIncreased(uint256 _tokenId, uint128 liquidity);
+    event LiquidityDecreased(uint256 _tokenId, uint128 liquidity);
+    event MintedSupplyUpdated(int256 _mintedSupply);
+    event InterestRepaid(address _sender, uint256 _amount);
+    event PositionSent(address _account, uint256 _tokenId);
+    event TokenSent(address _token, address _account, uint256 _amount);
 
     // --- Functions ---
-
-    function getMaxSupply() external view returns (uint256);
 
     function mintPosition(
         INonfungiblePositionManager.MintParams memory params
@@ -24,6 +29,8 @@ interface IActivePool is IPool {
     function sendToken(address _token, address _account, uint256 _amount) external;
     
     function getMintedSupply() external view returns (uint256);
+    function getMaxSupply() external view returns (uint256);
+
     function increaseMintedSupply(uint256 _amount, address sender) external;
     function decreaseMintedSupply(uint256 _amount, address sender) external;
 
