@@ -688,9 +688,15 @@ contract CompleteTest is Test {
 
         vm.startPrank(user1);
 
+        // User1 repays only the fees of his positions
+
         borrowerOperation.repayGHO(200000000000000000, user1_tokenId1);
         borrowerOperation.repayGHO(200000000000000000, user1_tokenId2);
         borrowerOperation.repayGHO(200000000000000000, user1_tokenId3);
+
+        // The fees should have been transfered to the address where we collect it, we should have 3 times 200000000000000000
+
+        assertEq(600000000000000000,ghoToken.balanceOf(0x53A5a93e8b82030C3a52e9ff36801956b8661333), "The fees should have been transfered to this address ");
 
         vm.stopPrank();
 
@@ -705,6 +711,10 @@ contract CompleteTest is Test {
         borrowerOperation.repayGHO(200000000000000000, user1_tokenId1);
         borrowerOperation.repayGHO(200000000000000000, user1_tokenId2);
         borrowerOperation.repayGHO(200000000000000000, user1_tokenId3);
+
+        
+        // We should have accumulated 6 times 200000000000000000 because the user1 calls repayGHO 6 times
+        assertEq(1200000000000000000,ghoToken.balanceOf(0x53A5a93e8b82030C3a52e9ff36801956b8661333), "The fees should have been transfered to this address ");
 
         vm.stopPrank();
 
