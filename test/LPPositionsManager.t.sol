@@ -19,6 +19,7 @@ contract LPPositionsManagerTest is UniswapTest {
         uniswapTest();
     }
 
+
     function testGetPositionsCount() public {
         assertEq(lpPositionsManager.getPositionsCount(), 2, "There should be 2 position.");
     }

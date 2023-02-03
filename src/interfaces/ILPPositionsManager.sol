@@ -70,6 +70,7 @@ interface ILPPositionsManager is IEclypseBase {
 
     struct BorrowData {
         uint256 amount;
+        uint256 mintedAmount;
         uint256 timestamp;
         uint256 interestRate;
     }
@@ -118,19 +119,18 @@ interface ILPPositionsManager is IEclypseBase {
         view
         returns (uint256 totalValue);
 
-    function debtOf(uint256 _tokenId) external view returns (uint256);
+    function debtOf(uint256 _tokenId) external returns (uint256);
 
-    function debtOfInETH(uint256 _tokenId) external view returns (uint256);
+    function debtOfInETH(uint256 _tokenId) external returns (uint256);
 
     function totalDebtOf(address _user)
         external
-        view
         returns (uint256 totalDebtInGHO);
 
     function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
 
     function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
-        external;
+        external returns (uint256);
 
     function setNewLiquidity(uint256 _tokenId, uint128 _liquidity) external;
 

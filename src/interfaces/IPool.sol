@@ -20,7 +20,7 @@ interface IPool {
 
     function getMintedSupply() external view returns (uint);
 
-    function increaseMintedSupply(uint _amount) external;
+    function increaseMintedSupply(uint _amount, address sender) external;
 
-    function decreaseMintedSupply(uint _amount) external;
+    function decreaseMintedSupply(uint _amount, address sender) external;
 }

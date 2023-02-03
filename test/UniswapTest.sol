@@ -76,7 +76,6 @@ abstract contract UniswapTest is Test {
 
     function uniswapTest() public {
         vm.createSelectFork("https://rpc.ankr.com/eth", 16_153_817); // eth mainet at block 16_153_817
-
         vm.startPrank(deployer);
 
         uniswapPositionsNFT = INonfungiblePositionManager(
@@ -93,7 +92,8 @@ abstract contract UniswapTest is Test {
 
         ghoToken = new GHOToken(
             address(borrowerOperation),
-            address(lpPositionsManager)
+            address(lpPositionsManager),
+            address(activePool)
         ); // we assume gho is DAI, for simplicity
 
         borrowerOperation.setAddresses(
@@ -108,7 +108,8 @@ abstract contract UniswapTest is Test {
         );
         activePool.setAddresses(
             address(borrowerOperation),
-            address(lpPositionsManager)
+            address(lpPositionsManager),
+            address(ghoToken)
         );
 
 
@@ -174,10 +175,9 @@ abstract contract UniswapTest is Test {
             });
         // Position is worth approximately 1227 GHO
 
-        
-
         (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
         (facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
+
 
 
         uniswapPositionsNFT.approve(
@@ -193,7 +193,7 @@ abstract contract UniswapTest is Test {
         borrowerOperation.openPosition(facticeUser1_tokenId2);
         vm.stopPrank();
 
-        vm.startPrank(address(borrowerOperation));
+        vm.startPrank(address(activePool));
         ghoToken.mint(facticeUser2, 1000 * TOKEN18);
         vm.stopPrank();
     }

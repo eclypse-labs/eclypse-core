@@ -24,8 +24,8 @@ interface IActivePool is IPool {
     function sendToken(address _token, address _account, uint256 _amount) external;
     
     function getMintedSupply() external view returns (uint256);
-    function increaseMintedSupply(uint256 _amount) external;
-    function decreaseMintedSupply(uint256 _amount) external;
+    function increaseMintedSupply(uint256 _amount, address sender) external;
+    function decreaseMintedSupply(uint256 _amount, address sender) external;
 
     function feesOwed(INonfungiblePositionManager.CollectParams memory params) external returns (uint256 amount0, uint256 amount1);
     
@@ -48,5 +48,6 @@ interface IActivePool is IPool {
         external
         returns (uint256 amount0, uint256 amount1);
 
+    function repayInterestFromUserToProtocol(address sender, uint256 amount) external;
 }
 

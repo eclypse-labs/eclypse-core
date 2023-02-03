@@ -8,6 +8,7 @@ import "forge-std/console.sol";
 import "@uniswap-core/libraries/FullMath.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
+import "./interfaces/IGHOToken.sol";
 //import "Dependencies/console.sol";
 
 import "./LPPositionsManager.sol";
@@ -44,6 +45,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
     LPPositionsManager lpPositionsManager;
 
+    IGHOToken public GHO;
+
     // --- Events ---
     event BorrowerOperationsAddressChanged(
         address _newBorrowerOperationsAddress
@@ -67,7 +70,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      */
     function setAddresses(
         address _borrowerOperationsAddress,
-        address _lpPositionsManagerAddress
+        address _lpPositionsManagerAddress,
+        address _GHOAddress
     )
         external
         //address _stabilityPoolAddress
@@ -79,6 +83,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
 
         borrowerOperationsAddress = _borrowerOperationsAddress;
         lpPositionsManagerAddress = _lpPositionsManagerAddress;
+        GHO = IGHOToken(_GHOAddress);
         //stabilityPoolAddress = _stabilityPoolAddress;
 
         lpPositionsManager = LPPositionsManager(lpPositionsManagerAddress);
@@ -299,8 +304,9 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @param _amount The amount of minted supply to be added to the protocol.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function increaseMintedSupply(uint256 _amount) external override onlyBOorLPPM {
+    function increaseMintedSupply(uint256 _amount, address sender) external override onlyBOorLPPM {
         mintedSupply += _amount;
+        GHO.mint(sender, _amount);
         emit ActivePoolMintedSupplyUpdated(mintedSupply);
     }
 
@@ -310,10 +316,16 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
     function decreaseMintedSupply(
-        uint256 _amount
+        uint256 _amount,
+        address sender
     ) external override onlyBOorLPPMorSP {
         mintedSupply -= _amount;
+        GHO.burn(sender, _amount);
         emit ActivePoolMintedSupplyUpdated(mintedSupply);
+    }
+
+    function repayInterestFromUserToProtocol(address sender, uint256 amount) external override onlyBOorLPPM {
+        GHO.transferFrom(sender, 0x53A5a93e8b82030C3a52e9ff36801956b8661333, amount);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//

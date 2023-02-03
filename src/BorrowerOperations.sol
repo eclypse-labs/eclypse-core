@@ -154,7 +154,6 @@ contract BorrowerOperations is
         require(activePool.getMintedSupply() + _GHOAmount <= activePool.getMaxSupply() , "Supply not available.");
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
         require(!lpPositionsManager.liquidatable(_tokenId));
-        GHOToken.mint(msg.sender, _GHOAmount);
         emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
     }
 
@@ -170,9 +169,15 @@ contract BorrowerOperations is
     {
         _GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
         require(_GHOAmount > 0, "Cannot repay 0 GHO.");
-        lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
-        GHOToken.burn(msg.sender, _GHOAmount);
-        emit RepaidGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
+
+        uint256 GHOfees = lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
+        // console.log("GHO Fees:", GHOfees);
+        // console.log("Balance GHO:", GHOToken.balanceOf(msg.sender));
+        // GHOToken.approve(address(activePool), GHOfees);
+        // console.log("Allowance:", GHOToken.allowance(msg.sender, address(activePool)));
+        // activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
+
+        //emit RepaidGHO(msg.sender, _GHOAmount, _tokenId, block.timestamp);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//

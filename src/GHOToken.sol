@@ -59,15 +59,18 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
     // --- Addresses ---
     address public immutable borrowerOperationsAddress;
     address public immutable lpPositionsManagerAddress;
+    address public immutable activePoolAddress;
 
     // --- Events ---
 
     constructor(
         address _borrowerOperationsAddress,
-        address _lpPositionsManagerAddress
+        address _lpPositionsManagerAddress,
+        address _activePoolAddress
     ) ERC20Permit(_NAME) ERC20(_NAME, _VERSION) {
         borrowerOperationsAddress = _borrowerOperationsAddress;
         lpPositionsManagerAddress = _lpPositionsManagerAddress;
+        activePoolAddress = _activePoolAddress;
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
 
         bytes32 hashedName = keccak256(bytes(_NAME));
@@ -79,8 +82,7 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
 
     // --- Functions for intra-Liquity calls ---
 
-    function mint(address _account, uint256 _amount) external override {
-        _requireCallerIsBorrowerOperations();
+    function mint(address _account, uint256 _amount) external override onlyActivePool {
         require(_account != address(0), "ERC20: mint to the zero address");
 
         _beforeTokenTransfer(address(0), _account, _amount);
@@ -95,8 +97,7 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
         _afterTokenTransfer(address(0), _account, _amount);
     }
 
-    function burn(address _account, uint256 _amount) external override {
-        _requireCallerIsBOorLPPM();
+    function burn(address _account, uint256 _amount) external override onlyActivePool{
         require(_account != address(0), "ERC20: burn from the zero address");
 
         _beforeTokenTransfer(_account, address(0), _amount);
@@ -228,6 +229,14 @@ contract GHOToken is CheckContract, IGHOToken, ERC20Permit {
                 msg.sender == lpPositionsManagerAddress,
             "GHOToken: Caller is not BorrowerOperations not LPPositionsManager."
         );
+    }
+
+    modifier onlyActivePool() {
+        require(
+            msg.sender == activePoolAddress,
+            "GHOToken: Caller is not ActivePool."
+        );
+        _;
     }
 
     function balanceOf(address account)
