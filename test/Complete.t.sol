@@ -16,7 +16,6 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/interfaces/ISwapRouter.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
-
 contract CompleteTest is Test {
     IGHOToken ghoToken;
 
@@ -79,8 +78,8 @@ contract CompleteTest is Test {
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
     function setUp() public {
+        vm.createSelectFork("https://rpc.ankr.com/eth", 165_555_72);
 
-        vm.createSelectFork("https://rpc.ankr.com/eth");
         vm.startPrank(deployer);
 
         uniswapPositionsNFT = INonfungiblePositionManager(
@@ -88,9 +87,7 @@ contract CompleteTest is Test {
         );
 
         swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-
         PoolWETH_USDC = IUniswapV3Pool(uniPoolUsdcETHAddr);
-
         activePool = new ActivePool();
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
@@ -126,9 +123,9 @@ contract CompleteTest is Test {
             false,
             true
         );
-
         vm.stopPrank();
 
+        // Mints 100 GHO for the 5 users
         vm.startPrank(address(activePool));
         ghoToken.mint(address(user1), 100 * TOKEN18);
         ghoToken.mint(address(user2), 100 * TOKEN18);
@@ -137,6 +134,10 @@ contract CompleteTest is Test {
         ghoToken.mint(address(user5), 100 * TOKEN18);
         vm.stopPrank();
 
+        // The test includes 5 different users
+        // Each user receive 100 billions GHO and 100k ETH
+        // Each one opens 3 different positions, an NFT is mint for each opened position.
+        // The positions contains real data, the ticks comes from real positions on Uniswap V3 with the USDC/WETH pair
 
         //------------------------ start : user1 configurations for test ------------------------
 
@@ -151,9 +152,6 @@ contract CompleteTest is Test {
         WETH.approve(address(activePool), 100_000 ether);
         ghoToken.approve(address(activePool), 100 * TOKEN18);
 
-
-        //uint24 fees, int24 lower, int24 upper, uint256 amount0, uint256 amount1, address sender
-        //(user1_tokenId0, , , ) = uniswapPositionsNFT.mint(); //Pair not approved by protocole.
         (user1_tokenId1, , , ) = uniswapPositionsNFT.mint(
             createMintParams(
                 100,
@@ -427,7 +425,6 @@ contract CompleteTest is Test {
         //------------------------- end : user5 configurations for test -------------------------
 
         createEthGhoPool();
-
     }
 
     function createMintParams(
@@ -455,16 +452,16 @@ contract CompleteTest is Test {
     }
 
     function createEthGhoPool() private {
+
         vm.startPrank(deployer);
 
         PoolGHO_WETH = IUniswapV3Pool(
             uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
         );
 
-        deal(address(ghoToken), deployer, 1225 * 2000 * TOKEN18);
 
+        deal(address(ghoToken), deployer, 1225 * 2000 * TOKEN18);
         vm.deal(deployer, 3000 ether);
-        // address(WETH).call{value: 2000 ether}(abi.encodeWithSignature("deposit()"));
 
         ghoToken.approve(address(uniswapPositionsNFT), 1225 * 2000 * TOKEN18);
 
@@ -506,6 +503,7 @@ contract CompleteTest is Test {
         }
         uniswapPositionsNFT.mint{value: 1000 ether}(mintParams);
 
+        // Approve the pair GHO/WETH
         lpPositionsManager.addPairToProtocol(
             address(PoolGHO_WETH),
             address(ghoToken),
@@ -542,6 +540,7 @@ contract CompleteTest is Test {
     function testComplete() public {
         vm.startPrank(deployer);
 
+        //We set the min CR at 150%
         uint256 _minCR = Math.mulDiv(15, FixedPoint96.Q96, 10);
         lpPositionsManager.updateRiskConstants(
             address(uniPoolUsdcETHAddr),
@@ -562,18 +561,24 @@ contract CompleteTest is Test {
         vm.startPrank(user1);
 
         borrowerOperation.borrowGHO(GHOAmount, user1_tokenId1);
+
+        //We expect that the minted supply of the protocol is equal to the GHOAmount
         assertEq(
             activePool.getMintedSupply(),
             GHOAmount,
             "GHOAmount1_1 should have been minted."
         );
+    
         assertEq(
             lpPositionsManager.debtOf(user1_tokenId1),
             GHOAmount,
             "The debt of user1 position 1 should be of GHOAmount1_1."
         );
 
+        // User1 borrows for the second time but with a different position (his collateral is different) 
         borrowerOperation.borrowGHO(GHOAmount, user1_tokenId2);
+
+        //We expect that the minted supply is now equal to the sum of the two GHOAmount because he borrows the same amount 2 times in a row
         assertEq(
             activePool.getMintedSupply(),
             GHOAmount + GHOAmount,
@@ -585,6 +590,7 @@ contract CompleteTest is Test {
             "The debt of user1 position 2 should be of GHOAmount1_2."
         );
 
+        // User1 borrows for the third time but with a different position (his collateral is different) 
         borrowerOperation.borrowGHO(GHOAmount, user1_tokenId3);
         assertEq(
             activePool.getMintedSupply(),
@@ -597,6 +603,7 @@ contract CompleteTest is Test {
             "The debt of user1 position 3 should be of GHOAmount1_3."
         );
 
+        //We expect that the minted supply is now equal to the sum of the three GHOAmount because he borrows the same amount 3 times in a row
         assertEq(
             lpPositionsManager.totalDebtOf(user1),
             GHOAmount + GHOAmount + GHOAmount,
@@ -606,6 +613,8 @@ contract CompleteTest is Test {
         vm.stopPrank();
 
         vm.startPrank(user2);
+
+        // User2 will borrow exactly like user1, we just check if the debt of the protocol and the user is correctly udpated
 
         borrowerOperation.borrowGHO(GHOAmount, user2_tokenId1);
         assertEq(
@@ -652,6 +661,8 @@ contract CompleteTest is Test {
         vm.stopPrank();
 
         vm.startPrank(user3);
+
+        // User3 will borrow exactly like user1 and user2, we just check if the debt of the protocol and the user is correctly udpated
 
         borrowerOperation.borrowGHO(GHOAmount, user3_tokenId1);
         assertEq(
@@ -794,6 +805,8 @@ contract CompleteTest is Test {
 
         vm.stopPrank();
 
+        //Now we will test if the fees are correctly updated
+
         uint256 initialDebtUser1 = lpPositionsManager.totalDebtOf(user1);
 
         vm.warp(block.timestamp + 365 days);
@@ -857,16 +870,20 @@ contract CompleteTest is Test {
 
         vm.startPrank(user1);
 
+        // User1 will borrow GHO with his 3 different positions with different amounts and then repay them partially
+        // For each position : (the amount borrowed) - (the amount repaid) = 10 GHO
+
         borrowerOperation.borrowGHO(7 * TOKEN18, user1_tokenId1);
-        borrowerOperation.borrowGHO(4 * TOKEN18, user1_tokenId2);
-        borrowerOperation.borrowGHO(9 * TOKEN18, user1_tokenId3);
-
         borrowerOperation.borrowGHO(6 * TOKEN18, user1_tokenId1);
-        borrowerOperation.borrowGHO(7 * TOKEN18, user1_tokenId2);
-        borrowerOperation.borrowGHO(5 * TOKEN18, user1_tokenId3);
-
         borrowerOperation.repayGHO(3 * TOKEN18, user1_tokenId1);
+
+
+        borrowerOperation.borrowGHO(4 * TOKEN18, user1_tokenId2);
+        borrowerOperation.borrowGHO(7 * TOKEN18, user1_tokenId2);
         borrowerOperation.repayGHO(1 * TOKEN18, user1_tokenId2);
+
+        borrowerOperation.borrowGHO(9 * TOKEN18, user1_tokenId3);
+        borrowerOperation.borrowGHO(5 * TOKEN18, user1_tokenId3);
         borrowerOperation.repayGHO(4 * TOKEN18, user1_tokenId3);
 
         vm.stopPrank();
@@ -882,6 +899,7 @@ contract CompleteTest is Test {
 
         vm.startPrank(user1);
 
+        //User1 repaid all the debt and the fees for the 10 GHO borrowed at the previous step
         borrowerOperation.repayGHO(10400000000000000000, user1_tokenId1);
 
         borrowerOperation.repayGHO(10400000000000000000, user1_tokenId2);
@@ -906,7 +924,7 @@ contract CompleteTest is Test {
 
         vm.startPrank(user1);
 
-        // Try to close the 3 positions of user1 while the debt is ot repaid for all of them
+        // Try to close the 3 positions of user1 while the debts are not repaid
 
         vm.expectRevert("Debt is not repaid.");
         borrowerOperation.closePosition(user1_tokenId1);
@@ -977,8 +995,4 @@ contract CompleteTest is Test {
     function convertDecimals6(uint256 x) public pure returns (uint256) {
         return FullMath.mulDiv(x, 1, 10 ** 6);
     }
-
-    function setUpForUser(address user, INonfungiblePositionManager.MintParams calldata mintParamsNFT1, INonfungiblePositionManager.MintParams calldata mintParamsNFT2,INonfungiblePositionManager.MintParams calldata mintParamsNFT3) public returns (uint256 tokenId) {
-    }
-
 }
