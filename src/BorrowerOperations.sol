@@ -9,6 +9,7 @@ import "src/liquity-dependencies/EclypseBase.sol";
 import "src/liquity-dependencies/CheckContract.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title BorrowerOperations contract
@@ -19,12 +20,12 @@ contract BorrowerOperations is
     EclypseBase,
     Ownable,
     CheckContract,
-    IBorrowerOperations
+    IBorrowerOperations,
+    ReentrancyGuard
 {
     // --- Addresses ---
     LPPositionsManager private lpPositionsManager;
     IGHOToken private GHOToken;
-
 
     // --- Interfaces ---
     INonfungiblePositionManager constant uniswapPositionsNFT =
@@ -44,7 +45,7 @@ contract BorrowerOperations is
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
     /**
-    * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
+     * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
      * @param _lpPositionsManagerAddress The address of the LPPositionsManager contract.
      * @param _activePoolAddress The address of the ActivePool contract.
      * @param _GHOTokenAddress The address of the GHOToken contract.
@@ -53,10 +54,8 @@ contract BorrowerOperations is
     function setAddresses(
         address _lpPositionsManagerAddress,
         address _activePoolAddress,
-
         address _GHOTokenAddress
     ) external onlyOwner {
-
         lpPositionsManager = LPPositionsManager(_lpPositionsManagerAddress);
         activePool = IActivePool(_activePoolAddress);
         GHOToken = IGHOToken(_GHOTokenAddress);
@@ -73,10 +72,10 @@ contract BorrowerOperations is
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
     /**
-    * @notice Opens a new position.
-    * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-    * @dev The caller must have approved the transfer of the Uniswap V3 NFT from their wallet to the BorrowerOperations contract.
-    */
+     * @notice Opens a new position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the Uniswap V3 NFT from their wallet to the BorrowerOperations contract.
+     */
     function openPosition(uint256 _tokenId) external override {
         uniswapPositionsNFT.transferFrom(
             msg.sender,
@@ -94,10 +93,10 @@ contract BorrowerOperations is
     }
 
     /**
-    * @notice Closes a position.
-    * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-    * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
-    */
+     * @notice Closes a position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
+     */
     function closePosition(uint256 _tokenId)
         public
         onlyActivePosition(_tokenId)
@@ -129,11 +128,16 @@ contract BorrowerOperations is
         public
         payable
         override
+        nonReentrant
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
     {
         require(_GHOAmount > 0, "Cannot withdraw 0 GHO.");
-        require(activePool.getMintedSupply() + _GHOAmount <= activePool.getMaxSupply() , "Supply not available.");
+        require(
+            activePool.getMintedSupply() + _GHOAmount <=
+                activePool.getMaxSupply(),
+            "Supply not available."
+        );
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
         require(!lpPositionsManager.liquidatable(_tokenId));
         emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId);
@@ -147,12 +151,16 @@ contract BorrowerOperations is
     function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
         public
         override
+        nonReentrant
         onlyActivePosition(_tokenId)
     {
         _GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
         require(_GHOAmount > 0, "Cannot repay 0 GHO.");
 
-        uint256 GHOfees = lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
+        uint256 GHOfees = lpPositionsManager.decreaseDebtOf(
+            _tokenId,
+            _GHOAmount
+        );
         activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
 
         emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
@@ -162,7 +170,6 @@ contract BorrowerOperations is
     // LP Positions Operations
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-    
     // TODO : add verification of amount0 and amount1 regarding LP specifications
     // current implementation does not work
     /**
@@ -181,6 +188,7 @@ contract BorrowerOperations is
     )
         external
         override
+        nonReentrant
         onlyActivePosition(tokenId)
         returns (
             uint128 liquidity,
@@ -188,11 +196,7 @@ contract BorrowerOperations is
             uint256 amount1
         )
     {
-
-        require(
-            amountAdd0 > 0 || amountAdd1 > 0,
-            "Cannot add 0 liquidity."
-        );
+        require(amountAdd0 > 0 || amountAdd1 > 0, "Cannot add 0 liquidity.");
 
         (liquidity, amount0, amount1) = activePool.increaseLiquidity(
             msg.sender,
@@ -201,7 +205,10 @@ contract BorrowerOperations is
             amountAdd1
         );
 
-        lpPositionsManager.setNewLiquidity(tokenId, lpPositionsManager.getPosition(tokenId).liquidity + liquidity);
+        lpPositionsManager.setNewLiquidity(
+            tokenId,
+            lpPositionsManager.getPosition(tokenId).liquidity + liquidity
+        );
         emit AddedCollateral(tokenId, liquidity, amount0, amount1);
     }
 
@@ -214,13 +221,14 @@ contract BorrowerOperations is
      */
     function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
         external
+        nonReentrant
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
         returns (uint256 amount0, uint256 amount1)
     {
         LPPositionsManager.Position memory position = lpPositionsManager
             .getPosition(_tokenId);
-        
+
         require(
             _liquidityToRemove <= position.liquidity,
             "You can't remove more liquidity than you have"
@@ -265,7 +273,6 @@ contract BorrowerOperations is
     // {
     //     _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
     // }
-    
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Modifiers and Require functions
