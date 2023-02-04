@@ -40,7 +40,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     address constant factoryAddress =
         0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
-    address gasPoolAddress;
     address borrowerOperationsAddress;
 
     // -- Interfaces --
@@ -51,7 +50,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     IUniswapV3Factory internal uniswapFactory =
         IUniswapV3Factory(factoryAddress);
 
-    // IStabilityPool public stabilityPool;
     IActivePool public activePool;
     IGHOToken public GHOToken;
 
@@ -92,20 +90,15 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     function setAddresses(
         address _borrowerOperationsAddress,
         address _activePoolAddress,
-        // address _stabilityPoolAddress,
-        // address _gasPoolAddress,
         address _GHOTokenAddress
     ) external override onlyOwner {
         borrowerOperationsAddress = _borrowerOperationsAddress;
         activePool = IActivePool(_activePoolAddress);
-        // stabilityPool = IStabilityPool(_stabilityPoolAddress);
-        // gasPoolAddress = _gasPoolAddress;
+
         GHOToken = IGHOToken(_GHOTokenAddress);
 
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
-        // emit StabilityPoolAddressChanged(_stabilityPoolAddress);
-        // emit GasPoolAddressChanged(_gasPoolAddress);
         emit GHOTokenAddressChanged(_GHOTokenAddress);
 
         // renounceOwnership();
@@ -134,8 +127,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _acceptedPoolAddresses[_poolAddress] = true;
         _tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
         _tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
-        emit TokenAddedToPool(_token0, _ETHpoolToken0, block.timestamp);
-        emit TokenAddedToPool(_token1, _ETHpoolToken1, block.timestamp);
+        emit TokenAddedToPool(_token0, _ETHpoolToken0);
+        emit TokenAddedToPool(_token1, _ETHpoolToken1);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -180,6 +173,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             "A position status cannot be changed to its current one."
         );
         _positionFromTokenId[_tokenId].status = _status;
+        emit PositionStatusChanged(_tokenId, _status);
     }
 
     /**
@@ -232,7 +226,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _positionsFromAddress[_owner].push(position);
         _positionFromTokenId[_tokenId] = position;
 
-        emit DepositedLP(_owner, _tokenId, block.timestamp);
+        emit DepositedLP(_owner, _tokenId);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -302,6 +296,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         return currentDebt;
     }
 
+
+    /**
+     * @notice Returns the debt of a specific borrow, including interest.
+     * @dev The debt is calculated using the interest rate and the last update timestamp of the position.
+     * @param _borrowData The data of the borrow to get the debt of.s
+     * @return _currentDebt The total debt of the borrow, including interest.
+     */
     function _debtOf(
         BorrowData memory _borrowData
     ) private view returns (uint256 _currentDebt) {
@@ -371,8 +372,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             _positionFromTokenId[_tokenId].user,
             _tokenId,
             _positionFromTokenId[_tokenId].debt - _amount,
-            _positionFromTokenId[_tokenId].debt,
-            block.timestamp
+            _positionFromTokenId[_tokenId].debt
         );
     }
 
@@ -396,7 +396,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             _amount > 0,
             "A debt cannot be decreased by a negative amount or by 0."
         );
-        //uint256 prevDebt = debtOf(_tokenId);
+        uint256 prevDebt = debtOf(_tokenId);
         uint256 repayAmount = _amount;
         BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[
             _tokenId
@@ -430,20 +430,20 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         }
 
+        
+        _positionFromTokenId[_tokenId].debt = Math.max(prevDebt - _amount, 0);
+        _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
+
+        
+
+        emit DecreasedDebt(
+            _positionFromTokenId[_tokenId].user,
+            _tokenId,
+            _positionFromTokenId[_tokenId].debt + _amount,
+            _positionFromTokenId[_tokenId].debt
+        );
+        
         return GHOfees;
-        
-       // _positionFromTokenId[_tokenId].debt = Math.max(prevDebt - _amount, 0);
-        //_positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
-
-        
-
-        // emit DecreasedDebt(
-        //     _positionFromTokenId[_tokenId].user,
-        //     _tokenId,
-        //     _positionFromTokenId[_tokenId].debt + _amount,
-        //     _positionFromTokenId[_tokenId].debt,
-        //     block.timestamp
-        // );
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//

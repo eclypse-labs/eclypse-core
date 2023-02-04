@@ -21,13 +21,25 @@ interface IBorrowerOperations {
     event WithdrawnGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId);
     event RepaidGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId);
 
+    event AddedCollateral(
+        uint256 _tokenId,
+        uint128 _liquidity,
+        uint256 _amountAdd0,
+        uint256 _amountAdd1
+    );
+
+    event RemovedCollateral(
+        uint256 _tokenId,
+        uint128 _liquidity,
+        uint256 _amount0,
+        uint256 _amount1
+    );
+
     // --- Functions ---
 
     function setAddresses(
         address _lpPositionsManagerAddress,
         address _activePoolAddress,
-       // address _stabilityPoolAddress,
-       // address _gasPoolAddress,
         address _GHOTokenAddress
     ) external;
 

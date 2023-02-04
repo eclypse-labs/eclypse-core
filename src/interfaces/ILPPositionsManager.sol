@@ -8,21 +8,21 @@ import "./IGHOToken.sol";
 // Common interface for the Trove Manager.
 interface ILPPositionsManager is IEclypseBase {
     // --- Events ---
-    event TokenAddedToPool(address _token, address _pool, uint256 _time);
-    event DepositedLP(address _user, uint256 _tokenId, uint256 _time);
+    event TokenAddedToPool(address _token, address _pool);
+
+    event PositionStatusChanged(uint256 _tokenId, Status status);
+    event DepositedLP(address _user, uint256 _tokenId);
     event IncreasedDebt(
         address _user,
         uint256 _tokenId,
         uint256 _oldAmount,
-        uint256 _newAmount,
-        uint256 _time
-    );
+        uint256 _newAmount
+        );
     event DecreasedDebt(
         address _user,
         uint256 _tokenId,
         uint256 _oldAmount,
-        uint256 _newAmount,
-        uint256 _time
+        uint256 _newAmount
     );
 
     // List of all of the LPPositionsManager's events

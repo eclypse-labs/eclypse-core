@@ -90,7 +90,7 @@ contract BorrowerOperations is
             GHOToken
         );
         contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
-        require(!contractsCache.lpPositionsManager.liquidatable(_tokenId));
+        //require(!lpPositionsManager.liquidatable(_tokenId));
         emit OpenedPosition(msg.sender, _tokenId);
     }
 
@@ -203,6 +203,7 @@ contract BorrowerOperations is
         );
 
         lpPositionsManager.setNewLiquidity(tokenId, lpPositionsManager.getPosition(tokenId).liquidity + liquidity);
+        emit AddedCollateral(tokenId, liquidity, amount0, amount1);
     }
 
     /**
@@ -238,6 +239,8 @@ contract BorrowerOperations is
             !lpPositionsManager.liquidatable(_tokenId),
             "Collateral Ratio cannot be lower than the minimum collateral ratio."
         );
+
+        emit RemovedCollateral(_tokenId, _liquidityToRemove, amount0, amount1);
 
         return (amount0, amount1);
     }

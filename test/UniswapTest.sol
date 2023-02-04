@@ -126,8 +126,8 @@ abstract contract UniswapTest is Test {
         );
 
         vm.stopPrank();
-        addFacticeUser();
         createEthGhoPool();
+        addFacticeUser();
     }
 
     function addUserOnMainnet() private {

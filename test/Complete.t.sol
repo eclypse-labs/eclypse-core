@@ -135,6 +135,7 @@ contract CompleteTest is Test {
         ghoToken.mint(address(user5), 100 * TOKEN18);
         vm.stopPrank();
 
+
         //------------------------ start : user1 configurations for test ------------------------
 
         vm.startPrank(user1);
@@ -147,6 +148,7 @@ contract CompleteTest is Test {
         USDC.approve(address(activePool), 100_000_000_000 * TOKEN6);
         WETH.approve(address(activePool), 100_000 ether);
         ghoToken.approve(address(activePool), 100 * TOKEN18);
+
 
         //uint24 fees, int24 lower, int24 upper, uint256 amount0, uint256 amount1, address sender
         //(user1_tokenId0, , , ) = uniswapPositionsNFT.mint(); //Pair not approved by protocole.
@@ -423,6 +425,7 @@ contract CompleteTest is Test {
         //------------------------- end : user5 configurations for test -------------------------
 
         createEthGhoPool();
+
     }
 
     function createMintParams(
