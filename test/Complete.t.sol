@@ -978,10 +978,13 @@ contract CompleteTest is Test {
         );
         vm.stopPrank();
 
-        // vm.startPrank(user2);
-        // vm.expectRevert();
-        // borrowerOperation.removeCollateral(user2_tokenId2, lpPositionsManager.getPosition(user2_tokenId2).liquidity);
-        // vm.stopPrank();
+        vm.startPrank(user2);
+        uint128 liquidityToDecrease = lpPositionsManager.getPosition(user2_tokenId2).liquidity;
+        vm.expectRevert("Collateral Ratio cannot be lower than the minimum collateral ratio.");
+        borrowerOperation.removeCollateral(user2_tokenId2,liquidityToDecrease);
+        vm.stopPrank();
+
+
     }
 
     function convertQ96(uint256 x) public pure returns (uint256) {
