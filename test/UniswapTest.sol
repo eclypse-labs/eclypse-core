@@ -39,7 +39,7 @@ abstract contract UniswapTest is Test {
         0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address public constant daiAddr =
         0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address public constant uniPoolUsdcETHAddr =
+    address public uniPoolUsdcETHAddr =
         0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640;
     address public constant swapRouterAddr =
         0xE592427A0AEce92De3Edee1F18E0157C05861564;
@@ -62,20 +62,22 @@ abstract contract UniswapTest is Test {
         IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
 
-    function convertQ96(uint256 x) public returns (uint256){
+    function convertQ96(uint256 x) public pure returns (uint256){
         return FullMath.mulDiv(x, 1, 2**96);
     }
 
-    function convertDecimals18(uint256 x) public returns (uint256){
+    function convertDecimals18(uint256 x) public pure returns (uint256){
         return FullMath.mulDiv(x, 1, 10**18);
     }
 
-    function convertDecimals6(uint256 x) public returns (uint256){
+    function convertDecimals6(uint256 x) public pure returns (uint256){
         return FullMath.mulDiv(x, 1, 10**6);
     }
 
     function uniswapTest() public {
         vm.createSelectFork("https://rpc.ankr.com/eth", 16_153_817); // eth mainet at block 16_153_817
+        
+        
         vm.startPrank(deployer);
 
         uniswapPositionsNFT = INonfungiblePositionManager(
@@ -123,6 +125,16 @@ abstract contract UniswapTest is Test {
             address(0),
             false,
             true
+        );
+
+        vm.stopPrank();
+
+        vm.startPrank(deployer);
+
+        uint256 _minCR = Math.mulDiv(15, FixedPoint96.Q96, 10);
+        lpPositionsManager.updateRiskConstants(
+            address(uniPoolUsdcETHAddr),
+            _minCR
         );
 
         vm.stopPrank();

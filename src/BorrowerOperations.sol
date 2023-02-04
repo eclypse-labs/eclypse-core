@@ -90,7 +90,7 @@ contract BorrowerOperations is
             GHOToken
         );
         contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
-        //require(!lpPositionsManager.liquidatable(_tokenId));
+        require(!lpPositionsManager.liquidatable(_tokenId));
         emit OpenedPosition(msg.sender, _tokenId);
     }
 

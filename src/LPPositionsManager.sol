@@ -558,7 +558,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 priceInETH(_positionFromTokenId[_tokenId].token1),
                 FixedPoint96.Q96
             );
-
         uint256 debt = debtOfInETH(_tokenId);
         uint256 collValue = positionValueInETH(_tokenId) + fees;
         return debt > 0 ? FullMath.mulDiv(
@@ -746,7 +745,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function liquidatable(uint256 _tokenId) public override returns (bool) {
         Position memory position = _positionFromTokenId[_tokenId];
-
         return
             computeCR(_tokenId) <
             _poolAddressToRiskConstants[position.poolAddress].minCR;
