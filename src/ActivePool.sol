@@ -290,6 +290,9 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             })
         );
 
+        console.log("amount0: %s", amount0);
+        console.log("amount1: %s", amount1);
+
         TransferHelper.safeTransfer(
             lpPositionsManager.getPosition(_tokenId).token0,
             sender,

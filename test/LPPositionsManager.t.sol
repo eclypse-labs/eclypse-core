@@ -131,7 +131,7 @@ contract LPPositionsManagerTest is UniswapTest {
 
         uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
-        lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
+        lpPositionsManager.liquidatePosition(facticeUser1_tokenId, amountToRepay);
         vm.stopPrank();
 
         assertEq(
@@ -257,7 +257,7 @@ contract LPPositionsManagerTest is UniswapTest {
         assertTrue(cr > _minCR);
     }
 
-    function testLiquidate() public {
+    function testliquidatePosition() public {
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(800 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
@@ -278,7 +278,7 @@ contract LPPositionsManagerTest is UniswapTest {
 
         uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
-        lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
+        lpPositionsManager.liquidatePosition(facticeUser1_tokenId, amountToRepay);
         vm.stopPrank();
 
         assertEq(
@@ -286,8 +286,6 @@ contract LPPositionsManagerTest is UniswapTest {
             3,
             "Position should be closed by liquidation."
         );
-
-        uniswapPositionsNFT.positions(facticeUser1_tokenId);
 
         assertEq(uniswapPositionsNFT.ownerOf(facticeUser1_tokenId), facticeUser2);
         }
@@ -340,7 +338,7 @@ contract LPPositionsManagerTest is UniswapTest {
         uint256 amountToRepay = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
 
-        lpPositionsManager.liquidate(facticeUser1_tokenId, amountToRepay);
+        lpPositionsManager.liquidatePosition(facticeUser1_tokenId, amountToRepay);
         vm.stopPrank();
 
         assertEq(
@@ -380,6 +378,55 @@ contract LPPositionsManagerTest is UniswapTest {
         vm.stopPrank();
         uint256 cr = lpPositionsManager.computeCR(facticeUser1_tokenId);
         assertTrue(cr > _minCR);
+    }
+
+    function testLiquidate_Undelying() public {
+        vm.startPrank(address(facticeUser1));
+        borrowerOperation.borrowGHO(800 * TOKEN18, facticeUser1_tokenId);
+        vm.stopPrank();
+
+        vm.startPrank(deployer);
+        uint256 _minCR = Math.mulDiv(2, FixedPoint96.Q96, 1);
+        lpPositionsManager.updateRiskConstants(
+            address(uniPoolUsdcETHAddr),
+            _minCR
+        );
+        vm.stopPrank();
+
+        assertTrue(lpPositionsManager.liquidatable(
+            facticeUser1_tokenId
+        ));
+
+        vm.startPrank(address(facticeUser2));
+        uint256 initialAmount0 = USDC.balanceOf(address(facticeUser2));
+        uint256 initialAmount1 = WETH.balanceOf(address(facticeUser2));
+
+        uint256 amountToRepay = lpPositionsManager.totalDebtOf(facticeUser1);
+        assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
+        lpPositionsManager.liquidateUnderlyings(facticeUser1_tokenId, amountToRepay);
+        vm.stopPrank();
+
+        assertGt(
+            USDC.balanceOf(address(facticeUser2)),
+            initialAmount0,
+            "USDC should be transferred to liquidator."
+        );
+
+        assertGt(
+            WETH.balanceOf(address(facticeUser2)),
+            initialAmount1,
+            "WETH should be transferred to liquidator."
+        );
+
+        console.log(address(facticeUser2).balance);
+
+        assertEq(
+            uint256(lpPositionsManager.getPosition(facticeUser1_tokenId).status),
+            3,
+            "Position should be closed by liquidation."
+        );
+
+        
     }
 
 

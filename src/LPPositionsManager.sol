@@ -757,7 +757,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _GHOToRepay The amount of GHO to repay to reimburse the debt of the position.
      * @return hasBeenLiquidated, true if the position has been liquidated and false otherwise.
      */
-    function liquidate(
+    function liquidatePosition(
         uint256 _tokenId,
         uint256 _GHOToRepay
     ) public override returns (bool) {
@@ -808,21 +808,69 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         position.status = Status.closedByLiquidation;
         _positionFromTokenId[_tokenId] = position;
 
-        // uint128 currentLiquidity = position.liquidity;
-        // uint128 liquidityToDecrease = (currentLiquidity * 5) / 100;
-        // INonfungiblePositionManager.DecreaseLiquidityParams memory params =
-        //     INonfungiblePositionManager.DecreaseLiquidityParams({
-        //         tokenId: _tokenId,
-        //         liquidity: liquidityToDecrease,
-        //         amount0Min: 0,
-        //         amount1Min: 0,
-        //         deadline: block.timestamp
-        //     });
-        //(uint256 amount0, uint256 amount1) = uniswapPositionsNFT.decreaseLiquidity(params);
-
         activePool.sendPosition(msg.sender, _tokenId);
 
         return true;
+    }
+
+    /**
+     * @notice Liquidates a position and its underlyings.
+     * @dev Given that the caller has enough GHO to reimburse the position's debt, the position is liquidated, the GHO is burned and the NFT is transfered to the caller.
+     * @param _tokenId The ID of the position to liquidate.
+     * @param _GHOToRepay The amount of GHO to repay to reimburse the debt of the position.
+     * @return hasBeenLiquidated true if the position has been liquidated and false otherwise.
+     */
+    function liquidateUnderlyings(uint256 _tokenId, uint256 _GHOToRepay) public override returns (bool hasBeenLiquidated) {
+        require(liquidatable(_tokenId), "Position is not liquidatable");
+        require(
+            debtOf(_tokenId) <= _GHOToRepay,
+            "Not enough GHO to repay debt"
+        );
+
+        uint256 repayAmount = _GHOToRepay;
+        uint256 GHOfees = 0;
+
+        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[
+            _tokenId
+        ];
+        for (uint32 i = 0; i < _borrowDataArray.length; i++) {
+            if(repayAmount == 0) {
+                break;
+            }
+            else if (repayAmount > _debtOf(_borrowDataArray[i])){
+                repayAmount -= _debtOf(_borrowDataArray[i]);
+                GHOfees += _debtOf(_borrowDataArray[i]);
+                if (repayAmount >= _borrowDataArray[i].mintedAmount) {
+                    repayAmount -= _borrowDataArray[i].mintedAmount;
+                    activePool.decreaseMintedSupply(_borrowDataArray[i].mintedAmount, _positionFromTokenId[_tokenId].user);
+                    delete _borrowDataFromTokenId[_tokenId][i];
+                }
+                else {
+                    _borrowDataFromTokenId[_tokenId][i].amount = 0;
+                    _borrowDataFromTokenId[_tokenId][i].mintedAmount -= repayAmount;
+                    activePool.decreaseMintedSupply(repayAmount, _positionFromTokenId[_tokenId].user);
+                    repayAmount = 0;
+
+                }
+            }
+
+            else {
+                _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
+                GHOfees += repayAmount;
+                repayAmount = 0;
+            }
+
+        }
+
+        Position memory position = _positionFromTokenId[_tokenId];
+
+        activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
+
+        activePool.decreaseLiquidity(_tokenId, position.liquidity, msg.sender);
+
+        position.debt = 0;
+        position.status = Status.closedByLiquidation;
+        _positionFromTokenId[_tokenId] = position;
     }
 
     /**
@@ -831,13 +879,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenIds The IDs of the positions to liquidate.
      * @param _GHOToRepays The amounts of GHO to repay to reimburse the debt of the positions.
      */
-    function batchLiquidate(
+    function batchliquidate(
         uint256[] memory _tokenIds,
         uint256[] memory _GHOToRepays
     ) public override {
         require(_tokenIds.length == _GHOToRepays.length);
         for (uint256 i = 0; i < _tokenIds.length; i++) {
-            liquidate(_tokenIds[i], _GHOToRepays[i]);
+            liquidatePosition(_tokenIds[i], _GHOToRepays[i]);
         }
     }
 

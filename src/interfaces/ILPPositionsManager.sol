@@ -138,11 +138,15 @@ interface ILPPositionsManager is IEclypseBase {
 
     function priceInETH(address tokenAddress) external returns (uint256);
 
-    function liquidate(uint256 _tokenId, uint256 _GHOToRepay)
+    function liquidatePosition(uint256 _tokenId, uint256 _GHOToRepay)
         external
         returns (bool);
 
-    function batchLiquidate(
+    function liquidateUnderlyings(uint256 _tokenId, uint256 _GHOToRepay)
+        external
+        returns (bool);
+
+    function batchliquidate(
         uint256[] memory _tokenIds,
         uint256[] memory _GHOToRepay
     ) external;
