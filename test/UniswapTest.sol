@@ -2,13 +2,13 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "../src/ActivePool.sol";
+import "../contracts/ActivePool.sol";
 import "./ERC20Mintable.sol";
 import "forge-std/Test.sol";
-import "../src/GHOToken.sol";
-import "../src/BorrowerOperations.sol";
-import "../src/ActivePool.sol";
-import "../src/LPPositionsManager.sol";
+import "../contracts/GHOToken.sol";
+import "../contracts/BorrowerOperations.sol";
+import "../contracts/ActivePool.sol";
+import "../contracts/LPPositionsManager.sol";
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
 import "@uniswap-core/libraries/FixedPoint96.sol";
