@@ -9,6 +9,9 @@ import "contracts/utils/CheckContract.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+//import "@oppenzeppelin/contracts/token/ERC721/IERC721.sol";
+import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {Errors} from "./utils/Errors.sol";
 
 /**
  * @title BorrowerOperations contract
@@ -75,7 +78,9 @@ contract BorrowerOperations is
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      * @dev The caller must have approved the transfer of the Uniswap V3 NFT from their wallet to the BorrowerOperations contract.
      */
-    function openPosition(uint256 _tokenId) external override {
+    function openPosition(
+        uint256 _tokenId
+    ) external positionNotInitiated notOwnerOfTokenId {
         uniswapPositionsNFT.transferFrom(
             msg.sender,
             address(activePool),
@@ -96,14 +101,18 @@ contract BorrowerOperations is
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
      */
-    function closePosition(uint256 _tokenId)
+    function closePosition(
+        uint256 _tokenId
+    )
         public
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
     {
         uint256 debt = lpPositionsManager.debtOf(_tokenId);
 
-        require(debt == 0, "Debt is not repaid.");
+        if (!(debt == 0)) {
+            revert Errors.DebtIsNotPaid(debt);
+        }
 
         activePool.sendPosition(msg.sender, _tokenId);
 
@@ -123,7 +132,10 @@ contract BorrowerOperations is
      * @param _GHOAmount The amount of GHO to withdraw.
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      */
-    function borrowGHO(uint256 _GHOAmount, uint256 _tokenId)
+    function borrowGHO(
+        uint256 _GHOAmount,
+        uint256 _tokenId
+    )
         public
         payable
         override
@@ -131,14 +143,22 @@ contract BorrowerOperations is
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
     {
-        require(_GHOAmount > 0, "Cannot withdraw 0 GHO.");
-        require(
-            activePool.getMintedSupply() + _GHOAmount <=
-                activePool.getMaxSupply(),
-            "Supply not available."
-        );
+        if (!(_GHOAmount > 0)) {
+            revert Errors.AmountShouldBePositive();
+        }
+
+        if (
+            !(activePool.getMintedSupply() + _GHOAmount <=
+                activePool.getMaxSupply())
+        ) {
+            revert Errors.SupplyNotAvailable();
+        }
+
         lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
-        require(!lpPositionsManager.liquidatable(_tokenId));
+
+        if (lpPositionsManager.liquidatable(_tokenId)) {
+            revert Errors.PositionILiquidatable();
+        }
         emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId);
     }
 
@@ -147,14 +167,26 @@ contract BorrowerOperations is
      * @param _GHOAmount The amount of GHO to repay.
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      */
-    function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
+    function repayGHO(
+        uint256 _GHOAmount,
+        uint256 _tokenId
+    )
         public
         override
         nonReentrant
         onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
     {
-        _GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
-        require(_GHOAmount > 0, "Cannot repay 0 GHO.");
+        //_GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
+        if (_GHOAmount > lpPositionsManager.debtOf(_tokenId)) {
+            revert Errors.CannotRepayMoreThanDebt(
+                _GHOAmount,
+                lpPositionsManager.debtOf(_tokenId)
+            );
+        }
+        if (_GHOAmount <= 0) {
+            revert Errors.AmountShouldBePositive();
+        }
 
         uint256 GHOfees = lpPositionsManager.decreaseDebtOf(
             _tokenId,
@@ -189,13 +221,12 @@ contract BorrowerOperations is
         override
         nonReentrant
         onlyActivePosition(tokenId)
-        returns (
-            uint128 liquidity,
-            uint256 amount0,
-            uint256 amount1
-        )
+        onlyPositionOwner(tokenId, msg.sender)
+        returns (uint128 liquidity, uint256 amount0, uint256 amount1)
     {
-        require(amountAdd0 > 0 || amountAdd1 > 0, "Cannot add 0 liquidity.");
+        if (amountAdd0 <= 0 || amountAdd1 <= 0) {
+            revert Errors.AmountShouldBePositive();
+        }
 
         (liquidity, amount0, amount1) = activePool.increaseLiquidity(
             msg.sender,
@@ -218,7 +249,10 @@ contract BorrowerOperations is
      * @return amount0 The amount of token0 removed.
      * @return amount1 The amount of token1 removed.
      */
-    function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
+    function removeCollateral(
+        uint256 _tokenId,
+        uint128 _liquidityToRemove
+    )
         external
         nonReentrant
         onlyActivePosition(_tokenId)
@@ -228,12 +262,16 @@ contract BorrowerOperations is
         LPPositionsManager.Position memory position = lpPositionsManager
             .getPosition(_tokenId);
 
-        require(
-            _liquidityToRemove <= position.liquidity,
-            "You can't remove more liquidity than you have"
-        );
+        if (_liquidityToRemove > position.liquidity) {
+            revert Errors.MustRemoveLessLiquidity(
+                _liquidityToRemove,
+                position.liquidity
+            );
+        }
 
         // Moved this here because it should be true **after** we account for the removal of liquidity, otherwise, the transaction reverts
+        activePool.decreaseLiquidity(_tokenId, _liquidityToRemove, msg.sender);
+
         require(
             !lpPositionsManager.liquidatable(_tokenId),
             "Collateral Ratio cannot be lower than the minimum collateral ratio."
@@ -282,11 +320,22 @@ contract BorrowerOperations is
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      */
     modifier onlyActivePosition(uint256 _tokenId) {
-        require(
-            lpPositionsManager.getPosition(_tokenId).status ==
-                ILPPositionsManager.Status.active,
-            "Position does not exist or is closed"
-        );
+        if (
+            !(lpPositionsManager.getPosition(_tokenId).status ==
+                ILPPositionsManager.Status.active)
+        ) {
+            revert Errors.PositionIsNotActiveOrIsClosed(_tokenId);
+        }
+        _;
+    }
+
+    modifier positionNotInitiated(uint256 _tokenId) {
+        if (
+            (lpPositionsManager.getPosition(_tokenId).status ==
+                ILPPositionsManager.Status.active)
+        ) {
+            revert Errors.PositionIsAlreadyActive(_tokenId);
+        }
         _;
     }
 
@@ -296,10 +345,15 @@ contract BorrowerOperations is
      * @param _user The address of the user.
      */
     modifier onlyPositionOwner(uint256 _tokenId, address _user) {
-        require(
-            lpPositionsManager.getPosition(_tokenId).user == _user,
-            "You are not the owner of this position."
-        );
+        if (!(lpPositionsManager.getPosition(_tokenId).user == _user)) {
+            revert Errors.NotOwnerOfPosition(_tokenId);
+        }
         _;
+    }
+
+    modifier notOwnerOfTokenId(uint256 _tokenId, address _user) {
+        if (ERC721.ownerOf(_tokenId) != _user) {
+            revert Errors.NotOwnerOfTokenId();
+        }
     }
 }
