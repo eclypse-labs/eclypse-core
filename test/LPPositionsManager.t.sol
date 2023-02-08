@@ -68,7 +68,7 @@ contract LPPositionsManagerTest is UniswapTest {
         );
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO( 300 * TOKEN18, facticeUser1_tokenId);
-        vm.expectRevert(bytes("Debt is not repaid."));
+        vm.expectRevert(abi.encodeWithSelector(Errors.DebtIsNotPaid.selector, 300 * TOKEN18));
         borrowerOperation.closePosition(facticeUser1_tokenId);
         vm.stopPrank();
         assertEq(

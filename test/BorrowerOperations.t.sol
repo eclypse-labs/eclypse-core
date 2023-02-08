@@ -12,6 +12,7 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "./UniswapTest.sol";
 import "@uniswap-periphery/interfaces/IQuoterV2.sol";
+import {Errors} from "../contracts/utils/Errors.sol";
 
 contract BorrowerOperationsTest is UniswapTest {
     uint256 public fee;
@@ -91,7 +92,7 @@ contract BorrowerOperationsTest is UniswapTest {
     }
 
     function testAdd0Collateral() public {
-        vm.expectRevert(bytes("Cannot add 0 liquidity."));
+        vm.expectRevert(Errors.AmountShouldBePositive.selector);
         vm.startPrank(address(facticeUser1));
 
         borrowerOperation.addCollateral(facticeUser1_tokenId, 0, 0);
@@ -259,7 +260,7 @@ contract BorrowerOperationsTest is UniswapTest {
 
     function testBorrowAndRepayGHO_wrongUserBorrow() public {
         vm.startPrank(address(facticeUser2));
-        vm.expectRevert(bytes("You are not the owner of this position."));
+        vm.expectRevert(abi.encodeWithSelector(Errors.NotOwnerOfPosition.selector, facticeUser1_tokenId));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
     }
@@ -269,8 +270,8 @@ contract BorrowerOperationsTest is UniswapTest {
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
         vm.startPrank(address(facticeUser2));
+        vm.expectRevert(abi.encodeWithSelector(Errors.NotOwnerOfPosition.selector, facticeUser1_tokenId));
         borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId);
-        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         vm.stopPrank();
     }
 
@@ -313,7 +314,7 @@ contract BorrowerOperationsTest is UniswapTest {
     function testBorrowAndRepayGHO_borrow0GHO() public {
         uint256 initialBalance = ghoToken.balanceOf(facticeUser1);
         vm.startPrank(address(facticeUser1));
-        vm.expectRevert(bytes("Cannot withdraw 0 GHO."));
+        vm.expectRevert(Errors.AmountShouldBePositive.selector);
         borrowerOperation.borrowGHO(0, facticeUser1_tokenId);
         assertEq(ghoToken.balanceOf(facticeUser1), initialBalance);
         vm.stopPrank();
@@ -322,7 +323,7 @@ contract BorrowerOperationsTest is UniswapTest {
     function testBorrowAndRepayGHO_repay0GHO() public {
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
-        vm.expectRevert(bytes("Cannot repay 0 GHO."));
+        vm.expectRevert(Errors.AmountShouldBePositive.selector);
         borrowerOperation.repayGHO(0, facticeUser1_tokenId);
         vm.stopPrank();
     }
