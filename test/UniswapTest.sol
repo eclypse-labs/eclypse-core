@@ -15,6 +15,7 @@ import "@uniswap-core/libraries/FixedPoint96.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/interfaces/ISwapRouter.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "@uniswap-periphery/interfaces/IQuoterV2.sol";
 
 abstract contract UniswapTest is Test {
 
@@ -56,6 +57,7 @@ abstract contract UniswapTest is Test {
     ISwapRouter swapRouter;
     IUniswapV3Pool uniV3PoolWeth_Usdc;
     IUniswapV3Pool uniPoolGhoEth;
+    IQuoterV2 quoter;
     uint256 tokenId;
 
     IUniswapV3Factory uniswapFactory =
@@ -83,6 +85,8 @@ abstract contract UniswapTest is Test {
         uniswapPositionsNFT = INonfungiblePositionManager(
             0xC36442b4a4522E871399CD717aBDD847Ab11FE88
         );
+
+        quoter = IQuoterV2(0x61fFE014bA17989E743c5F6cB21bF9697530B21e);
 
         swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 

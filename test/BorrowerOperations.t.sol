@@ -11,12 +11,56 @@ import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "./UniswapTest.sol";
+import "@uniswap-periphery/interfaces/IQuoterV2.sol";
 
 contract BorrowerOperationsTest is UniswapTest {
     uint256 public fee;
 
     function setUp() public {
         uniswapTest();
+    }
+
+
+    function testAddCollateralFuzz() public {
+        vm.startPrank(address(facticeUser1));
+
+        USDC.approve(address(activePool), 100_000 ether);
+        WETH.approve(address(activePool), 100_000 ether);
+
+        uint256 amountIn = 1 ether;
+
+        bytes memory path = abi.encode(
+            "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+            "500"
+        );
+        (
+            uint256 amountOut,
+            uint160[] memory sqrtPriceX96AfterList,
+            uint32[] memory initializedTicksCrossedList,
+            uint256 gasEstimate
+        ) = quoter.quoteExactInput(path, amountIn);
+        console.log(amountOut);
+
+        uint128 initialLiquidity = lpPositionsManager
+            .getPosition(facticeUser1_tokenId)
+            .liquidity;
+
+        borrowerOperation.addCollateral(
+            facticeUser1_tokenId,
+            amountIn,
+            amountOut
+        );
+        vm.stopPrank();
+
+        uint128 endLiquidity = lpPositionsManager
+            .getPosition(facticeUser1_tokenId)
+            .liquidity;
+        assertGt(
+            endLiquidity,
+            initialLiquidity,
+            "Adding collateral should increase liquidity"
+        );
     }
 
     function testAddCollateral() public {
@@ -50,11 +94,7 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.expectRevert(bytes("Cannot add 0 liquidity."));
         vm.startPrank(address(facticeUser1));
 
-        borrowerOperation.addCollateral(
-            facticeUser1_tokenId,
-            0,
-            0
-        );
+        borrowerOperation.addCollateral(facticeUser1_tokenId, 0, 0);
         vm.stopPrank();
     }
 
@@ -123,8 +163,11 @@ contract BorrowerOperationsTest is UniswapTest {
             .getPosition(facticeUser1_tokenId)
             .liquidity;
 
-    
-        vm.expectRevert(bytes("Collateral Ratio cannot be lower than the minimum collateral ratio."));
+        vm.expectRevert(
+            bytes(
+                "Collateral Ratio cannot be lower than the minimum collateral ratio."
+            )
+        );
         borrowerOperation.removeCollateral(
             facticeUser1_tokenId,
             initialLiquidity - 1_000_000_000_000
@@ -134,7 +177,7 @@ contract BorrowerOperationsTest is UniswapTest {
     }
 
     //     function testChangeTicks() public {
-        
+
     //     int24 initialLowerTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickLower;
     //     int24 initialUpperTick = lpPositionsManager.getPosition(facticeUser1_tokenId).tickUpper;
 
@@ -197,7 +240,10 @@ contract BorrowerOperationsTest is UniswapTest {
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
-        assertEq(ghoToken.balanceOf(facticeUser1), initialBalance + 10 * TOKEN18);
+        assertEq(
+            ghoToken.balanceOf(facticeUser1),
+            initialBalance + 10 * TOKEN18
+        );
     }
 
     function testRepayGHO() public {
@@ -248,7 +294,7 @@ contract BorrowerOperationsTest is UniswapTest {
             "Borrowing GHO should increase the debt."
         );
 
-        deal(address(ghoToken), facticeUser1, currentDebt * 51/50 + 1); // deal ourselves the interest to pay : 2% per year
+        deal(address(ghoToken), facticeUser1, (currentDebt * 51) / 50 + 1); // deal ourselves the interest to pay : 2% per year
         borrowerOperation.repayGHO(afterYearDebt, facticeUser1_tokenId);
         uint256 finalDebt = lpPositionsManager.debtOf(facticeUser1_tokenId);
         assertLt(
@@ -316,13 +362,33 @@ contract BorrowerOperationsTest is UniswapTest {
     function testBorrowGHO_repayMultipleTimesNotExactAmounts() public {
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
-        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18, "Debt should be 10 GHO.");
-        assertEq(activePool.getMintedSupply(), 10 * TOKEN18, "GHO debt should be 10 GHO.");
+        assertEq(
+            lpPositionsManager.debtOf(facticeUser1_tokenId),
+            10 * TOKEN18,
+            "Debt should be 10 GHO."
+        );
+        assertEq(
+            activePool.getMintedSupply(),
+            10 * TOKEN18,
+            "GHO debt should be 10 GHO."
+        );
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
-        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 20 * TOKEN18, "Debt should be 20 GHO.");
-        assertEq(activePool.getMintedSupply(), 20 * TOKEN18, "GHO debt should be 20 GHO.");
+        assertEq(
+            lpPositionsManager.debtOf(facticeUser1_tokenId),
+            20 * TOKEN18,
+            "Debt should be 20 GHO."
+        );
+        assertEq(
+            activePool.getMintedSupply(),
+            20 * TOKEN18,
+            "GHO debt should be 20 GHO."
+        );
         borrowerOperation.repayGHO(5 * TOKEN18, facticeUser1_tokenId);
-        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 15 * TOKEN18, "Debt should be 15 GHO.");
+        assertEq(
+            lpPositionsManager.debtOf(facticeUser1_tokenId),
+            15 * TOKEN18,
+            "Debt should be 15 GHO."
+        );
         vm.stopPrank();
     }
 
@@ -331,7 +397,10 @@ contract BorrowerOperationsTest is UniswapTest {
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18);
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId2);
-        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId2), 10 * TOKEN18);
+        assertEq(
+            lpPositionsManager.debtOf(facticeUser1_tokenId2),
+            10 * TOKEN18
+        );
         vm.stopPrank();
     }
 
@@ -340,12 +409,14 @@ contract BorrowerOperationsTest is UniswapTest {
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18);
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId2);
-        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId2), 10 * TOKEN18);
+        assertEq(
+            lpPositionsManager.debtOf(facticeUser1_tokenId2),
+            10 * TOKEN18
+        );
         borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId);
-        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0 );
+        assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId), 0);
         borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId2);
         assertEq(lpPositionsManager.debtOf(facticeUser1_tokenId2), 0);
         vm.stopPrank();
     }
-    
 }

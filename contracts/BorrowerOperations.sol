@@ -80,7 +80,7 @@ contract BorrowerOperations is
      */
     function openPosition(
         uint256 _tokenId
-    ) external positionNotInitiated notOwnerOfTokenId {
+    ) external positionNotInitiated(_tokenId) {
         uniswapPositionsNFT.transferFrom(
             msg.sender,
             address(activePool),
@@ -351,9 +351,9 @@ contract BorrowerOperations is
         _;
     }
 
-    modifier notOwnerOfTokenId(uint256 _tokenId, address _user) {
-        if (ERC721.ownerOf(_tokenId) != _user) {
-            revert Errors.NotOwnerOfTokenId();
-        }
-    }
+    // modifier notOwnerOfTokenId(uint256 _tokenId, address _user) {
+    //     if (ERC721.ownerOf(_tokenId) != _user) {
+    //         revert Errors.NotOwnerOfTokenId();
+    //     }
+    // }
 }
