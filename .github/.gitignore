@@ -12,4 +12,3 @@ out/
 test/UniswapTest.sol
 cache/solidity-files-cache.json
 
-lib/openzeppelin-contracts
