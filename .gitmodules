@@ -1,0 +1,3 @@
+[submodule "lib/gho-core"]
+	path = lib/gho-core
+	url = https://github.com/eclypse-labs/gho-core
