@@ -139,6 +139,11 @@
           "internalType": "address",
           "name": "sender",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
         }
       ],
       "name": "increaseMintedSupply",
@@ -161,9 +166,9 @@
     "decreaseMintedSupply(uint256,address)": "47f06fc4",
     "getCollateralValue()": "c047e563",
     "getMintedSupply()": "f2113b5a",
-    "increaseMintedSupply(uint256,address)": "bcb64b18"
+    "increaseMintedSupply(uint256,address,uint256)": "cdc820a4"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newActivePoolAddress\",\"type\":\"address\"}],\"name\":\"ActivePoolAddressChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newDefaultPoolAddress\",\"type\":\"address\"}],\"name\":\"DefaultPoolAddressChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_newBalance\",\"type\":\"uint256\"}],\"name\":\"ETHBalanceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_newBalance\",\"type\":\"uint256\"}],\"name\":\"GHOBalanceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"LpSent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newStabilityPoolAddress\",\"type\":\"address\"}],\"name\":\"StabilityPoolAddressChanged\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"decreaseMintedSupply\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCollateralValue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMintedSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"increaseMintedSupply\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IPool.sol\":\"IPool\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/interfaces/IPool.sol\":{\"keccak256\":\"0x325ee0863880b7d3cffce987c62a4e05385bc9d7cc0c01d765fade9100b6c5e4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9eeb2672c235144366527cb955a532b1a5965b76bf8468ebd2a0e075b25b5184\",\"dweb:/ipfs/QmemkYtCBgHhiqXFhnGNuoUYcXoVNDTcC2GeSPRRo7Bksh\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newActivePoolAddress\",\"type\":\"address\"}],\"name\":\"ActivePoolAddressChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newDefaultPoolAddress\",\"type\":\"address\"}],\"name\":\"DefaultPoolAddressChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_newBalance\",\"type\":\"uint256\"}],\"name\":\"ETHBalanceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_newBalance\",\"type\":\"uint256\"}],\"name\":\"GHOBalanceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"LpSent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_newStabilityPoolAddress\",\"type\":\"address\"}],\"name\":\"StabilityPoolAddressChanged\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"decreaseMintedSupply\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCollateralValue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMintedSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"increaseMintedSupply\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IPool.sol\":\"IPool\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/interfaces/IPool.sol\":{\"keccak256\":\"0x71d9d2934885ce516b282f056f7b03841b7d7841df45e67c46f1b858469ad3b9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f3002e9529800613b949b368c828cafeac2b3d73c45847f5d4f6bf1ae9e41a8f\",\"dweb:/ipfs/QmQfQtWQhUnWr7xzCUL7fZD5afYTD83Dz4SEzMLTaZsNP5\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -309,6 +314,11 @@
               "internalType": "address",
               "name": "sender",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
             }
           ],
           "stateMutability": "nonpayable",
@@ -329,6 +339,7 @@
     },
     "settings": {
       "remappings": [
+        ":@aave/core-v3/=lib/aave-v3-core/",
         ":@openzeppelin/=lib/openzeppelin-contracts/",
         ":@uniswap-core/=lib/v3-core/contracts/",
         ":@uniswap-periphery/=lib/v3-periphery/contracts/",
@@ -362,10 +373,10 @@
     },
     "sources": {
       "contracts/interfaces/IPool.sol": {
-        "keccak256": "0x325ee0863880b7d3cffce987c62a4e05385bc9d7cc0c01d765fade9100b6c5e4",
+        "keccak256": "0x71d9d2934885ce516b282f056f7b03841b7d7841df45e67c46f1b858469ad3b9",
         "urls": [
-          "bzz-raw://9eeb2672c235144366527cb955a532b1a5965b76bf8468ebd2a0e075b25b5184",
-          "dweb:/ipfs/QmemkYtCBgHhiqXFhnGNuoUYcXoVNDTcC2GeSPRRo7Bksh"
+          "bzz-raw://f3002e9529800613b949b368c828cafeac2b3d73c45847f5d4f6bf1ae9e41a8f",
+          "dweb:/ipfs/QmQfQtWQhUnWr7xzCUL7fZD5afYTD83Dz4SEzMLTaZsNP5"
         ],
         "license": "MIT"
       }
@@ -374,17 +385,17 @@
   },
   "ast": {
     "absolutePath": "contracts/interfaces/IPool.sol",
-    "id": 4502,
+    "id": 3683,
     "exportedSymbols": {
       "IPool": [
-        4501
+        3682
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "33:773:8",
+    "src": "33:790:8",
     "nodes": [
       {
-        "id": 4450,
+        "id": 3629,
         "nodeType": "PragmaDirective",
         "src": "33:25:8",
         "nodes": [],
@@ -396,12 +407,12 @@
         ]
       },
       {
-        "id": 4501,
+        "id": 3682,
         "nodeType": "ContractDefinition",
-        "src": "95:710:8",
+        "src": "95:727:8",
         "nodes": [
           {
-            "id": 4454,
+            "id": 3633,
             "nodeType": "EventDefinition",
             "src": "149:42:8",
             "nodes": [],
@@ -410,18 +421,18 @@
             "name": "ETHBalanceUpdated",
             "nameLocation": "155:17:8",
             "parameters": {
-              "id": 4453,
+              "id": 3632,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4452,
+                  "id": 3631,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_newBalance",
                   "nameLocation": "178:11:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4454,
+                  "scope": 3633,
                   "src": "173:16:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -430,7 +441,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4451,
+                    "id": 3630,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "173:4:8",
@@ -446,7 +457,7 @@
             }
           },
           {
-            "id": 4458,
+            "id": 3637,
             "nodeType": "EventDefinition",
             "src": "196:42:8",
             "nodes": [],
@@ -455,18 +466,18 @@
             "name": "GHOBalanceUpdated",
             "nameLocation": "202:17:8",
             "parameters": {
-              "id": 4457,
+              "id": 3636,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4456,
+                  "id": 3635,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_newBalance",
                   "nameLocation": "225:11:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4458,
+                  "scope": 3637,
                   "src": "220:16:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -475,7 +486,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4455,
+                    "id": 3634,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "220:4:8",
@@ -491,7 +502,7 @@
             }
           },
           {
-            "id": 4462,
+            "id": 3641,
             "nodeType": "EventDefinition",
             "src": "243:62:8",
             "nodes": [],
@@ -500,18 +511,18 @@
             "name": "ActivePoolAddressChanged",
             "nameLocation": "249:24:8",
             "parameters": {
-              "id": 4461,
+              "id": 3640,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4460,
+                  "id": 3639,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_newActivePoolAddress",
                   "nameLocation": "282:21:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4462,
+                  "scope": 3641,
                   "src": "274:29:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -520,7 +531,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4459,
+                    "id": 3638,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "274:7:8",
@@ -537,7 +548,7 @@
             }
           },
           {
-            "id": 4466,
+            "id": 3645,
             "nodeType": "EventDefinition",
             "src": "310:64:8",
             "nodes": [],
@@ -546,18 +557,18 @@
             "name": "DefaultPoolAddressChanged",
             "nameLocation": "316:25:8",
             "parameters": {
-              "id": 4465,
+              "id": 3644,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4464,
+                  "id": 3643,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_newDefaultPoolAddress",
                   "nameLocation": "350:22:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4466,
+                  "scope": 3645,
                   "src": "342:30:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -566,7 +577,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4463,
+                    "id": 3642,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "342:7:8",
@@ -583,7 +594,7 @@
             }
           },
           {
-            "id": 4470,
+            "id": 3649,
             "nodeType": "EventDefinition",
             "src": "379:68:8",
             "nodes": [],
@@ -592,18 +603,18 @@
             "name": "StabilityPoolAddressChanged",
             "nameLocation": "385:27:8",
             "parameters": {
-              "id": 4469,
+              "id": 3648,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4468,
+                  "id": 3647,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_newStabilityPoolAddress",
                   "nameLocation": "421:24:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4470,
+                  "scope": 3649,
                   "src": "413:32:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -612,7 +623,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4467,
+                    "id": 3646,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "413:7:8",
@@ -629,7 +640,7 @@
             }
           },
           {
-            "id": 4476,
+            "id": 3655,
             "nodeType": "EventDefinition",
             "src": "452:44:8",
             "nodes": [],
@@ -638,18 +649,18 @@
             "name": "LpSent",
             "nameLocation": "458:6:8",
             "parameters": {
-              "id": 4475,
+              "id": 3654,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4472,
+                  "id": 3651,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_to",
                   "nameLocation": "473:3:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4476,
+                  "scope": 3655,
                   "src": "465:11:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -658,7 +669,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4471,
+                    "id": 3650,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "465:7:8",
@@ -672,13 +683,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 4474,
+                  "id": 3653,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "_tokenId",
                   "nameLocation": "486:8:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4476,
+                  "scope": 3655,
                   "src": "478:16:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -687,7 +698,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4473,
+                    "id": 3652,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "478:7:8",
@@ -703,7 +714,7 @@
             }
           },
           {
-            "id": 4481,
+            "id": 3660,
             "nodeType": "FunctionDefinition",
             "src": "532:59:8",
             "nodes": [],
@@ -714,23 +725,23 @@
             "name": "getCollateralValue",
             "nameLocation": "541:18:8",
             "parameters": {
-              "id": 4477,
+              "id": 3656,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "559:2:8"
             },
             "returnParameters": {
-              "id": 4480,
+              "id": 3659,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4479,
+                  "id": 3658,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4481,
+                  "scope": 3660,
                   "src": "585:4:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -739,7 +750,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4478,
+                    "id": 3657,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "585:4:8",
@@ -753,13 +764,13 @@
               ],
               "src": "584:6:8"
             },
-            "scope": 4501,
+            "scope": 3682,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 4486,
+            "id": 3665,
             "nodeType": "FunctionDefinition",
             "src": "597:56:8",
             "nodes": [],
@@ -770,23 +781,23 @@
             "name": "getMintedSupply",
             "nameLocation": "606:15:8",
             "parameters": {
-              "id": 4482,
+              "id": 3661,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "621:2:8"
             },
             "returnParameters": {
-              "id": 4485,
+              "id": 3664,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4484,
+                  "id": 3663,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4486,
+                  "scope": 3665,
                   "src": "647:4:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -795,7 +806,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4483,
+                    "id": 3662,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "647:4:8",
@@ -809,34 +820,34 @@
               ],
               "src": "646:6:8"
             },
-            "scope": 4501,
+            "scope": 3682,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 4493,
+            "id": 3674,
             "nodeType": "FunctionDefinition",
-            "src": "659:69:8",
+            "src": "659:86:8",
             "nodes": [],
-            "functionSelector": "bcb64b18",
+            "functionSelector": "cdc820a4",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "increaseMintedSupply",
             "nameLocation": "668:20:8",
             "parameters": {
-              "id": 4491,
+              "id": 3672,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4488,
+                  "id": 3667,
                   "mutability": "mutable",
                   "name": "_amount",
                   "nameLocation": "694:7:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4493,
+                  "scope": 3674,
                   "src": "689:12:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -845,7 +856,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4487,
+                    "id": 3666,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "689:4:8",
@@ -858,12 +869,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 4490,
+                  "id": 3669,
                   "mutability": "mutable",
                   "name": "sender",
                   "nameLocation": "711:6:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4493,
+                  "scope": 3674,
                   "src": "703:14:8",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -872,7 +883,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4489,
+                    "id": 3668,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "703:7:8",
@@ -883,45 +894,16 @@
                     }
                   },
                   "visibility": "internal"
-                }
-              ],
-              "src": "688:30:8"
-            },
-            "returnParameters": {
-              "id": 4492,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "727:0:8"
-            },
-            "scope": 4501,
-            "stateMutability": "nonpayable",
-            "virtual": false,
-            "visibility": "external"
-          },
-          {
-            "id": 4500,
-            "nodeType": "FunctionDefinition",
-            "src": "734:69:8",
-            "nodes": [],
-            "functionSelector": "47f06fc4",
-            "implemented": false,
-            "kind": "function",
-            "modifiers": [],
-            "name": "decreaseMintedSupply",
-            "nameLocation": "743:20:8",
-            "parameters": {
-              "id": 4498,
-              "nodeType": "ParameterList",
-              "parameters": [
+                },
                 {
                   "constant": false,
-                  "id": 4495,
+                  "id": 3671,
                   "mutability": "mutable",
-                  "name": "_amount",
-                  "nameLocation": "769:7:8",
+                  "name": "tokenId",
+                  "nameLocation": "727:7:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4500,
-                  "src": "764:12:8",
+                  "scope": 3674,
+                  "src": "719:15:8",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -929,10 +911,66 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4494,
+                    "id": 3670,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "719:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "688:47:8"
+            },
+            "returnParameters": {
+              "id": 3673,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "744:0:8"
+            },
+            "scope": 3682,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 3681,
+            "nodeType": "FunctionDefinition",
+            "src": "751:69:8",
+            "nodes": [],
+            "functionSelector": "47f06fc4",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "decreaseMintedSupply",
+            "nameLocation": "760:20:8",
+            "parameters": {
+              "id": 3679,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3676,
+                  "mutability": "mutable",
+                  "name": "_amount",
+                  "nameLocation": "786:7:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3681,
+                  "src": "781:12:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3675,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "764:4:8",
+                    "src": "781:4:8",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -942,13 +980,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 4497,
+                  "id": 3678,
                   "mutability": "mutable",
                   "name": "sender",
-                  "nameLocation": "786:6:8",
+                  "nameLocation": "803:6:8",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4500,
-                  "src": "778:14:8",
+                  "scope": 3681,
+                  "src": "795:14:8",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -956,10 +994,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4496,
+                    "id": 3677,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "778:7:8",
+                    "src": "795:7:8",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -969,15 +1007,15 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "763:30:8"
+              "src": "780:30:8"
             },
             "returnParameters": {
-              "id": 4499,
+              "id": 3680,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "802:0:8"
+              "src": "819:0:8"
             },
-            "scope": 4501,
+            "scope": 3682,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -990,11 +1028,11 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          4501
+          3682
         ],
         "name": "IPool",
         "nameLocation": "105:5:8",
-        "scope": 4502,
+        "scope": 3683,
         "usedErrors": []
       }
     ],

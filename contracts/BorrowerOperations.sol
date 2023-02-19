@@ -4,7 +4,7 @@ pragma solidity <0.9.0;
 import "./LPPositionsManager.sol";
 
 import "./interfaces/IBorrowerOperations.sol";
-import "./interfaces/IGHOToken.sol";
+import "./DebtToken.sol";
 import "contracts/utils/CheckContract.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
@@ -27,7 +27,9 @@ contract BorrowerOperations is
     // --- Addresses ---
     IActivePool private activePool;
     LPPositionsManager private lpPositionsManager;
-    IGHOToken private GHOToken;
+
+    //TODO: Comment next line
+    //IGHOToken private GHOToken;
 
     // --- Interfaces ---
     INonfungiblePositionManager constant uniswapPositionsNFT =
@@ -37,7 +39,9 @@ contract BorrowerOperations is
     struct ContractsCache {
         ILPPositionsManager lpPositionsManager;
         IActivePool activePool;
-        IGHOToken GHOToken;
+
+        //TODO: Comment next line
+        //IGHOToken GHOToken;
     }
 
     // --- Methods ---
@@ -50,21 +54,26 @@ contract BorrowerOperations is
      * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
      * @param _lpPositionsManagerAddress The address of the LPPositionsManager contract.
      * @param _activePoolAddress The address of the ActivePool contract.
-     * @param _GHOTokenAddress The address of the GHOToken contract.
      * @dev This function can only be called by the contract owner.
      */
     function setAddresses(
         address _lpPositionsManagerAddress,
-        address _activePoolAddress,
-        address _GHOTokenAddress
+        address _activePoolAddress
+
+        //TODO: Comment next line
+        //address _GHOTokenAddress
     ) external onlyOwner {
         lpPositionsManager = LPPositionsManager(_lpPositionsManagerAddress);
         activePool = IActivePool(_activePoolAddress);
-        GHOToken = IGHOToken(_GHOTokenAddress);
+
+        //TODO: Comment next line
+        //GHOToken = IGHOToken(_GHOTokenAddress);
 
         emit LPPositionsManagerAddressChanged(_lpPositionsManagerAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
-        emit GHOTokenAddressChanged(_GHOTokenAddress);
+
+        //TODO: Comment next line
+        //emit GHOTokenAddressChanged(_GHOTokenAddress);
 
         //renounceOwnership();
     }
@@ -87,10 +96,13 @@ contract BorrowerOperations is
             _tokenId
         );
 
+        //TODO: create new debt token for this position in lpPositionManager.openPosition.
+
         ContractsCache memory contractsCache = ContractsCache(
             lpPositionsManager,
-            activePool,
-            GHOToken
+            activePool
+            //TODO: Comment next line
+            //GHOToken
         );
         contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
         emit OpenedPosition(msg.sender, _tokenId);
@@ -153,8 +165,11 @@ contract BorrowerOperations is
         ) {
             revert Errors.SupplyNotAvailable();
         }
+        
+        activePool.increaseMintedSupply(_GHOAmount, msg.sender, _tokenId);
 
-        lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
+        //TODO: Comment next line.
+        //lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
 
         if (lpPositionsManager.liquidatable(_tokenId)) {
             revert Errors.PositionILiquidatable();
@@ -188,11 +203,27 @@ contract BorrowerOperations is
             revert Errors.AmountShouldBePositive();
         }
 
-        uint256 GHOfees = lpPositionsManager.decreaseDebtOf(
-            _tokenId,
-            _GHOAmount
-        );
-        activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
+        uint256 feesGeneratedByInterests = activePool.getDebtToken(_tokenId).balanceOfInterest();
+
+        if (_GHOAmount >= feesGeneratedByInterests) {
+            activePool.repayInterestFromUserToProtocol(
+                msg.sender,
+                feesGeneratedByInterests,
+                _tokenId
+            );
+
+            activePool.burnDebtToken(_tokenId, _GHOAmount - feesGeneratedByInterests);
+
+            //TODO: Decrease remaining minted supply.
+            
+        }
+        else {
+            activePool.repayInterestFromUserToProtocol(
+                msg.sender,
+                _GHOAmount,
+                _tokenId
+            );
+        }
 
         emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
     }

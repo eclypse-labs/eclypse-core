@@ -2,15 +2,12 @@
 pragma solidity <0.9.0;
 
 import "forge-std/Test.sol";
-import "../contracts/GHOToken.sol";
-import "../contracts/BorrowerOperations.sol";
-import "../contracts/ActivePool.sol";
-import "../contracts/LPPositionsManager.sol";
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
-import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "./UniswapTest.sol";
+//import "../contracts/GHOToken.sol";
+
 
 contract LPPositionsManagerTest is UniswapTest {
     uint256 public fee;

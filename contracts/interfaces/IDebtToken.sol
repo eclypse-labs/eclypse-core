@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IGhoVariableDebtToken} from "gho-core/src/contracts/facilitators/aave/tokens/interfaces/IGhoVariableDebtToken.sol";
+import {IERC20} from '@aave/core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol';
 
-interface IDebtToken is IGhoVariableDebtToken {
+interface IDebtToken is IERC20 {
     // Events
     event Mint(address indexed to, uint256 amount);
 
@@ -12,15 +12,11 @@ interface IDebtToken is IGhoVariableDebtToken {
     event BorrowLimitChanged(uint256 newBorrowLimit);
 
     // Functions
-    function mint(address to, uint256 amount) external;
+    function mint(uint256 amount) external;
 
     function burn(uint256 amount) external;
 
     function getBorrowLimit() external view returns (uint256);
 
     function setBorrowLimit(uint256 newBorrowLimit) external;
-
-    function decreaseBalanceFromInterest(address user, uint256 amount) external;
-
-    function getBalanceFromInterest(user) external view returns (uint256);
 }

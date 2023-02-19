@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 
-import "./IGHOToken.sol";
 
 // Common interface for the Trove Manager.
 interface ILPPositionsManager {
@@ -77,10 +76,10 @@ interface ILPPositionsManager {
 
     function setAddresses(
         address _borrowerOperationsAddress,
-        address _activePoolAddress,
+        address _activePoolAddress
         //address _stabilityPoolAddress,
         //address _gasPoolAddress,
-        address _GHOTokenAddress
+       // address _GHOTokenAddress
     ) external;
 
     function addPairToProtocol(
@@ -125,10 +124,10 @@ interface ILPPositionsManager {
         external
         returns (uint256 totalDebtInGHO);
 
-    function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
+    //function increaseDebtOf(uint256 _tokenId, uint256 _amount, uint256 _tokenId) external;
 
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
-        external returns (uint256);
+    // function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
+    //     external returns (uint256);
 
     function setNewLiquidity(uint256 _tokenId, uint128 _liquidity) external;
 

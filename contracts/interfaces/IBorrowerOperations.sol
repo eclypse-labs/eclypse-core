@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 
-import "./IGHOToken.sol";
 
 // Common interface for the Trove Manager.
 interface IBorrowerOperations {
@@ -37,8 +36,8 @@ interface IBorrowerOperations {
 
     function setAddresses(
         address _lpPositionsManagerAddress,
-        address _activePoolAddress,
-        address _GHOTokenAddress
+        address _activePoolAddress
+        //address _GHOTokenAddress
     ) external;
 
     function openPosition(uint256 _tokenId) external;

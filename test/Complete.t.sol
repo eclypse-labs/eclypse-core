@@ -3,9 +3,6 @@ pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
 import "../contracts/ActivePool.sol";
-import "./ERC20Mintable.sol";
-import "forge-std/Test.sol";
-import "../contracts/GHOToken.sol";
 import "../contracts/BorrowerOperations.sol";
 import "../contracts/ActivePool.sol";
 import "../contracts/LPPositionsManager.sol";
@@ -14,7 +11,8 @@ import "@uniswap-core/interfaces/IUniswapV3Pool.sol";
 import "@uniswap-core/libraries/FixedPoint96.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/interfaces/ISwapRouter.sol";
-import "@openzeppelin/contracts/interfaces/IERC20.sol";
+
+
 
 contract CompleteTest is Test {
     IGHOToken ghoToken;

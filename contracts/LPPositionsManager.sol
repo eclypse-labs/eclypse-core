@@ -3,10 +3,8 @@ pragma solidity <0.9.0;
 
 import "./interfaces/IActivePool.sol";
 import "./interfaces/ILPPositionsManager.sol";
-import "./interfaces/IGHOToken.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-core/libraries/TickMath.sol";
 import "@uniswap-core/libraries/FullMath.sol";
@@ -15,10 +13,11 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
 import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
-import "@uniswap-periphery/libraries/TransferHelper.sol";
 import "forge-std/console.sol";
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "forge-std/Test.sol";
+
+import "gho-core/src/contracts/gho/GHOToken.sol";
 
 /**
  * @title LPPositionsManager contract
@@ -41,6 +40,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     address borrowerOperationsAddress;
 
+    GhoToken public GHOToken = new GhoToken();
     // -- Interfaces --
 
     INonfungiblePositionManager constant uniswapPositionsNFT =
@@ -50,7 +50,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         IUniswapV3Factory(factoryAddress);
 
     IActivePool public activePool;
-    IGHOToken public GHOToken;
+
+    //GHOToken public GHO = new GHOToken();
+
+    //TODO: Comment next line
+    //IGHOToken public GHOToken;
+
 
     // -- Mappings & Arrays --
 
@@ -72,7 +77,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // An array of all positions.
     Position[] private _allPositions;
 
-    mapping(uint256 => BorrowData[]) private _borrowDataFromTokenId;
+    //TODO: Comment next line.
+    //mapping(uint256 => BorrowData[]) private _borrowDataFromTokenId;
 
     // -- Methods --
 
@@ -84,22 +90,27 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
      * @param _borrowerOperationsAddress The address of the borrower operations contract.
      * @param _activePoolAddress The address of the active pool contract.
-     * @param _GHOTokenAddress The address of the Gho token contract.
      * @dev This function can only be called by the contract owner.
      */
     function setAddresses(
         address _borrowerOperationsAddress,
-        address _activePoolAddress,
-        address _GHOTokenAddress
+        address _activePoolAddress
+
+        //TODO: Comment next line
+        //address _GHOTokenAddress
     ) external override onlyOwner {
         borrowerOperationsAddress = _borrowerOperationsAddress;
         activePool = IActivePool(_activePoolAddress);
 
-        GHOToken = IGHOToken(_GHOTokenAddress);
+
+        //TODO: Comment next line
+        //GHOToken = IGHOToken(_GHOTokenAddress);
 
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         emit ActivePoolAddressChanged(_activePoolAddress);
-        emit GHOTokenAddressChanged(_GHOTokenAddress);
+
+        //TODO: Comment next line
+        //emit GHOTokenAddressChanged(_GHOTokenAddress);
 
         // renounceOwnership();
     }
@@ -226,6 +237,10 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         _positionsFromAddress[_owner].push(position);
         _positionFromTokenId[_tokenId] = position;
 
+        //TODO: create new debt token in activePool
+
+        activePool.newDebtToken(_owner, interestRate, _tokenId);
+
         emit DepositedLP(_owner, _tokenId);
     }
 
@@ -282,52 +297,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the debt of.
      * @return currentDebt The total debt of the position, including interest.
      */
-    function debtOf(
-        uint256 _tokenId
-    ) public override returns (uint256 currentDebt) {
-        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
-        for (uint256 i = 0; i < _borrowDataArray.length; i++) {
-            currentDebt +=
-                _debtOf(_borrowDataArray[i]) +
-                _borrowDataArray[i].mintedAmount;
-            _borrowDataFromTokenId[_tokenId][i].timestamp = block.timestamp;
-            _borrowDataFromTokenId[_tokenId][i].amount = _debtOf(
-                _borrowDataArray[i]
-            );
-        }
-        return currentDebt;
+
+    //TODO: replace this function by call to activePool.debtToken().balance
+
+    function debtOf(uint256 _tokenId) public override view returns (uint256 currentDebt) {
+        return activePool.getDebtToken(_tokenId).totalBalanceOf();
     }
 
-    /**
-     * @notice Returns the debt of a specific borrow, including interest.
-     * @dev The debt is calculated using the interest rate and the last update timestamp of the position.
-     * @param _borrowData The data of the borrow to get the debt of.s
-     * @return _currentDebt The total debt of the borrow, including interest.
-     */
-    function _debtOf(
-        BorrowData memory _borrowData
-    ) private view returns (uint256 _currentDebt) {
-        uint256 _lastUpdateTimestamp = _borrowData.timestamp;
-        _currentDebt =
-            FullMath.mulDivRoundingUp(
-                _borrowData.mintedAmount,
-                lessDumbPower(
-                    _borrowData.interestRate,
-                    block.timestamp - _lastUpdateTimestamp
-                ),
-                FixedPoint96.Q96
-            ) +
-            FullMath.mulDivRoundingUp(
-                _borrowData.amount,
-                lessDumbPower(
-                    _borrowData.interestRate,
-                    block.timestamp - _lastUpdateTimestamp
-                ),
-                FixedPoint96.Q96
-            ) -
-            _borrowData.mintedAmount;
-        return _currentDebt;
-    }
 
     /**
      * @notice Returns the total debt of a user, including interest.
@@ -337,7 +313,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function totalDebtOf(
         address _user
-    ) public returns (uint256 totalDebtInGHO) {
+    ) public view returns (uint256 totalDebtInGHO) {
         for (uint32 i = 0; i < _positionsFromAddress[_user].length; i++) {
             if (_positionsFromAddress[_user][i].status == Status.active) {
                 totalDebtInGHO += debtOf(
@@ -354,35 +330,37 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to increase the debt of.
      * @param _amount The amount to increase the debt of the position by.
      */
-    function increaseDebtOf(
-        uint256 _tokenId,
-        uint256 _amount
-    ) public override onlyBorrowerOperations onlyActivePosition(_tokenId) {
-        require(
-            _amount > 0,
-            "A debt cannot be increased by a negative amount or by 0."
-        );
+    // function increaseDebtOf(
+    //     uint256 _tokenId,
+    //     uint256 _amount
+    // ) public override onlyBorrowerOperations onlyActivePosition(_tokenId) {
+    //     require(
+    //         _amount > 0,
+    //         "A debt cannot be increased by a negative amount or by 0."
+    //     );
 
-        uint256 prevDebt = debtOf(_tokenId);
-        _positionFromTokenId[_tokenId].debt = prevDebt + _amount;
-        _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
+    //     uint256 prevDebt = debtOf(_tokenId);
 
-        _borrowDataFromTokenId[_tokenId].push(
-            BorrowData(0, _amount, block.timestamp, interestRate)
-        );
+    //     _positionFromTokenId[_tokenId].debt = prevDebt + _amount;
+    //     _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
 
-        activePool.increaseMintedSupply(
-            _amount,
-            _positionFromTokenId[_tokenId].user
-        );
+    //     _borrowDataFromTokenId[_tokenId].push(
+    //         BorrowData(0, _amount, block.timestamp, interestRate)
+    //     );
 
-        emit IncreasedDebt(
-            _positionFromTokenId[_tokenId].user,
-            _tokenId,
-            _positionFromTokenId[_tokenId].debt - _amount,
-            _positionFromTokenId[_tokenId].debt
-        );
-    }
+    //     activePool.increaseMintedSupply(
+    //         _amount,
+    //         _positionFromTokenId[_tokenId].user,
+    //         _tokenId
+    //     );
+
+    //     emit IncreasedDebt(
+    //         _positionFromTokenId[_tokenId].user,
+    //         _tokenId,
+    //         _positionFromTokenId[_tokenId].debt - _amount,
+    //         _positionFromTokenId[_tokenId].debt
+    //     );
+    // }
 
     /**
      * @notice Decreases the debt of a position by a given amount.
@@ -390,65 +368,65 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to decrease the debt of.
      * @param _amount The amount to decrease the debt of the position by.
      */
-    function decreaseDebtOf(
-        uint256 _tokenId,
-        uint256 _amount
-    )
-        public
-        override
-        onlyBorrowerOperations
-        onlyActivePosition(_tokenId)
-        returns (uint256 GHOfees)
-    {
-        require(
-            _amount > 0,
-            "A debt cannot be decreased by a negative amount or by 0."
-        );
-        uint256 prevDebt = debtOf(_tokenId);
-        uint256 repayAmount = _amount;
-        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
-        for (uint32 i = 0; i < _borrowDataArray.length; i++) {
-            if (repayAmount == 0) {
-                break;
-            } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
-                repayAmount -= _debtOf(_borrowDataArray[i]);
-                GHOfees += _debtOf(_borrowDataArray[i]);
-                if (repayAmount >= _borrowDataArray[i].mintedAmount) {
-                    repayAmount -= _borrowDataArray[i].mintedAmount;
-                    activePool.decreaseMintedSupply(
-                        _borrowDataArray[i].mintedAmount,
-                        _positionFromTokenId[_tokenId].user
-                    );
-                    delete _borrowDataFromTokenId[_tokenId][i];
-                } else {
-                    _borrowDataFromTokenId[_tokenId][i].amount = 0;
-                    _borrowDataFromTokenId[_tokenId][i]
-                        .mintedAmount -= repayAmount;
-                    activePool.decreaseMintedSupply(
-                        repayAmount,
-                        _positionFromTokenId[_tokenId].user
-                    );
-                    repayAmount = 0;
-                }
-            } else {
-                _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
-                GHOfees += repayAmount;
-                repayAmount = 0;
-            }
-        }
+    // function decreaseDebtOf(
+    //     uint256 _tokenId,
+    //     uint256 _amount
+    // )
+    //     public
+    //     override
+    //     onlyBorrowerOperations
+    //     onlyActivePosition(_tokenId)
+    //     returns (uint256 GHOfees)
+    // {
+    //     require(
+    //         _amount > 0,
+    //         "A debt cannot be decreased by a negative amount or by 0."
+    //     );
+    //     uint256 prevDebt = debtOf(_tokenId);
+    //     uint256 repayAmount = _amount;
+    //     BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
+    //     for (uint32 i = 0; i < _borrowDataArray.length; i++) {
+    //         if (repayAmount == 0) {
+    //             break;
+    //         } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
+    //             repayAmount -= _debtOf(_borrowDataArray[i]);
+    //             GHOfees += _debtOf(_borrowDataArray[i]);
+    //             if (repayAmount >= _borrowDataArray[i].mintedAmount) {
+    //                 repayAmount -= _borrowDataArray[i].mintedAmount;
+    //                 activePool.decreaseMintedSupply(
+    //                     _borrowDataArray[i].mintedAmount,
+    //                     _positionFromTokenId[_tokenId].user
+    //                 );
+    //                 delete _borrowDataFromTokenId[_tokenId][i];
+    //             } else {
+    //                 _borrowDataFromTokenId[_tokenId][i].amount = 0;
+    //                 _borrowDataFromTokenId[_tokenId][i]
+    //                     .mintedAmount -= repayAmount;
+    //                 activePool.decreaseMintedSupply(
+    //                     repayAmount,
+    //                     _positionFromTokenId[_tokenId].user
+    //                 );
+    //                 repayAmount = 0;
+    //             }
+    //         } else {
+    //             _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
+    //             GHOfees += repayAmount;
+    //             repayAmount = 0;
+    //         }
+    //     }
 
-        _positionFromTokenId[_tokenId].debt = Math.max(prevDebt - _amount, 0);
-        _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
+    //     _positionFromTokenId[_tokenId].debt = Math.max(prevDebt - _amount, 0);
+    //     _positionFromTokenId[_tokenId].lastUpdateTimestamp = block.timestamp;
 
-        emit DecreasedDebt(
-            _positionFromTokenId[_tokenId].user,
-            _tokenId,
-            _positionFromTokenId[_tokenId].debt + _amount,
-            _positionFromTokenId[_tokenId].debt
-        );
+    //     emit DecreasedDebt(
+    //         _positionFromTokenId[_tokenId].user,
+    //         _tokenId,
+    //         _positionFromTokenId[_tokenId].debt + _amount,
+    //         _positionFromTokenId[_tokenId].debt
+    //     );
 
-        return GHOfees;
-    }
+    //     return GHOfees;
+    // }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Values in ETH Functions
@@ -486,7 +464,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the debt of.
      * @return debtInETH The debt of the position in ETH.
      */
-    function debtOfInETH(uint256 _tokenId) public override returns (uint256) {
+    function debtOfInETH(uint256 _tokenId) public view override returns (uint256) {
         return
             FullMath.mulDivRoundingUp(
                 debtOf(_tokenId),
@@ -691,48 +669,48 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _lastUpdate The last update of the position.
      * @return position The position.
      */
-    function setNewPosition(
-        address _owner,
-        address _poolAddress,
-        uint256 _newTokenId,
-        Status _status,
-        uint256 _debt,
-        uint256 _lastUpdate
-    ) public returns (Position memory position) {
-        (
-            ,
-            ,
-            address _token0,
-            address _token1,
-            uint24 _fee,
-            int24 _tickLower,
-            int24 _tickUpper,
-            uint128 _liquidity,
-            ,
-            ,
-            ,
+    // function setNewPosition(
+    //     address _owner,
+    //     address _poolAddress,
+    //     uint256 _newTokenId,
+    //     Status _status,
+    //     uint256 _debt,
+    //     uint256 _lastUpdate
+    // ) public returns (Position memory position) {
+    //     (
+    //         ,
+    //         ,
+    //         address _token0,
+    //         address _token1,
+    //         uint24 _fee,
+    //         int24 _tickLower,
+    //         int24 _tickUpper,
+    //         uint128 _liquidity,
+    //         ,
+    //         ,
+    //         ,
 
-        ) = uniswapPositionsNFT.positions(_newTokenId);
+    //     ) = uniswapPositionsNFT.positions(_newTokenId);
 
-        position = Position({
-            user: _owner,
-            token0: _token0,
-            token1: _token1,
-            fee: _fee,
-            tickLower: _tickLower,
-            tickUpper: _tickUpper,
-            liquidity: _liquidity,
-            poolAddress: _poolAddress,
-            tokenId: _newTokenId,
-            status: _status,
-            debt: _debt,
-            lastUpdateTimestamp: _lastUpdate
-        });
+    //     position = Position({
+    //         user: _owner,
+    //         token0: _token0,
+    //         token1: _token1,
+    //         fee: _fee,
+    //         tickLower: _tickLower,
+    //         tickUpper: _tickUpper,
+    //         liquidity: _liquidity,
+    //         poolAddress: _poolAddress,
+    //         tokenId: _newTokenId,
+    //         status: _status,
+    //         debt: _debt,
+    //         lastUpdateTimestamp: _lastUpdate
+    //     });
 
-        _allPositions.push(position);
-        _positionsFromAddress[_owner].push(position);
-        _positionFromTokenId[_newTokenId] = position;
-    }
+    //     _allPositions.push(position);
+    //     _positionsFromAddress[_owner].push(position);
+    //     _positionFromTokenId[_newTokenId] = position;
+    // }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Liquidation functions
@@ -771,44 +749,44 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         uint256 repayAmount = _GHOToRepay;
         uint256 GHOfees = 0;
 
-        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
-        for (uint32 i = 0; i < _borrowDataArray.length; i++) {
-            if (repayAmount == 0) {
-                break;
-            } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
-                repayAmount -= _debtOf(_borrowDataArray[i]);
-                GHOfees += _debtOf(_borrowDataArray[i]);
-                if (repayAmount >= _borrowDataArray[i].mintedAmount) {
-                    repayAmount -= _borrowDataArray[i].mintedAmount;
-                    activePool.decreaseMintedSupply(
-                        _borrowDataArray[i].mintedAmount,
-                        _positionFromTokenId[_tokenId].user
-                    );
-                    delete _borrowDataFromTokenId[_tokenId][i];
-                } else {
-                    _borrowDataFromTokenId[_tokenId][i].amount = 0;
-                    _borrowDataFromTokenId[_tokenId][i]
-                        .mintedAmount -= repayAmount;
-                    activePool.decreaseMintedSupply(
-                        repayAmount,
-                        _positionFromTokenId[_tokenId].user
-                    );
-                    repayAmount = 0;
-                }
-            } else {
-                _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
-                GHOfees += repayAmount;
-                repayAmount = 0;
-            }
-        }
+        // BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
+        // for (uint32 i = 0; i < _borrowDataArray.length; i++) {
+        //     if (repayAmount == 0) {
+        //         break;
+        //     } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
+        //         repayAmount -= _debtOf(_borrowDataArray[i]);
+        //         GHOfees += _debtOf(_borrowDataArray[i]);
+        //         if (repayAmount >= _borrowDataArray[i].mintedAmount) {
+        //             repayAmount -= _borrowDataArray[i].mintedAmount;
+        //             activePool.decreaseMintedSupply(
+        //                 _borrowDataArray[i].mintedAmount,
+        //                 _positionFromTokenId[_tokenId].user
+        //             );
+        //             delete _borrowDataFromTokenId[_tokenId][i];
+        //         } else {
+        //             _borrowDataFromTokenId[_tokenId][i].amount = 0;
+        //             _borrowDataFromTokenId[_tokenId][i]
+        //                 .mintedAmount -= repayAmount;
+        //             activePool.decreaseMintedSupply(
+        //                 repayAmount,
+        //                 _positionFromTokenId[_tokenId].user
+        //             );
+        //             repayAmount = 0;
+        //         }
+        //     } else {
+        //         _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
+        //         GHOfees += repayAmount;
+        //         repayAmount = 0;
+        //     }
+        // }
 
-        activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
-        Position memory position = _positionFromTokenId[_tokenId];
-        position.debt = 0;
-        position.status = Status.closedByLiquidation;
-        _positionFromTokenId[_tokenId] = position;
+        // activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
+        // Position memory position = _positionFromTokenId[_tokenId];
+        // position.debt = 0;
+        // position.status = Status.closedByLiquidation;
+        // _positionFromTokenId[_tokenId] = position;
 
-        activePool.sendPosition(msg.sender, _tokenId);
+        // activePool.sendPosition(msg.sender, _tokenId);
 
         return true;
     }
@@ -833,46 +811,46 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         uint256 repayAmount = _GHOToRepay;
         uint256 GHOfees = 0;
 
-        BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
-        for (uint32 i = 0; i < _borrowDataArray.length; i++) {
-            if (repayAmount == 0) {
-                break;
-            } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
-                repayAmount -= _debtOf(_borrowDataArray[i]);
-                GHOfees += _debtOf(_borrowDataArray[i]);
-                if (repayAmount >= _borrowDataArray[i].mintedAmount) {
-                    repayAmount -= _borrowDataArray[i].mintedAmount;
-                    activePool.decreaseMintedSupply(
-                        _borrowDataArray[i].mintedAmount,
-                        _positionFromTokenId[_tokenId].user
-                    );
-                    delete _borrowDataFromTokenId[_tokenId][i];
-                } else {
-                    _borrowDataFromTokenId[_tokenId][i].amount = 0;
-                    _borrowDataFromTokenId[_tokenId][i]
-                        .mintedAmount -= repayAmount;
-                    activePool.decreaseMintedSupply(
-                        repayAmount,
-                        _positionFromTokenId[_tokenId].user
-                    );
-                    repayAmount = 0;
-                }
-            } else {
-                _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
-                GHOfees += repayAmount;
-                repayAmount = 0;
-            }
-        }
+        // BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
+        // for (uint32 i = 0; i < _borrowDataArray.length; i++) {
+        //     if (repayAmount == 0) {
+        //         break;
+        //     } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
+        //         repayAmount -= _debtOf(_borrowDataArray[i]);
+        //         GHOfees += _debtOf(_borrowDataArray[i]);
+        //         if (repayAmount >= _borrowDataArray[i].mintedAmount) {
+        //             repayAmount -= _borrowDataArray[i].mintedAmount;
+        //             activePool.decreaseMintedSupply(
+        //                 _borrowDataArray[i].mintedAmount,
+        //                 _positionFromTokenId[_tokenId].user
+        //             );
+        //             delete _borrowDataFromTokenId[_tokenId][i];
+        //         } else {
+        //             _borrowDataFromTokenId[_tokenId][i].amount = 0;
+        //             _borrowDataFromTokenId[_tokenId][i]
+        //                 .mintedAmount -= repayAmount;
+        //             activePool.decreaseMintedSupply(
+        //                 repayAmount,
+        //                 _positionFromTokenId[_tokenId].user
+        //             );
+        //             repayAmount = 0;
+        //         }
+        //     } else {
+        //         _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
+        //         GHOfees += repayAmount;
+        //         repayAmount = 0;
+        //     }
+        // }
 
-        Position memory position = _positionFromTokenId[_tokenId];
+        // Position memory position = _positionFromTokenId[_tokenId];
 
-        activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
+        // activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
 
-        activePool.decreaseLiquidity(_tokenId, position.liquidity, msg.sender);
+        // activePool.decreaseLiquidity(_tokenId, position.liquidity, msg.sender);
 
-        position.debt = 0;
-        position.status = Status.closedByLiquidation;
-        _positionFromTokenId[_tokenId] = position;
+        // position.debt = 0;
+        // position.status = Status.closedByLiquidation;
+        // _positionFromTokenId[_tokenId] = position;
     }
 
     /**

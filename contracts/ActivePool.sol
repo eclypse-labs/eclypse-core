@@ -8,9 +8,15 @@ import "forge-std/console.sol";
 import "@uniswap-core/libraries/FullMath.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-import "./interfaces/IGHOToken.sol";
-//import "Dependencies/console.sol";
+import "gho-core/src/contracts/gho/GHOToken.sol";
+import "./DebtToken.sol";
 
+import "./TransferHelper.sol";
+
+import "./VariableInterest.sol";
+
+
+import "./interfaces/ILPPositionsManager.sol";
 import "./LPPositionsManager.sol";
 
 /**
@@ -26,23 +32,11 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     //The liquidation Fee (in %).
     uint256 internal liquidationFees = 5;
 
-    //Amounto of GHO minted by the protocol.
-    uint256 internal mintedSupply;
-
-    //Amount of GHO we can supply.
-    uint256 internal MAX_SUPPLY = 2**256 - 1;
-
-
     string public constant NAME = "ActivePool";
 
     // -- Addresses --
     address public borrowerOperationsAddress;
     address public lpPositionsManagerAddress;
-    //address public stabilityPoolAddress;
-
-    // -- Mappings & Arrays --
-    //uint256[] internal COLLATERAL; // array of LP position tokenIds in the protocol
-    //mapping(uint256 => uint256) indexOfTokenId;
 
     // -- Interfaces --
 
@@ -50,8 +44,13 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
     LPPositionsManager lpPositionsManager;
 
-    IGHOToken public GHO;
+    GhoToken public GHO = new GhoToken();
 
+    VariableInterest internal variableInterest;
+
+    mapping (uint256 => DebtToken) public tokenIdToDebtTokens;
+    uint256[] internal tokenIds;
+    
     // -- Methods --
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -67,38 +66,26 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      */
     function setAddresses(
         address _borrowerOperationsAddress,
-        address _lpPositionsManagerAddress,
-        address _GHOAddress
+        address _lpPositionsManagerAddress
     )
         external
+        override
         onlyOwner
     {
 
         borrowerOperationsAddress = _borrowerOperationsAddress;
         lpPositionsManagerAddress = _lpPositionsManagerAddress;
 
-        GHO = IGHOToken(_GHOAddress);
-
         lpPositionsManager = LPPositionsManager(lpPositionsManagerAddress);
 
         emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
         emit LPPositionsManagerAddressChanged(_lpPositionsManagerAddress);
-        emit GHOAddressChanged(_GHOAddress);
 
         //renounceOwnership(); //too early to renounce ownership of the contract yet
     }
 
-    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    // Setters
-    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    
-    /**
-     * @notice Sets the maximum supply the protocol can mint.
-     * @param _newMaxSupply The new maximum supply.
-     * @dev Only the contract owner can call this function.
-     */
-    function setNewMaxSupply(uint256 _newMaxSupply) external onlyOwner {
-        MAX_SUPPLY = _newMaxSupply;
+    function initializeVariableInterest( uint256 _rateSlope1, uint256 _rateSlope2, uint256 _utilizationIndexOptimal, uint256 _rate0) external onlyOwner {
+        variableInterest = new VariableInterest(_rateSlope1, _rateSlope2, _utilizationIndexOptimal, _rate0);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -126,8 +113,9 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @notice Returns the total amount of GHO minted by the protocol.
      * @return mintedSupply The total amount of GHO minted by the protocol.
      */
-    function getMintedSupply() external override view returns (uint256) {
-        return mintedSupply;
+    function getMintedSupply() public override view returns (uint256) {
+        (, uint256 bucketLevel) = GHO.getFacilitatorBucket(address(this));
+        return bucketLevel;
     }
 
     /**
@@ -135,7 +123,8 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @return MAX_SUPPLY The maximum amount of GHO the protocol can mint.
      */
     function getMaxSupply() external override view returns (uint256) {
-        return MAX_SUPPLY;
+        (uint256 bucketCapacity, ) = GHO.getFacilitatorBucket(address(this));
+        return bucketCapacity;
     }
 
     /**
@@ -146,7 +135,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      */
     function feesOwed(
         INonfungiblePositionManager.CollectParams memory params
-    ) public onlyBOorLPPMorSP override returns (uint256 amount0, uint256 amount1) {
+    ) public onlyBOorLPPM override returns (uint256 amount0, uint256 amount1) {
         (amount0, amount1) = uniswapPositionsNFT.collect(params);
         return (amount0, amount1);
     }
@@ -163,7 +152,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      */
     function mintPosition(
         INonfungiblePositionManager.MintParams memory params
-    ) public onlyBOorLPPMorSP override returns (uint256 tokenId) {
+    ) public onlyBOorLPPM override returns (uint256 tokenId) {
         TransferHelper.safeApprove(
             params.token0,
             address(uniswapPositionsNFT),
@@ -185,7 +174,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @param tokenId The ID of the LP position to be burned.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function burnPosition(uint256 tokenId) public onlyBOorLPPMorSP override {
+    function burnPosition(uint256 tokenId) public onlyBOorLPPM override {
         uniswapPositionsNFT.burn(tokenId);
         emit PositionBurned(tokenId);
     }
@@ -290,9 +279,6 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
             })
         );
 
-        console.log("amount0: %s", amount0);
-        console.log("amount1: %s", amount1);
-
         TransferHelper.safeTransfer(
             lpPositionsManager.getPosition(_tokenId).token0,
             sender,
@@ -322,10 +308,12 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @param _amount The amount of minted supply to be added to the protocol.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function increaseMintedSupply(uint256 _amount, address sender) external override onlyBOorLPPM {
-        mintedSupply += _amount;
+    function increaseMintedSupply(uint256 _amount, address sender, uint256 tokenId) external override onlyBOorLPPM {
+
         GHO.mint(sender, _amount);
-        emit MintedSupplyUpdated(int256(mintedSupply));
+        tokenIdToDebtTokens[tokenId].mint(_amount);
+
+        emit MintedSupplyUpdated(getMintedSupply());
     }
 
     /**
@@ -336,10 +324,17 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     function decreaseMintedSupply(
         uint256 _amount,
         address sender
-    ) external override onlyBOorLPPMorSP {
-        mintedSupply -= _amount;
-        GHO.burn(sender, _amount);
-        emit MintedSupplyUpdated(-int256(mintedSupply));
+    ) external override onlyBOorLPPM {
+
+        GHO.transferFrom(sender, address(this), _amount);
+        GHO.burn(_amount);
+
+        emit MintedSupplyUpdated(getMintedSupply());
+    }
+
+
+    function burnDebtToken(uint256 tokenId, uint256 amount) public onlyBOorLPPM {
+        tokenIdToDebtTokens[tokenId].burn(amount);
     }
 
     /**
@@ -348,9 +343,47 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @param amount The amount of interest to be repaid.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function repayInterestFromUserToProtocol(address sender, uint256 amount) external override onlyBOorLPPM {
+    function repayInterestFromUserToProtocol(address sender, uint256 amount, uint256 tokenId) external override onlyBOorLPPM {
+
+        require(amount > 0, "ActivePool: Amount must be greater than 0");
+        require(amount <= tokenIdToDebtTokens[tokenId].balanceOfInterest(), "ActivePool: Not enough debt tokens to repay interest");
+
+        burnDebtToken(tokenId, amount);
         GHO.transferFrom(sender, 0x53A5a93e8b82030C3a52e9ff36801956b8661333, amount);
+
         emit InterestRepaid(sender, amount);
+    }
+
+
+    function newDebtToken(
+        address user, 
+        uint256 interestRate, 
+        uint256 tokenIdSignature) 
+        public onlyBOorLPPM 
+        {
+            tokenIdToDebtTokens[tokenIdSignature] = new DebtToken(user, interestRate, "Eclypse Protocol Debt Token", "EDT", 18, tokenIdSignature, address(GHO));
+    }
+
+    function getDebtToken(uint256 tokenId) external view returns (DebtToken) {
+        return tokenIdToDebtTokens[tokenId];
+    }
+
+    function addTokenIdToArray(uint256 tokenId) public onlyBOorLPPM {
+        tokenIds.push(tokenId);
+    }
+
+    function updateUtilizationIndex(uint256 utilizationRate) public onlyBOorLPPM {
+        updateAllTokenIdInterestRate();
+        variableInterest.setNewUtilizationIndex(utilizationRate);    
+    }
+
+    function updateAllTokenIdInterestRate() internal {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            if (lpPositionsManager.getPosition(tokenId).status == ILPPositionsManager.Status.active) {
+                tokenIdToDebtTokens[tokenId].updateInterest();
+            }
+        }
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -366,7 +399,7 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
     function sendPosition(
         address _account,
         uint256 _tokenId
-    ) public onlyBOorLPPMorSP onlyBOorLPPM override{
+    ) public onlyBOorLPPM override{
         uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
         emit PositionSent(_account, _tokenId);
     }
@@ -378,19 +411,19 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
      * @param _amount The amount of token to be sent.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function sendToken(
-        address _token,
-        address _account,
-        uint256 _amount
-    ) public onlyBOorLPPMorSP onlyBOorLPPM override{
-        uint256 amountToSend = FullMath.mulDiv(
-            _amount,
-            100 - liquidationFees,
-            100
-        );
-        IERC20(_token).transfer(_account, amountToSend);
-        emit TokenSent(_token, _account, _amount);
-    }
+    // function sendToken(
+    //     address _token,
+    //     address _account,
+    //     uint256 _amount
+    // ) public onlyBOorLPPMorSP onlyBOorLPPM override{
+    //     uint256 amountToSend = FullMath.mulDiv(
+    //         _amount,
+    //         100 - liquidationFees,
+    //         100
+    //     );
+    //     IERC20(_token).transfer(_account, amountToSend);
+    //     emit TokenSent(_token, _account, _amount);
+    // }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Interfaces implementation
@@ -434,16 +467,4 @@ contract ActivePool is Ownable, CheckContract, IActivePool, IERC721Receiver {
         _;
     }
 
-    /**
-     * @notice Checks if the caller is the LP Positions Manager contract or the Borrower Operations contract or the Stability Pool contract.
-     * @dev Reverts if the caller is not the LP Positions Manager contract or the Borrower Operations contract or the Stability Pool contract.
-     */
-    modifier onlyBOorLPPMorSP() {
-        require(
-            msg.sender == borrowerOperationsAddress ||
-                msg.sender == lpPositionsManagerAddress
-            //msg.sender == stabilityPoolAddress
-        );
-        _;
-    }
 }
