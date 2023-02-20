@@ -16,7 +16,7 @@ import "../contracts/LPPositionsManager.sol";
 
 abstract contract UniswapTest is Test {
 
-    //IGHOToken ghoToken;
+    GhoToken ghoToken;
 
     uint256 constant TOKEN18 = 10**18;
     uint256 constant TOKEN6 = 10**6;
@@ -93,11 +93,8 @@ abstract contract UniswapTest is Test {
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
 
-        ghoToken = new GHOToken(
-            address(borrowerOperation),
-            address(lpPositionsManager),
-            address(activePool)
-        ); // we assume gho is DAI, for simplicity
+		ghoToken = new GhoToken();
+		ghoToken.addFacilitator(address(activePool), IGhoToken.Facilitator(1_000_000 * 10**18, 0, "Eclypse"));
 
         borrowerOperation.setAddresses(
             address(lpPositionsManager),

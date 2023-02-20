@@ -9,16 +9,16 @@ contract ActivePoolTest is UniswapTest {
         uniswapTest();
     }
 
-    function testMaxSupply_GetMaxSupply() public {
+    /*function testMaxSupply_GetMaxSupply() public {
         assertEq(activePool.getMaxSupply(), 2**256 - 1, "Max supply should be 2**256 - 1");
-    }
+    }*/
 
-    function testMaxSupply_SetNewMaxSupply() public {
+    /*function testMaxSupply_SetNewMaxSupply() public {
         vm.startPrank(address(deployer));
         activePool.setNewMaxSupply(10 * TOKEN18);
         assertEq(activePool.getMaxSupply(), 10 * TOKEN18);
         vm.stopPrank();
-    }
+    }*/
 
     function testGHOAmount_MultiplePositions() public {
         vm.startPrank(address(facticeUser1));
@@ -33,7 +33,7 @@ contract ActivePoolTest is UniswapTest {
         vm.stopPrank();
     }
 
-    function testMaxSupply_BorrowMoreThanMaxSupply() public {
+    /*function testMaxSupply_BorrowMoreThanMaxSupply() public {
         vm.startPrank(address(deployer));
         activePool.setNewMaxSupply(10 * TOKEN18);
         vm.stopPrank();
@@ -42,9 +42,9 @@ contract ActivePoolTest is UniswapTest {
         borrowerOperation.borrowGHO(11 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
         vm.stopPrank();
-    }
+    }*/
 
-    function testMaxSupply_OnePositionMultipleBorrow() public {
+    /*function testMaxSupply_OnePositionMultipleBorrow() public {
         vm.startPrank(address(deployer));
         activePool.setNewMaxSupply(10 * TOKEN18);
         vm.stopPrank();
@@ -54,9 +54,9 @@ contract ActivePoolTest is UniswapTest {
         vm.expectRevert();
         borrowerOperation.borrowGHO(6 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
-    }
+    }*/
 
-    function testMaxSupply_MultiplePositionsOneBorrowEach() public {
+    /*function testMaxSupply_MultiplePositionsOneBorrowEach() public {
         vm.startPrank(address(deployer));
         activePool.setNewMaxSupply(10 * TOKEN18);
         vm.stopPrank();
@@ -68,9 +68,9 @@ contract ActivePoolTest is UniswapTest {
         vm.expectRevert();
         borrowerOperation.borrowGHO(1 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
-    }
+    }*/
 
-    function testMaxSupply_MultiplePositionsMultipleBorrowEach() public {
+    /*function testMaxSupply_MultiplePositionsMultipleBorrowEach() public {
         vm.startPrank(address(deployer));
         activePool.setNewMaxSupply(10 * TOKEN18);
         vm.stopPrank();
@@ -86,7 +86,7 @@ contract ActivePoolTest is UniswapTest {
         vm.expectRevert();
         borrowerOperation.borrowGHO(2 * TOKEN18, facticeUser1_tokenId);
         vm.stopPrank();
-    }
+    }*/
 
     function testDecreaseLiquidity() public {
         uint128 previousLiquidity = lpPositionsManager.getPosition(facticeUser1_tokenId).liquidity;

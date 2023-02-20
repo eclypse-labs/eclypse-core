@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 
-
 // Common interface for the Trove Manager.
 interface ILPPositionsManager {
     // --- Events ---
@@ -52,7 +51,7 @@ interface ILPPositionsManager {
         uint256 tokenId;
         Status status;
         uint256 debt;
-        uint256 lastUpdateTimestamp;
+        uint256 interestConstant;
     }
 
     // The pool's data
@@ -76,10 +75,10 @@ interface ILPPositionsManager {
 
     function setAddresses(
         address _borrowerOperationsAddress,
-        address _activePoolAddress
+        address _activePoolAddress,
+        address _GHOTokenAddress
         //address _stabilityPoolAddress,
         //address _gasPoolAddress,
-       // address _GHOTokenAddress
     ) external;
 
     function addPairToProtocol(
