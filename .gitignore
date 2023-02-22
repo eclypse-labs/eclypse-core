@@ -155,3 +155,4 @@ out/console2.sol/console2.json
 out/test.sol/DSTest.json
 out/test.sol/Test.json
 out/test.sol/TestBase.json
+.prettierrc

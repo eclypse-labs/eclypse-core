@@ -8,18 +8,8 @@ interface ILPPositionsManager {
 
     event PositionStatusChanged(uint256 _tokenId, Status status);
     event DepositedLP(address _user, uint256 _tokenId);
-    event IncreasedDebt(
-        address _user,
-        uint256 _tokenId,
-        uint256 _oldAmount,
-        uint256 _newAmount
-        );
-    event DecreasedDebt(
-        address _user,
-        uint256 _tokenId,
-        uint256 _oldAmount,
-        uint256 _newAmount
-    );
+    event IncreasedDebt(address _user, uint256 _tokenId, uint256 _oldAmount, uint256 _newAmount);
+    event DecreasedDebt(address _user, uint256 _tokenId, uint256 _oldAmount, uint256 _newAmount);
 
     // List of all of the LPPositionsManager's events
 
@@ -50,7 +40,7 @@ interface ILPPositionsManager {
         address poolAddress;
         uint256 tokenId;
         Status status;
-        uint256 debt;
+        uint256 debtPrincipal;
         uint256 interestConstant;
     }
 
@@ -73,13 +63,10 @@ interface ILPPositionsManager {
 
     // --- Functions ---
 
-    function setAddresses(
-        address _borrowerOperationsAddress,
-        address _activePoolAddress,
-        address _GHOTokenAddress
+    function setAddresses(address _borrowerOperationsAddress, address _activePoolAddress, address _GHOTokenAddress)
         //address _stabilityPoolAddress,
         //address _gasPoolAddress,
-    ) external;
+        external;
 
     function addPairToProtocol(
         address _poolAddress,
@@ -95,38 +82,23 @@ interface ILPPositionsManager {
 
     function openPosition(address _owner, uint256 _tokenId) external;
 
-    function getPosition(uint256 _tokenId)
-        external
-        view
-        returns (Position memory position);
+    function getPosition(uint256 _tokenId) external view returns (Position memory position);
 
-    function positionAmounts(uint256 _tokenId)
-        external
-        view
-        returns (uint256 amountToken0, uint256 amountToken1);
+    function positionAmounts(uint256 _tokenId) external view returns (uint256 amountToken0, uint256 amountToken1);
 
-    function positionValueInETH(uint256 _tokenId)
-        external
-        view
-        returns (uint256 value);
+    function positionValueInETH(uint256 _tokenId) external view returns (uint256 value);
 
-    function totalPositionsValueInETH(address _user)
-        external
-        view
-        returns (uint256 totalValue);
+    function totalPositionsValueInETH(address _user) external view returns (uint256 totalValue);
 
     function debtOf(uint256 _tokenId) external returns (uint256);
 
     function debtOfInETH(uint256 _tokenId) external returns (uint256);
 
-    function totalDebtOf(address _user)
-        external
-        returns (uint256 totalDebtInGHO);
+    function totalDebtOf(address _user) external returns (uint256 totalDebtInGHO);
 
-    //function increaseDebtOf(uint256 _tokenId, uint256 _amount, uint256 _tokenId) external;
+    function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
 
-    // function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
-    //     external returns (uint256);
+    function decreaseDebtOf(uint256 _tokenId, uint256 _amount) external;
 
     function setNewLiquidity(uint256 _tokenId, uint128 _liquidity) external;
 
@@ -134,17 +106,9 @@ interface ILPPositionsManager {
 
     function priceInETH(address tokenAddress) external returns (uint256);
 
-    function liquidatePosition(uint256 _tokenId, uint256 _GHOToRepay)
-        external
-        returns (bool);
+    function liquidatePosition(uint256 _tokenId, uint256 _GHOToRepay) external returns (bool);
 
-    function liquidateUnderlyings(uint256 _tokenId, uint256 _GHOToRepay)
-        external
-        returns (bool);
+    function liquidateUnderlyings(uint256 _tokenId, uint256 _GHOToRepay) external returns (bool);
 
-    function batchliquidate(
-        uint256[] memory _tokenIds,
-        uint256[] memory _GHOToRepay
-    ) external;
+    function batchliquidate(uint256[] memory _tokenIds, uint256[] memory _GHOToRepay) external;
 }
-

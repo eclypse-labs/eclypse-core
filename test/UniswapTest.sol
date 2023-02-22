@@ -13,13 +13,11 @@ import "../contracts/ActivePool.sol";
 import "../contracts/BorrowerOperations.sol";
 import "../contracts/LPPositionsManager.sol";
 
-
 abstract contract UniswapTest is Test {
-
     GhoToken ghoToken;
 
-    uint256 constant TOKEN18 = 10**18;
-    uint256 constant TOKEN6 = 10**6;
+    uint256 constant TOKEN18 = 10 ** 18;
+    uint256 constant TOKEN6 = 10 ** 6;
 
     address deployer = makeAddr("deployer");
     address oracleLiquidityDepositor = makeAddr("oracleLiquidityDepositor");
@@ -31,21 +29,14 @@ abstract contract UniswapTest is Test {
     uint256 facticeUser1_tokenId;
     uint256 facticeUser1_tokenId2;
 
-    address public constant wethAddr =
-        0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address public constant usdcAddr =
-        0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    address public constant daiAddr =
-        0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address public uniPoolUsdcETHAddr =
-        0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640;
-    address public constant swapRouterAddr =
-        0xE592427A0AEce92De3Edee1F18E0157C05861564;
+    address public constant wethAddr = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public constant usdcAddr = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address public constant daiAddr = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address public uniPoolUsdcETHAddr = 0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640;
+    address public constant swapRouterAddr = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 
     IERC20 WETH = IERC20(wethAddr);
     IERC20 USDC = IERC20(usdcAddr);
-
-    
 
     ActivePool activePool;
     BorrowerOperations borrowerOperation;
@@ -57,31 +48,26 @@ abstract contract UniswapTest is Test {
     IQuoterV2 quoter;
     uint256 tokenId;
 
-    IUniswapV3Factory uniswapFactory =
-        IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
+    IUniswapV3Factory uniswapFactory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
-
-    function convertQ96(uint256 x) public pure returns (uint256){
-        return FullMath.mulDiv(x, 1, 2**96);
+    function convertQ96(uint256 x) public pure returns (uint256) {
+        return FullMath.mulDiv(x, 1, 2 ** 96);
     }
 
-    function convertDecimals18(uint256 x) public pure returns (uint256){
-        return FullMath.mulDiv(x, 1, 10**18);
+    function convertDecimals18(uint256 x) public pure returns (uint256) {
+        return FullMath.mulDiv(x, 1, 10 ** 18);
     }
 
-    function convertDecimals6(uint256 x) public pure returns (uint256){
-        return FullMath.mulDiv(x, 1, 10**6);
+    function convertDecimals6(uint256 x) public pure returns (uint256) {
+        return FullMath.mulDiv(x, 1, 10 ** 6);
     }
 
     function uniswapTest() public {
         vm.createSelectFork("https://rpc.ankr.com/eth", 16_153_817); // eth mainet at block 16_153_817
-        
-        
+
         vm.startPrank(deployer);
 
-        uniswapPositionsNFT = INonfungiblePositionManager(
-            0xC36442b4a4522E871399CD717aBDD847Ab11FE88
-        );
+        uniswapPositionsNFT = INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
 
         quoter = IQuoterV2(0x61fFE014bA17989E743c5F6cB21bF9697530B21e);
 
@@ -93,36 +79,17 @@ abstract contract UniswapTest is Test {
         borrowerOperation = new BorrowerOperations();
         lpPositionsManager = new LPPositionsManager();
 
-		ghoToken = new GhoToken();
-		ghoToken.addFacilitator(address(activePool), IGhoToken.Facilitator(1_000_000 * 10**18, 0, "Eclypse"));
+        ghoToken = new GhoToken();
+        ghoToken.addFacilitator(address(activePool), IGhoToken.Facilitator(1_000_000 * 10 ** 18, 0, "Eclypse"));
 
-        borrowerOperation.setAddresses(
-            address(lpPositionsManager),
-            address(activePool),
-            address(ghoToken)
-        );
-        lpPositionsManager.setAddresses(
-            address(borrowerOperation),
-            address(activePool),
-            address(ghoToken)
-        );
-        activePool.setAddresses(
-            address(borrowerOperation),
-            address(lpPositionsManager),
-            address(ghoToken)
-        );
-
+        borrowerOperation.setAddresses(address(lpPositionsManager), address(activePool), address(ghoToken));
+        lpPositionsManager.setAddresses(address(borrowerOperation), address(activePool), address(ghoToken));
+        activePool.setAddresses(address(borrowerOperation), address(lpPositionsManager), address(ghoToken));
 
         // whitelist la pool: updateRiskConstants
         // pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
         lpPositionsManager.addPairToProtocol(
-            uniPoolUsdcETHAddr,
-            usdcAddr,
-            wethAddr,
-            uniPoolUsdcETHAddr,
-            address(0),
-            false,
-            true
+            uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true
         );
 
         vm.stopPrank();
@@ -130,10 +97,7 @@ abstract contract UniswapTest is Test {
         vm.startPrank(deployer);
 
         uint256 _minCR = Math.mulDiv(15, FixedPoint96.Q96, 10);
-        lpPositionsManager.updateRiskConstants(
-            address(uniPoolUsdcETHAddr),
-            _minCR
-        );
+        lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
 
         vm.stopPrank();
         createEthGhoPool();
@@ -170,35 +134,26 @@ abstract contract UniswapTest is Test {
         // 00000000000000000000007ceb23fd6bc0add59e62ac25578270cff1b9f619000000000000000000000000000000000000000000
         // 00000000000000000001f4000000000000000000000000ccda2f3b7255fa09b963bec26720940209e27ecd)
 
-        INonfungiblePositionManager.MintParams
-            memory mintParams = INonfungiblePositionManager.MintParams({
-                token0: usdcAddr,
-                token1: wethAddr,
-                fee: 500,
-                tickLower: int24(104920),
-                tickUpper: int24(204930),
-                amount0Desired: 1000 * TOKEN6,
-                amount1Desired: TOKEN18,
-                amount0Min: 0,
-                amount1Min: 0,
-                recipient: facticeUser1,
-                deadline: block.timestamp
-            });
+        INonfungiblePositionManager.MintParams memory mintParams = INonfungiblePositionManager.MintParams({
+            token0: usdcAddr,
+            token1: wethAddr,
+            fee: 500,
+            tickLower: int24(104920),
+            tickUpper: int24(204930),
+            amount0Desired: 1000 * TOKEN6,
+            amount1Desired: TOKEN18,
+            amount0Min: 0,
+            amount1Min: 0,
+            recipient: facticeUser1,
+            deadline: block.timestamp
+        });
         // Position is worth approximately 1227 GHO
 
-        (facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
-        (facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
+        (facticeUser1_tokenId,,,) = uniswapPositionsNFT.mint(mintParams);
+        (facticeUser1_tokenId2,,,) = uniswapPositionsNFT.mint(mintParams);
 
-
-
-        uniswapPositionsNFT.approve(
-            address(borrowerOperation),
-            facticeUser1_tokenId
-        );
-        uniswapPositionsNFT.approve(
-            address(borrowerOperation),
-            facticeUser1_tokenId2
-        );
+        uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId);
+        uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId2);
 
         borrowerOperation.openPosition(facticeUser1_tokenId);
         borrowerOperation.openPosition(facticeUser1_tokenId2);
@@ -218,9 +173,7 @@ abstract contract UniswapTest is Test {
     function createEthGhoPool() private {
         vm.startPrank(deployer);
 
-        uniPoolGhoEth = IUniswapV3Pool(
-            uniswapFactory.createPool(address(ghoToken), address(WETH), 500)
-        );
+        uniPoolGhoEth = IUniswapV3Pool(uniswapFactory.createPool(address(ghoToken), address(WETH), 500));
 
         deal(address(ghoToken), deployer, 1225 * 2000 * TOKEN18);
 
@@ -231,9 +184,7 @@ abstract contract UniswapTest is Test {
 
         INonfungiblePositionManager.MintParams memory mintParams;
         if (uniPoolGhoEth.token0() == address(ghoToken)) {
-            uniPoolGhoEth.initialize(
-                uint160(FullMath.mulDiv(FixedPoint96.Q96, 1, 35))
-            ); // 1 ETH = 1225 GHO
+            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 1, 35))); // 1 ETH = 1225 GHO
             mintParams = INonfungiblePositionManager.MintParams({
                 token0: address(ghoToken),
                 token1: address(WETH),
@@ -248,9 +199,7 @@ abstract contract UniswapTest is Test {
                 deadline: block.timestamp
             });
         } else {
-            uniPoolGhoEth.initialize(
-                uint160(FullMath.mulDiv(FixedPoint96.Q96, 35, 1))
-            ); // 1 ETH = 1225 GHO
+            uniPoolGhoEth.initialize(uint160(FullMath.mulDiv(FixedPoint96.Q96, 35, 1))); // 1 ETH = 1225 GHO
             mintParams = INonfungiblePositionManager.MintParams({
                 token0: address(WETH),
                 token1: address(ghoToken),
@@ -268,28 +217,21 @@ abstract contract UniswapTest is Test {
         uniswapPositionsNFT.mint{value: 1000 ether}(mintParams);
 
         lpPositionsManager.addPairToProtocol(
-            address(uniPoolGhoEth),
-            address(ghoToken),
-            wethAddr,
-            address(uniPoolGhoEth),
-            address(0),
-            false,
-            true
+            address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, true
         );
 
         ghoToken.approve(swapRouterAddr, 25 * 2 * TOKEN18);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: address(ghoToken),
-                tokenOut: wethAddr,
-                fee: 500,
-                recipient: deployer,
-                deadline: block.timestamp + 5 minutes,
-                amountIn: 25 * TOKEN18,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            tokenIn: address(ghoToken),
+            tokenOut: wethAddr,
+            fee: 500,
+            recipient: deployer,
+            deadline: block.timestamp + 5 minutes,
+            amountIn: 25 * TOKEN18,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
 
         vm.roll(block.number + 1);
         vm.warp(block.timestamp + 1 minutes);

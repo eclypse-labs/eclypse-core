@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-import { Errors } from "./utils/Errors.sol";
+import {Errors} from "./utils/Errors.sol";
 
 /**
  * @title BorrowerOperations contract
@@ -17,290 +17,280 @@ import { Errors } from "./utils/Errors.sol";
  * @dev The contract is owned by the Eclypse system, and serves as a link between the Frontend and the Backend.
  */
 contract BorrowerOperations is Ownable, CheckContract, IBorrowerOperations, ReentrancyGuard {
-	// --- Addresses ---
-	IActivePool private activePool;
-	LPPositionsManager private lpPositionsManager;
+    // --- Addresses ---
+    IActivePool private activePool;
+    LPPositionsManager private lpPositionsManager;
 
-	//TODO: Comment next line
-	GhoToken private GHO;
+    //TODO: Comment next line
+    GhoToken private GHO;
 
-	// --- Interfaces ---
-	INonfungiblePositionManager constant uniswapPositionsNFT =
-		INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
+    // --- Interfaces ---
+    INonfungiblePositionManager constant uniswapPositionsNFT =
+        INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
 
-	// --- Data Structures ---
-	struct ContractsCache {
-		ILPPositionsManager lpPositionsManager;
-		IActivePool activePool;
-		GhoToken GHO;
-	}
+    // --- Data Structures ---
+    struct ContractsCache {
+        ILPPositionsManager lpPositionsManager;
+        IActivePool activePool;
+        GhoToken GHO;
+    }
 
-	// --- Methods ---
+    // --- Methods ---
 
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	// Constructors
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // Constructors
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	/**
-	 * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
-	 * @param _lpPositionsManagerAddress The address of the LPPositionsManager contract.
-	 * @param _activePoolAddress The address of the ActivePool contract.
-	 * @dev This function can only be called by the contract owner.
-	 */
-	function setAddresses(
-		address _lpPositionsManagerAddress,
-		address _activePoolAddress,
-		address _GhoAddress
-	) external onlyOwner {
-		lpPositionsManager = LPPositionsManager(_lpPositionsManagerAddress);
-		activePool = IActivePool(_activePoolAddress);
-		GHO = GhoToken(_GhoAddress);
+    /**
+     * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
+     * @param _lpPositionsManagerAddress The address of the LPPositionsManager contract.
+     * @param _activePoolAddress The address of the ActivePool contract.
+     * @dev This function can only be called by the contract owner.
+     */
+    function setAddresses(address _lpPositionsManagerAddress, address _activePoolAddress, address _GhoAddress)
+        external
+        onlyOwner
+    {
+        lpPositionsManager = LPPositionsManager(_lpPositionsManagerAddress);
+        activePool = IActivePool(_activePoolAddress);
+        GHO = GhoToken(_GhoAddress);
 
-		emit LPPositionsManagerAddressChanged(_lpPositionsManagerAddress);
-		emit ActivePoolAddressChanged(_activePoolAddress);
-		emit GHOTokenAddressChanged(_GhoAddress);
+        emit LPPositionsManagerAddressChanged(_lpPositionsManagerAddress);
+        emit ActivePoolAddressChanged(_activePoolAddress);
+        emit GHOTokenAddressChanged(_GhoAddress);
 
-		//renounceOwnership();
-	}
+        //renounceOwnership();
+    }
 
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	// Positions fundametals Operations
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // Positions fundametals Operations
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	/**
-	 * @notice Opens a new position.
-	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	 * @dev The caller must have approved the transfer of the Uniswap V3 NFT from their wallet to the BorrowerOperations contract.
-	 */
-	function openPosition(uint256 _tokenId) external positionNotInitiated(_tokenId) {
-		uniswapPositionsNFT.transferFrom(msg.sender, address(activePool), _tokenId);
+    /**
+     * @notice Opens a new position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the Uniswap V3 NFT from their wallet to the BorrowerOperations contract.
+     */
+    function openPosition(uint256 _tokenId) external positionNotInitiated(_tokenId) {
+        uniswapPositionsNFT.transferFrom(msg.sender, address(activePool), _tokenId);
 
-		//TODO: create new debt token for this position in lpPositionManager.openPosition.
+        //TODO: create new debt token for this position in lpPositionManager.openPosition.
 
-		ContractsCache memory contractsCache = ContractsCache(lpPositionsManager, activePool, GHO);
-		contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
-		emit OpenedPosition(msg.sender, _tokenId);
-	}
+        ContractsCache memory contractsCache = ContractsCache(lpPositionsManager, activePool, GHO);
+        contractsCache.lpPositionsManager.openPosition(msg.sender, _tokenId);
+        emit OpenedPosition(msg.sender, _tokenId);
+    }
 
-	/**
-	 * @notice Closes a position.
-	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	 * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
-	 */
-	function closePosition(uint256 _tokenId)
-		public
-		onlyActivePosition(_tokenId)
-		onlyPositionOwner(_tokenId, msg.sender)
-	{
-		uint256 debt = lpPositionsManager.debtOf(_tokenId);
+    /**
+     * @notice Closes a position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
+     */
+    function closePosition(uint256 _tokenId)
+        public
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
+    {
+        uint256 debt = lpPositionsManager.debtOf(_tokenId);
 
-		if (!(debt == 0)) {
-			revert Errors.DebtIsNotPaid(debt);
-		}
+        if (!(debt == 0)) {
+            revert Errors.DebtIsNotPaid(debt);
+        }
 
-		activePool.sendPosition(msg.sender, _tokenId);
+        activePool.sendPosition(msg.sender, _tokenId);
 
-		lpPositionsManager.changePositionStatus(_tokenId, ILPPositionsManager.Status.closedByOwner);
-		emit ClosedPosition(msg.sender, _tokenId);
-	}
+        lpPositionsManager.changePositionStatus(_tokenId, ILPPositionsManager.Status.closedByOwner);
+        emit ClosedPosition(msg.sender, _tokenId);
+    }
 
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	// Debt Operations
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // Debt Operations
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	/**
-	 * @notice Borrow GHO.
-	 * @param _GHOAmount The amount of GHO to withdraw.
-	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	 */
-	function borrowGHO(uint256 _GHOAmount, uint256 _tokenId)
-		public
-		payable
-		override
-		nonReentrant
-		onlyActivePosition(_tokenId)
-		onlyPositionOwner(_tokenId, msg.sender)
-	{
-		if (!(_GHOAmount > 0)) {
-			revert Errors.AmountShouldBePositive();
-		}
+    /**
+     * @notice Borrow GHO.
+     * @param _GHOAmount The amount of GHO to withdraw.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     */
+    function borrowGHO(uint256 _GHOAmount, uint256 _tokenId)
+        public
+        payable
+        override
+        nonReentrant
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
+    {
+        if (!(_GHOAmount > 0)) {
+            revert Errors.AmountShouldBePositive();
+        }
 
-		if (!(activePool.getMintedSupply() + _GHOAmount <= activePool.getMaxSupply())) {
-			revert Errors.SupplyNotAvailable();
-		}
+        // No need to check that, GHO checks that for us!
+        /*if (!(activePool.getMintedSupply() + _GHOAmount <= activePool.getMaxSupply())) {
+    revert Errors.SupplyNotAvailable();
+    }*/
 
-		activePool.increaseMintedSupply(_GHOAmount, msg.sender, _tokenId);
+        lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
+        if (lpPositionsManager.liquidatable(_tokenId)) {
+            revert Errors.PositionILiquidatable();
+        }
+        activePool.increaseMintedSupply(_GHOAmount, msg.sender, _tokenId);
 
-		//TODO: Comment next line.
-		//lpPositionsManager.increaseDebtOf(_tokenId, _GHOAmount);
+        emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId);
+    }
 
-		if (lpPositionsManager.liquidatable(_tokenId)) {
-			revert Errors.PositionILiquidatable();
-		}
-		emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId);
-	}
+    /**
+     * @notice Repay GHO.
+     * @param _GHOAmount The amount of GHO to repay.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     */
+    function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
+        public
+        override
+        nonReentrant
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
+    {
+        _GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
+        if (_GHOAmount <= 0) {
+            revert Errors.AmountShouldBePositive();
+        }
+        lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
+        activePool.repayDebtFromUserToProtocol(msg.sender, _GHOAmount, _tokenId);
+        emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
+    }
 
-	/**
-	 * @notice Repay GHO.
-	 * @param _GHOAmount The amount of GHO to repay.
-	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	 */
-	function repayGHO(uint256 _GHOAmount, uint256 _tokenId)
-		public
-		override
-		nonReentrant
-		onlyActivePosition(_tokenId)
-		onlyPositionOwner(_tokenId, msg.sender)
-	{
-		_GHOAmount = Math.min(_GHOAmount, lpPositionsManager.debtOf(_tokenId));
-		if (_GHOAmount <= 0) {
-			revert Errors.AmountShouldBePositive();
-		}
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // LP Positions Operations
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-		activePool.repayInterestFromUserToProtocol(msg.sender, _GHOAmount, _tokenId);
-		emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
-	}
+    // TODO : add verification of amount0 and amount1 regarding LP specifications
+    // current implementation does not work
+    /**
+     * @notice Add collateral to a position.
+     * @param tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param amountAdd0 The amount of token0 to add.
+     * @param amountAdd1 The amount of token1 to add.
+     * @return liquidity The amount of liquidity added.
+     * @return amount0 The amount of token0 added.
+     * @return amount1 The amount of token1 added.
+     */
+    function addCollateral(uint256 tokenId, uint256 amountAdd0, uint256 amountAdd1)
+        external
+        override
+        nonReentrant
+        onlyActivePosition(tokenId)
+        onlyPositionOwner(tokenId, msg.sender)
+        returns (uint128 liquidity, uint256 amount0, uint256 amount1)
+    {
+        if (amountAdd0 <= 0 || amountAdd1 <= 0) {
+            revert Errors.AmountShouldBePositive();
+        }
 
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	// LP Positions Operations
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+        (liquidity, amount0, amount1) = activePool.increaseLiquidity(msg.sender, tokenId, amountAdd0, amountAdd1);
 
-	// TODO : add verification of amount0 and amount1 regarding LP specifications
-	// current implementation does not work
-	/**
-	 * @notice Add collateral to a position.
-	 * @param tokenId The ID of the Uniswap V3 NFT representing the position.
-	 * @param amountAdd0 The amount of token0 to add.
-	 * @param amountAdd1 The amount of token1 to add.
-	 * @return liquidity The amount of liquidity added.
-	 * @return amount0 The amount of token0 added.
-	 * @return amount1 The amount of token1 added.
-	 */
-	function addCollateral(
-		uint256 tokenId,
-		uint256 amountAdd0,
-		uint256 amountAdd1
-	)
-		external
-		override
-		nonReentrant
-		onlyActivePosition(tokenId)
-		onlyPositionOwner(tokenId, msg.sender)
-		returns (
-			uint128 liquidity,
-			uint256 amount0,
-			uint256 amount1
-		)
-	{
-		if (amountAdd0 <= 0 || amountAdd1 <= 0) {
-			revert Errors.AmountShouldBePositive();
-		}
+        lpPositionsManager.setNewLiquidity(tokenId, lpPositionsManager.getPosition(tokenId).liquidity + liquidity);
+        emit AddedCollateral(tokenId, liquidity, amount0, amount1);
+    }
 
-		(liquidity, amount0, amount1) = activePool.increaseLiquidity(msg.sender, tokenId, amountAdd0, amountAdd1);
+    /**
+     * @notice Remove collateral from a position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _liquidityToRemove The amount of liquidity to remove.
+     * @return amount0 The amount of token0 removed.
+     * @return amount1 The amount of token1 removed.
+     */
+    function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
+        external
+        nonReentrant
+        onlyActivePosition(_tokenId)
+        onlyPositionOwner(_tokenId, msg.sender)
+        returns (uint256 amount0, uint256 amount1)
+    {
+        LPPositionsManager.Position memory position = lpPositionsManager.getPosition(_tokenId);
 
-		lpPositionsManager.setNewLiquidity(tokenId, lpPositionsManager.getPosition(tokenId).liquidity + liquidity);
-		emit AddedCollateral(tokenId, liquidity, amount0, amount1);
-	}
+        if (_liquidityToRemove > position.liquidity) {
+            revert Errors.MustRemoveLessLiquidity(_liquidityToRemove, position.liquidity);
+        }
 
-	/**
-	 * @notice Remove collateral from a position.
-	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	 * @param _liquidityToRemove The amount of liquidity to remove.
-	 * @return amount0 The amount of token0 removed.
-	 * @return amount1 The amount of token1 removed.
-	 */
-	function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
-		external
-		nonReentrant
-		onlyActivePosition(_tokenId)
-		onlyPositionOwner(_tokenId, msg.sender)
-		returns (uint256 amount0, uint256 amount1)
-	{
-		LPPositionsManager.Position memory position = lpPositionsManager.getPosition(_tokenId);
+        // Moved this here because it should be true **after** we account for the removal of liquidity, otherwise, the transaction reverts
+        activePool.decreaseLiquidity(_tokenId, _liquidityToRemove, msg.sender);
 
-		if (_liquidityToRemove > position.liquidity) {
-			revert Errors.MustRemoveLessLiquidity(_liquidityToRemove, position.liquidity);
-		}
+        require(
+            !lpPositionsManager.liquidatable(_tokenId),
+            "Collateral Ratio cannot be lower than the minimum collateral ratio."
+        );
 
-		// Moved this here because it should be true **after** we account for the removal of liquidity, otherwise, the transaction reverts
-		activePool.decreaseLiquidity(_tokenId, _liquidityToRemove, msg.sender);
+        activePool.decreaseLiquidity(_tokenId, _liquidityToRemove, msg.sender);
 
-		require(
-			!lpPositionsManager.liquidatable(_tokenId),
-			"Collateral Ratio cannot be lower than the minimum collateral ratio."
-		);
+        require(
+            !lpPositionsManager.liquidatable(_tokenId),
+            "Collateral Ratio cannot be lower than the minimum collateral ratio."
+        );
 
-		activePool.decreaseLiquidity(_tokenId, _liquidityToRemove, msg.sender);
+        emit RemovedCollateral(_tokenId, _liquidityToRemove, amount0, amount1);
 
-		require(
-			!lpPositionsManager.liquidatable(_tokenId),
-			"Collateral Ratio cannot be lower than the minimum collateral ratio."
-		);
+        return (amount0, amount1);
+    }
 
-		emit RemovedCollateral(_tokenId, _liquidityToRemove, amount0, amount1);
+    // /**
+    //  * @notice Change the tick range of a position.
+    //  * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+    //  * @param _newMinTick The new minimum tick.
+    //  * @param _newMaxTick The new maximum tick.
+    //  * @return _newTokenId The ID of the new Uniswap V3 NFT representing the position.
+    //  */
+    // function changeTick(
+    //     uint256 _tokenId,
+    //     int24 _newMinTick,
+    //     int24 _newMaxTick
+    // )
+    //     public
+    //     payable
+    //     onlyPositionOwner(_tokenId, msg.sender)
+    //     onlyActivePosition(_tokenId)
+    //     onlyPositionOwner(_tokenId, msg.sender)
+    //     returns (uint256 _newTokenId)
+    // {
+    //     _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
+    // }
 
-		return (amount0, amount1);
-	}
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // Modifiers and Require functions
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	// /**
-	//  * @notice Change the tick range of a position.
-	//  * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	//  * @param _newMinTick The new minimum tick.
-	//  * @param _newMaxTick The new maximum tick.
-	//  * @return _newTokenId The ID of the new Uniswap V3 NFT representing the position.
-	//  */
-	// function changeTick(
-	//     uint256 _tokenId,
-	//     int24 _newMinTick,
-	//     int24 _newMaxTick
-	// )
-	//     public
-	//     payable
-	//     onlyPositionOwner(_tokenId, msg.sender)
-	//     onlyActivePosition(_tokenId)
-	//     onlyPositionOwner(_tokenId, msg.sender)
-	//     returns (uint256 _newTokenId)
-	// {
-	//     _newTokenId = lpPositionsManager._changeTicks(_tokenId, _newMinTick, _newMaxTick);
-	// }
+    /**
+     * @notice Check if the position is active.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     */
+    modifier onlyActivePosition(uint256 _tokenId) {
+        if (!(lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active)) {
+            revert Errors.PositionIsNotActiveOrIsClosed(_tokenId);
+        }
+        _;
+    }
 
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	// Modifiers and Require functions
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    modifier positionNotInitiated(uint256 _tokenId) {
+        if ((lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active)) {
+            revert Errors.PositionIsAlreadyActive(_tokenId);
+        }
+        _;
+    }
 
-	/**
-	 * @notice Check if the position is active.
-	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	 */
-	modifier onlyActivePosition(uint256 _tokenId) {
-		if (!(lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active)) {
-			revert Errors.PositionIsNotActiveOrIsClosed(_tokenId);
-		}
-		_;
-	}
+    /**
+     * @notice Check if the user is the owner of the position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @param _user The address of the user.
+     */
+    modifier onlyPositionOwner(uint256 _tokenId, address _user) {
+        if (!(lpPositionsManager.getPosition(_tokenId).user == _user)) {
+            revert Errors.NotOwnerOfPosition(_tokenId);
+        }
+        _;
+    }
 
-	modifier positionNotInitiated(uint256 _tokenId) {
-		if ((lpPositionsManager.getPosition(_tokenId).status == ILPPositionsManager.Status.active)) {
-			revert Errors.PositionIsAlreadyActive(_tokenId);
-		}
-		_;
-	}
-
-	/**
-	 * @notice Check if the user is the owner of the position.
-	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
-	 * @param _user The address of the user.
-	 */
-	modifier onlyPositionOwner(uint256 _tokenId, address _user) {
-		if (!(lpPositionsManager.getPosition(_tokenId).user == _user)) {
-			revert Errors.NotOwnerOfPosition(_tokenId);
-		}
-		_;
-	}
-
-	// modifier notOwnerOfTokenId(uint256 _tokenId, address _user) {
-	//     if (ERC721.ownerOf(_tokenId) != _user) {
-	//         revert Errors.NotOwnerOfTokenId();
-	//     }
-	// }
+    // modifier notOwnerOfTokenId(uint256 _tokenId, address _user) {
+    //     if (ERC721.ownerOf(_tokenId) != _user) {
+    //         revert Errors.NotOwnerOfTokenId();
+    //     }
+    // }
 }
