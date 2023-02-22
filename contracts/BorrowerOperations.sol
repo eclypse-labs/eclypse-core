@@ -154,6 +154,7 @@ contract BorrowerOperations is Ownable, CheckContract, IBorrowerOperations, Reen
         if (_GHOAmount <= 0) {
             revert Errors.AmountShouldBePositive();
         }
+		// TODO: change the amount activepool pays back to the user /!\
         lpPositionsManager.decreaseDebtOf(_tokenId, _GHOAmount);
         activePool.repayDebtFromUserToProtocol(msg.sender, _GHOAmount, _tokenId);
         emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
