@@ -156,3 +156,4 @@ out/test.sol/DSTest.json
 out/test.sol/Test.json
 out/test.sol/TestBase.json
 .prettierrc
+cache/solidity-files-cache.json
