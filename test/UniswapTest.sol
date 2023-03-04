@@ -103,11 +103,11 @@ abstract contract UniswapTest is Test {
 		uint256 _minCR = Math.mulDiv(15, FixedPoint96.Q96, 10);
 		eclypse.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
 
-        IEclypse.ProtocolValues memory protocolValues;
+		// protocol values are initialized here
+		IEclypse.ProtocolValues memory protocolValues;
 		protocolValues.interestRate = 79228162564014647528974148095;
 		protocolValues.totalBorrowedGho = 0;
 		protocolValues.interestFactor = 1 << 96;
-        console.log("protocolValues.interestFactor in setupTest: %s", protocolValues.interestFactor); //79_228_162_514_264_337_593_543_950_336
 		protocolValues.lastFactorUpdate = 0;
 		protocolValues.twapLength = 60;
 		eclypse.setProtocolValues(protocolValues);
@@ -116,7 +116,7 @@ abstract contract UniswapTest is Test {
 		createEthGhoPool();
 		addFacticeUser();
 
-        vm.label(address(wethAddr), "WETH");
+		vm.label(address(wethAddr), "WETH");
 		vm.label(address(usdcAddr), "USDC");
 		vm.label(address(uniPoolUsdcETHAddr), "USDC/ETH pool");
 		vm.label(address(ghoToken), "GHO");
