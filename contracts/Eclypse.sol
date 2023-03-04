@@ -29,7 +29,7 @@ import "gho-core/src/contracts/gho/GHOToken.sol";
  * @dev The contract is owned by the Eclypse system, and is called by the BorrowerOperations and ActivePool contracts.
  */
 
-contract Eclypse is IEclypse, Ownable {
+contract Eclypse is IEclypse, Ownable,Test {
 	uint256 constant MAX_UINT256 = 2**256 - 1;
 
 	ProtocolValues public protocolValues;
@@ -213,6 +213,7 @@ contract Eclypse is IEclypse, Ownable {
 		currentDebt = FullMath.mulDivRoundingUp(debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant);
 		uint256 newInterestFactor = lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
 		currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor,FixedPoint96.Q96);
+
 	}
 
 	/**
@@ -249,7 +250,7 @@ contract Eclypse is IEclypse, Ownable {
 
 		positionFromTokenId[_tokenId].interestConstant = FullMath.mulDivRoundingUp(
 			currentDebt + _amount,
-			FixedPoint96.Q96 * FixedPoint96.Q96 / 2**40 ,
+			FixedPoint96.Q96 * FixedPoint96.Q96 ,
 			protocolValues.interestFactor
 		);
 		positionFromTokenId[_tokenId].debtPrincipal += _amount;
