@@ -13,6 +13,14 @@ interface IEclypse {
         closedByLiquidation
     }
 
+    struct ProtocolValues {
+        uint256 interestRate;
+        uint256 totalBorrowedGho;
+        uint256 interestFactor;
+        uint256 lastFactorUpdate;
+        uint32 twapLength;
+    }
+
     //The structure of a position.
     struct Position {
         address user;
