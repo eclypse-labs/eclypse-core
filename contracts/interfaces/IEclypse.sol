@@ -82,8 +82,8 @@ interface IEclypse {
 
     function debtOf(uint256 _tokenId) external view returns (uint256 currentDebt);
     function totalDebtOf(address _user) external view returns (uint256 totalDebtInGHO);
-    function increaseDebtOf(uint256 _tokenId, uint256 _amount) external;
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount) external;
+    function increaseDebtOf(address sender, uint256 _tokenId, uint256 _amount) external;
+    function decreaseDebtOf(address sender, uint256 _tokenId, uint256 _amount) external;
 
     function priceInETH(address _tokenAddress) external view returns (uint256 priceX96);
     function debtOfInETH(uint256 _tokenId) external view returns (uint256);
@@ -102,8 +102,8 @@ interface IEclypse {
     function decreaseLiquidity(uint256 _tokenId, uint128 _liquidityToRemove, address sender)
         external
         returns (uint256 amount0, uint256 amount1);
-    function increaseMintedSupply(uint256 _amount, address sender, uint256 tokenId) external;
-    function decreaseMintedSupply(uint256 _amount, address sender) external;
-    function repayDebtFromUserToProtocol(address sender, uint256 amount, uint256 tokenId) external;
+    //function increaseMintedSupply(uint256 _amount, address sender, uint256 tokenId) external;
+    //function decreaseMintedSupply(uint256 _amount, address sender) external;
+    //function repayDebtFromUserToProtocol(address sender, uint256 amount, uint256 tokenId) external;
     function sendPosition(address _account, uint256 _tokenId) external;
 }

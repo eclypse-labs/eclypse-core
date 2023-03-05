@@ -284,6 +284,7 @@ contract BorrowerOperationsTest is UniswapTest {
     function testBorrowGHO_repayMultipleTimesNotExactAmounts() public {
         vm.startPrank(address(facticeUser1));
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
+        console.log("Debt after first borrow: %s", eclypse.debtOf(facticeUser1_tokenId));
         assertEq(eclypse.debtOf(facticeUser1_tokenId), 10 * TOKEN18, "Debt should be 10 GHO.");
         assertEq(eclypse.getProtocolValues().totalBorrowedGho, 10 * TOKEN18, "GHO debt should be 10 GHO.");
         borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);

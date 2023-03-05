@@ -215,23 +215,23 @@ contract Eclypse is IEclypse, Ownable, Test {
      */
     function debtOf(uint256 _tokenId) public view override returns (uint256 currentDebt) {
         uint256 debtPrincipal = getPosition(_tokenId).debtPrincipal;
-        console.log("debtPrincipal: %s", debtPrincipal);
+        /*console.log("debtPrincipal: %s", debtPrincipal);
         console.log(
             "interestFactor: %s ; interestConstant: %s",
             protocolValues.interestFactor,
             getPosition(_tokenId).interestConstant
-        );
+        );*/
         currentDebt = FullMath.mulDivRoundingUp(
             debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
         );
-        console.log("currentDebt: %s", currentDebt);
+        //console.log("currentDebt: %s", currentDebt);
         uint256 newInterestFactor =
             lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
-        console.log(
+        /*console.log(
             "newInterestFactor: %s; delta: %s", newInterestFactor, block.timestamp - protocolValues.lastFactorUpdate
-        );
+        );*/
         currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
-        console.log("last currentDebt: %s", currentDebt);
+        //console.log("last currentDebt: %s", currentDebt);
     }
 
     /**
@@ -255,7 +255,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _tokenId The ID of the position to increase the debt of.
      * @param _amount The amount to increase the debt of the position by.
      */
-    function increaseDebtOf(uint256 _tokenId, uint256 _amount)
+    function increaseDebtOf(address sender, uint256 _tokenId, uint256 _amount)
         public
         override
         onlyBorrowerOperations
@@ -270,7 +270,10 @@ contract Eclypse is IEclypse, Ownable, Test {
         uint256 newInterestFactor =
             lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
         currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
+        
+        GHO.mint(sender, _amount);
         protocolValues.totalBorrowedGho += _amount;
+
         protocolValues.interestFactor =
             FullMath.mulDivRoundingUp(protocolValues.interestFactor, newInterestFactor, FixedPoint96.Q96);
         protocolValues.lastFactorUpdate = block.timestamp;
@@ -289,7 +292,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _tokenId The ID of the position to decrease the debt of.
      * @param _amount The amount to decrease the debt of the position by.
      */
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
+    function decreaseDebtOf(address sender, uint256 _tokenId, uint256 _amount)
         public
         override
         onlyBorrowerOperations
@@ -323,7 +326,11 @@ contract Eclypse is IEclypse, Ownable, Test {
         }
 
         currentDebt = debtPrincipal + accumulatedInterest;
-        protocolValues.totalBorrowedGho -= _amount;
+
+        uint totalAmountChange = Math.min(_amount, protocolValues.totalBorrowedGho);
+        GHO.transferFrom(sender, address(this), totalAmountChange);
+        GHO.burn(totalAmountChange);
+        protocolValues.totalBorrowedGho -= totalAmountChange;
 
         positionFromTokenId[_tokenId].interestConstant = currentDebt - _amount > 0 ? FullMath.mulDivRoundingUp(
             protocolValues.interestFactor, debtPrincipal - _amount, currentDebt - _amount
@@ -415,9 +422,9 @@ contract Eclypse is IEclypse, Ownable, Test {
             + FullMath.mulDiv(fee1, priceInETH(positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
         uint256 debt = debtOfInETH(_tokenId);
         uint256 collValue = positionValueInETH(_tokenId) + fees;
-        console.log("debt: ", debt);
+        /*console.log("debt: ", debt);
         console.log("collValue: ", collValue);
-        console.log("CR: ", debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256);
+        console.log("CR: ", debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256);*/
         return debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256;
     }
 
@@ -631,7 +638,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _amount The amount of minted supply to be added to the protocol.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function increaseMintedSupply(uint256 _amount, address sender, uint256 tokenId)
+    /*function increaseMintedSupply(uint256 _amount, address sender, uint256 tokenId)
         external
         override
         onlyBorrowerOperations
@@ -640,21 +647,21 @@ contract Eclypse is IEclypse, Ownable, Test {
         protocolValues.totalBorrowedGho += _amount;
 
         emit MintedSupplyUpdated(protocolValues.totalBorrowedGho);
-    }
+    }*/
 
     /**
      * @notice Decreases the protocol debt.
      * @param _amount The amount of minted supply to be removed from the protocol.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function decreaseMintedSupply(uint256 _amount, address sender) external override onlyBorrowerOperations {
+    /*function decreaseMintedSupply(uint256 _amount, address sender) external override onlyBorrowerOperations {
         _amount = Math.min(_amount, protocolValues.totalBorrowedGho);
         GHO.transferFrom(sender, address(this), _amount);
         GHO.burn(_amount);
         protocolValues.totalBorrowedGho -= _amount;
 
         emit MintedSupplyUpdated(protocolValues.totalBorrowedGho);
-    }
+    }*/
 
     /**
      * @notice Repays the interest of a user.
@@ -662,7 +669,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param amount The amount of interest to be repaid.
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
-    function repayDebtFromUserToProtocol(address sender, uint256 amount, uint256 tokenId)
+    /*function repayDebtFromUserToProtocol(address sender, uint256 amount, uint256 tokenId)
         external
         override
         onlyBorrowerOperations
@@ -670,12 +677,12 @@ contract Eclypse is IEclypse, Ownable, Test {
         require(amount > 0, "ActivePool: Amount must be greater than 0");
 
         amount = Math.min(debtOf(tokenId), amount);
-        console.log("ActivePool: Repaying %s GHO to the protocol", amount);
+        //console.log("ActivePool: Repaying %s GHO to the protocol", amount);
         GHO.transferFrom(sender, address(this), amount);
         GHO.burn(amount);
 
         emit InterestRepaid(sender, amount);
-    }
+    }*/
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Assets transfer

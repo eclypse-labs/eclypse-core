@@ -117,11 +117,12 @@ contract BorrowerOperations is Ownable, CheckContract, IBorrowerOperations, Reen
     revert Errors.SupplyNotAvailable();
     }*/
 
-		eclypse.increaseDebtOf(_tokenId, _GHOAmount);
+		eclypse.increaseDebtOf(msg.sender, _tokenId, _GHOAmount);
 		if (eclypse.liquidatable(_tokenId)) {
 			revert Errors.PositionILiquidatable();
 		}
-		eclypse.increaseMintedSupply(_GHOAmount, msg.sender, _tokenId);
+		//already done by increaseDebtOf
+		//eclypse.increaseMintedSupply(_GHOAmount, msg.sender, _tokenId);
 
 		emit WithdrawnGHO(msg.sender, _GHOAmount, _tokenId);
 	}
@@ -143,8 +144,8 @@ contract BorrowerOperations is Ownable, CheckContract, IBorrowerOperations, Reen
 			revert Errors.AmountShouldBePositive();
 		}
 		// TODO: change the amount activepool pays back to the user /!\
-		eclypse.repayDebtFromUserToProtocol(msg.sender, _GHOAmount, _tokenId);
-		eclypse.decreaseDebtOf(_tokenId, _GHOAmount);
+		//eclypse.repayDebtFromUserToProtocol(msg.sender, _GHOAmount, _tokenId);
+		eclypse.decreaseDebtOf(msg.sender, _tokenId, _GHOAmount);
 		emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
 	}
 
