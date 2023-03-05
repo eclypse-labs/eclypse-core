@@ -90,7 +90,7 @@ interface IEclypse {
     function positionValueInETH(uint256 _tokenId) external view returns (uint256 value);
     function totalPositionsValueInETH(address _user) external view returns (uint256 totalValue);
 
-    function computeCR(uint256 _tokenId) external returns (uint256);
+    function collRatioOf(uint256 _tokenId) external returns (uint256);
     function getRiskConstants(address _pool) external view returns (uint256 riskConstants);
     function updateRiskConstants(address _pool, uint256 _riskConstants) external;
 
@@ -102,8 +102,5 @@ interface IEclypse {
     function decreaseLiquidity(uint256 _tokenId, uint128 _liquidityToRemove, address sender)
         external
         returns (uint256 amount0, uint256 amount1);
-    //function increaseMintedSupply(uint256 _amount, address sender, uint256 tokenId) external;
-    //function decreaseMintedSupply(uint256 _amount, address sender) external;
-    //function repayDebtFromUserToProtocol(address sender, uint256 amount, uint256 tokenId) external;
     function sendPosition(address _account, uint256 _tokenId) external;
 }

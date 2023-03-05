@@ -215,23 +215,12 @@ contract Eclypse is IEclypse, Ownable, Test {
      */
     function debtOf(uint256 _tokenId) public view override returns (uint256 currentDebt) {
         uint256 debtPrincipal = getPosition(_tokenId).debtPrincipal;
-        /*console.log("debtPrincipal: %s", debtPrincipal);
-        console.log(
-            "interestFactor: %s ; interestConstant: %s",
-            protocolValues.interestFactor,
-            getPosition(_tokenId).interestConstant
-        );*/
         currentDebt = FullMath.mulDivRoundingUp(
             debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
         );
-        //console.log("currentDebt: %s", currentDebt);
         uint256 newInterestFactor =
             lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
-        /*console.log(
-            "newInterestFactor: %s; delta: %s", newInterestFactor, block.timestamp - protocolValues.lastFactorUpdate
-        );*/
         currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
-        //console.log("last currentDebt: %s", currentDebt);
     }
 
     /**
@@ -270,7 +259,7 @@ contract Eclypse is IEclypse, Ownable, Test {
         uint256 newInterestFactor =
             lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
         currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
-        
+
         GHO.mint(sender, _amount);
         protocolValues.totalBorrowedGho += _amount;
 
@@ -278,9 +267,8 @@ contract Eclypse is IEclypse, Ownable, Test {
             FullMath.mulDivRoundingUp(protocolValues.interestFactor, newInterestFactor, FixedPoint96.Q96);
         protocolValues.lastFactorUpdate = block.timestamp;
 
-        positionFromTokenId[_tokenId].interestConstant = FullMath.mulDivRoundingUp(
-            protocolValues.interestFactor, debtPrincipal + _amount, currentDebt + _amount
-        );
+        positionFromTokenId[_tokenId].interestConstant =
+            FullMath.mulDivRoundingUp(protocolValues.interestFactor, debtPrincipal + _amount, currentDebt + _amount);
         positionFromTokenId[_tokenId].debtPrincipal += _amount;
 
         emit IncreasedDebt(positionFromTokenId[_tokenId].user, _tokenId, currentDebt, currentDebt + _amount);
@@ -327,14 +315,14 @@ contract Eclypse is IEclypse, Ownable, Test {
 
         currentDebt = debtPrincipal + accumulatedInterest;
 
-        uint totalAmountChange = Math.min(_amount, protocolValues.totalBorrowedGho);
+        uint256 totalAmountChange = Math.min(_amount, protocolValues.totalBorrowedGho);
         GHO.transferFrom(sender, address(this), totalAmountChange);
         GHO.burn(totalAmountChange);
         protocolValues.totalBorrowedGho -= totalAmountChange;
 
-        positionFromTokenId[_tokenId].interestConstant = currentDebt - _amount > 0 ? FullMath.mulDivRoundingUp(
-            protocolValues.interestFactor, debtPrincipal - _amount, currentDebt - _amount
-        ) : protocolValues.interestFactor;
+        positionFromTokenId[_tokenId].interestConstant = currentDebt - _amount > 0
+            ? FullMath.mulDivRoundingUp(protocolValues.interestFactor, debtPrincipal - _amount, currentDebt - _amount)
+            : protocolValues.interestFactor;
 
         positionFromTokenId[_tokenId].debtPrincipal -= _amount;
 
@@ -413,7 +401,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _tokenId The ID of the position to get the collateral ratio of.
      * @return collRatio The collateral ratio of the position.
      */
-    function computeCR(uint256 _tokenId) public view returns (uint256) {
+    function collRatioOf(uint256 _tokenId) public view returns (uint256) {
         /*(uint256 fee0, uint256 fee1) = activePool.feesOwed(
             INonfungiblePositionManager.CollectParams(_tokenId, address(this), type(uint128).max, type(uint128).max)
         );*/
@@ -422,22 +410,9 @@ contract Eclypse is IEclypse, Ownable, Test {
             + FullMath.mulDiv(fee1, priceInETH(positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
         uint256 debt = debtOfInETH(_tokenId);
         uint256 collValue = positionValueInETH(_tokenId) + fees;
-        /*console.log("debt: ", debt);
-        console.log("collValue: ", collValue);
-        console.log("CR: ", debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256);*/
         return debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256;
     }
 
-    // function computeCR(uint256 _tokenId) public returns (uint256) {
-    // 	(uint256 fee0, uint256 fee1) = activePool.feesOwed(
-    // 		INonfungiblePositionManager.CollectParams(_tokenId, address(this), type(uint128).max, type(uint128).max)
-    // 	);
-    // 	uint256 fees = FullMath.mulDiv(fee0, priceInETH(_positionFromTokenId[_tokenId].token0), FixedPoint96.Q96) +
-    // 		FullMath.mulDiv(fee1, priceInETH(_positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
-    // 	uint256 debt = debtOfInETH(_tokenId);
-    // 	uint256 collValue = positionValueInETH(_tokenId) + fees;
-    // 	return debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256;
-    // }
 
     /**
      * @notice Returns the risk constants of a pool.
@@ -490,7 +465,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      */
     function liquidatable(uint256 _tokenId) public view returns (bool) {
         Position memory position = positionFromTokenId[_tokenId];
-        return computeCR(_tokenId) < riskConstantsFromPool[position.poolAddress].minCR;
+        return collRatioOf(_tokenId) < riskConstantsFromPool[position.poolAddress].minCR;
     }
 
     /**
@@ -505,12 +480,11 @@ contract Eclypse is IEclypse, Ownable, Test {
         uint256 debt = debtOf(_tokenId);
         require(_GHOToRepay >= debt, "The amount of GHO to repay is not enough to reimburse the debt of the position.");
 
-        
-        // Burn GHO 
+        // Burn GHO
         GHO.transferFrom(msg.sender, address(this), debt);
         GHO.burn(debt);
         protocolValues.totalBorrowedGho -= positionFromTokenId[_tokenId].debtPrincipal;
-        
+
         uniswapPositionsNFT.transferFrom(address(this), msg.sender, _tokenId);
         emit PositionSent(msg.sender, _tokenId);
 
@@ -644,61 +618,6 @@ contract Eclypse is IEclypse, Ownable, Test {
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    // Protocol Debt
-    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-    /**
-     * @notice Increases the protocol debt.
-     * @param _amount The amount of minted supply to be added to the protocol.
-     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
-     */
-    /*function increaseMintedSupply(uint256 _amount, address sender, uint256 tokenId)
-        external
-        override
-        onlyBorrowerOperations
-    {
-        GHO.mint(sender, _amount);
-        protocolValues.totalBorrowedGho += _amount;
-
-        emit MintedSupplyUpdated(protocolValues.totalBorrowedGho);
-    }*/
-
-    /**
-     * @notice Decreases the protocol debt.
-     * @param _amount The amount of minted supply to be removed from the protocol.
-     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
-     */
-    /*function decreaseMintedSupply(uint256 _amount, address sender) external override onlyBorrowerOperations {
-        _amount = Math.min(_amount, protocolValues.totalBorrowedGho);
-        GHO.transferFrom(sender, address(this), _amount);
-        GHO.burn(_amount);
-        protocolValues.totalBorrowedGho -= _amount;
-
-        emit MintedSupplyUpdated(protocolValues.totalBorrowedGho);
-    }*/
-
-    /**
-     * @notice Repays the interest of a user.
-     * @param sender The address of the user that will repay the interest.
-     * @param amount The amount of interest to be repaid.
-     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
-     */
-    /*function repayDebtFromUserToProtocol(address sender, uint256 amount, uint256 tokenId)
-        external
-        override
-        onlyBorrowerOperations
-    {
-        require(amount > 0, "ActivePool: Amount must be greater than 0");
-
-        amount = Math.min(debtOf(tokenId), amount);
-        //console.log("ActivePool: Repaying %s GHO to the protocol", amount);
-        GHO.transferFrom(sender, address(this), amount);
-        GHO.burn(amount);
-
-        emit InterestRepaid(sender, amount);
-    }*/
-
-    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Assets transfer
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -710,7 +629,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      */
     function sendPosition(address _account, uint256 _tokenId) public override onlyBorrowerOperations {
         //uniswapPositionsNFT.approve(to, tokenId);
-        
+
         uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
         emit PositionSent(_account, _tokenId);
     }

@@ -22,19 +22,15 @@ interface IBorrowerOperations {
     // --- Functions ---
 
     function setAddresses(address _eclypse, address _GhoAddress) external;
-
     function openPosition(uint256 _tokenId) external;
-
     function closePosition(uint256 _tokenId) external;
 
     function borrowGHO(uint256 _GHOAmount, uint256 _tokenId) external payable;
-
     function repayGHO(uint256 _GHOAmount, uint256 _tokenId) external;
 
     function addCollateral(uint256 _tokenId, uint256 _amountAdd0, uint256 _amountAdd1)
         external
         returns (uint128 liquidity, uint256 amount0, uint256 amount1);
-
     function removeCollateral(uint256 _tokenId, uint128 _liquidityToRemove)
         external
         returns (uint256 amount0, uint256 amount1);

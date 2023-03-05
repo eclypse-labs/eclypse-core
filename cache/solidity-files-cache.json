@@ -221,8 +221,8 @@
       }
     },
     "contracts/Eclypse.sol": {
-      "lastModificationDate": 1678050087296,
-      "contentHash": "73249437a1499376f85f5131c1d616db",
+      "lastModificationDate": 1678050581904,
+      "contentHash": "05d0cc2d98975acce5fd1ad71f33da6a",
       "sourceName": "contracts/Eclypse.sol",
       "solcConfig": {
         "settings": {
@@ -511,8 +511,8 @@
       }
     },
     "contracts/interfaces/IEclypse.sol": {
-      "lastModificationDate": 1678048659125,
-      "contentHash": "b78caa959115e50738b41a02fa460ac0",
+      "lastModificationDate": 1678050475330,
+      "contentHash": "5cebf5f587d8b1e7e5bbdf117188a2b8",
       "sourceName": "contracts/interfaces/IEclypse.sol",
       "solcConfig": {
         "settings": {
@@ -3592,8 +3592,8 @@
       }
     },
     "test/EclypseTest.t.sol": {
-      "lastModificationDate": 1678049565263,
-      "contentHash": "961ea47cfdeae295f5fa9235992ab10e",
+      "lastModificationDate": 1678050513207,
+      "contentHash": "2cdc0bc8dc20da091331a9b62756dbd2",
       "sourceName": "test/EclypseTest.t.sol",
       "solcConfig": {
         "settings": {
