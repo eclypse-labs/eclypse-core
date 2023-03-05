@@ -94,8 +94,9 @@ contract BorrowerOperationsTest is UniswapTest {
 
         uint128 initialLiquidity = eclypse.getPosition(facticeUser1_tokenId).liquidity;
 
-        vm.expectRevert(Errors.MustRemoveLessLiquidity.selector);
-        borrowerOperation.removeCollateral(facticeUser1_tokenId, initialLiquidity + 1_000_000_000_000);
+        uint128 liquidityToRemove = initialLiquidity + 1_000_000_000_000;
+        vm.expectRevert(abi.encodeWithSelector(Errors.MustRemoveLessLiquidity.selector, liquidityToRemove, initialLiquidity));
+        borrowerOperation.removeCollateral(facticeUser1_tokenId, liquidityToRemove);
         vm.stopPrank();
     }
 
