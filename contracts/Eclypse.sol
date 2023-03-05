@@ -488,7 +488,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _tokenId The ID of the position to check.
      * @return isLiquidatable, true if the position is liquidatable and false otherwise.
      */
-    function liquidatable(uint256 _tokenId) public returns (bool) {
+    function liquidatable(uint256 _tokenId) public view returns (bool) {
         Position memory position = positionFromTokenId[_tokenId];
         return computeCR(_tokenId) < riskConstantsFromPool[position.poolAddress].minCR;
     }
@@ -501,6 +501,20 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @return hasBeenLiquidated, true if the position has been liquidated and false otherwise.
      */
     function liquidatePosition(uint256 _tokenId, uint256 _GHOToRepay) public returns (bool) {
+        require(liquidatable(_tokenId), "The position is not liquidatable.");
+        uint256 debt = debtOf(_tokenId);
+        require(_GHOToRepay >= debt, "The amount of GHO to repay is not enough to reimburse the debt of the position.");
+
+        
+        // Burn GHO 
+        GHO.transferFrom(msg.sender, address(this), debt);
+        GHO.burn(debt);
+        protocolValues.totalBorrowedGho -= positionFromTokenId[_tokenId].debtPrincipal;
+        
+        uniswapPositionsNFT.transferFrom(address(this), msg.sender, _tokenId);
+        emit PositionSent(msg.sender, _tokenId);
+
+        positionFromTokenId[_tokenId].status = Status.closedByLiquidation;
         return true;
     }
 
@@ -695,6 +709,8 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
      */
     function sendPosition(address _account, uint256 _tokenId) public override onlyBorrowerOperations {
+        //uniswapPositionsNFT.approve(to, tokenId);
+        
         uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
         emit PositionSent(_account, _tokenId);
     }

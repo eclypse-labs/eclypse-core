@@ -207,6 +207,7 @@ contract EclypseTest is UniswapTest {
 
 		uint256 amountToRepay = eclypse.totalDebtOf(facticeUser1);
 		assertGe(ghoToken.balanceOf(address(facticeUser2)), amountToRepay);
+		ghoToken.approve(address(eclypse), amountToRepay);
 		eclypse.liquidatePosition(facticeUser1_tokenId, amountToRepay);
 		vm.stopPrank();
 
