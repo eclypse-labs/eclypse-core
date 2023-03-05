@@ -108,7 +108,7 @@ abstract contract UniswapTest is Test {
 		protocolValues.interestRate = 79228162564014647528974148095;
 		protocolValues.totalBorrowedGho = 0;
 		protocolValues.interestFactor = 1 << 96;
-		protocolValues.lastFactorUpdate = 0;
+		protocolValues.lastFactorUpdate = block.timestamp;
 		protocolValues.twapLength = 60;
 		eclypse.setProtocolValues(protocolValues);
 
@@ -240,7 +240,7 @@ abstract contract UniswapTest is Test {
 		}
 		uniswapPositionsNFT.mint{ value: 1000 ether }(mintParams);
 
-		eclypse.addPairToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, true);
+		eclypse.addPairToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), true, true);
 
 		ghoToken.approve(swapRouterAddr, 25 * 2 * TOKEN18);
 

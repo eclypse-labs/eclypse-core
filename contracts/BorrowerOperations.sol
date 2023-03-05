@@ -143,8 +143,8 @@ contract BorrowerOperations is Ownable, CheckContract, IBorrowerOperations, Reen
 			revert Errors.AmountShouldBePositive();
 		}
 		// TODO: change the amount activepool pays back to the user /!\
-		eclypse.decreaseDebtOf(_tokenId, _GHOAmount);
 		eclypse.repayDebtFromUserToProtocol(msg.sender, _GHOAmount, _tokenId);
+		eclypse.decreaseDebtOf(_tokenId, _GHOAmount);
 		emit RepaidGHO(msg.sender, _GHOAmount, _tokenId);
 	}
 

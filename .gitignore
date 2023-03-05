@@ -157,3 +157,10 @@ out/test.sol/Test.json
 out/test.sol/TestBase.json
 .prettierrc
 cache/solidity-files-cache.json
+cache/solidity-files-cache.json
+out/ActivePoolTest.t.sol/ActivePoolTest.t.json
+out/Complete.t.sol/Complete.t.json
+out/Eclypse.sol/Eclypse.json
+out/EclypseTest.t.sol/EclypseTest.json
+out/IEclypse.sol/IEclypse.json
+cache/solidity-files-cache.json

@@ -114,8 +114,8 @@
       }
     },
     "contracts/BorrowerOperations.sol": {
-      "lastModificationDate": 1677096661787,
-      "contentHash": "a2d776b19591b1140fb2e508a4a519fb",
+      "lastModificationDate": 1678046998580,
+      "contentHash": "b93985e80bf1ebb802937abc3fda4986",
       "sourceName": "contracts/BorrowerOperations.sol",
       "solcConfig": {
         "settings": {
@@ -146,9 +146,11 @@
         }
       },
       "imports": [
+        "contracts/Eclypse.sol",
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
+        "contracts/interfaces/IEclypse.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
         "contracts/utils/CheckContract.sol",
@@ -208,12 +210,112 @@
         "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
         "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
         "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
-        "lib/v3-periphery/contracts/libraries/PoolAddress.sol"
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol"
       ],
       "versionRequirement": "<0.9.0",
       "artifacts": {
         "BorrowerOperations": {
           "0.8.17+commit.8df45f5f.Windows.msvc": "BorrowerOperations.sol\\BorrowerOperations.json"
+        }
+      }
+    },
+    "contracts/Eclypse.sol": {
+      "lastModificationDate": 1678047259084,
+      "contentHash": "84b2916deb50a5bc2dada30fc99fa788",
+      "sourceName": "contracts/Eclypse.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/interfaces/IBorrowerOperations.sol",
+        "contracts/interfaces/IEclypse.sol",
+        "lib/forge-std/lib/ds-test/src\\test.sol",
+        "lib/forge-std/src/Common.sol",
+        "lib/forge-std/src/Components.sol",
+        "lib/forge-std/src/StdAssertions.sol",
+        "lib/forge-std/src/StdChains.sol",
+        "lib/forge-std/src/StdCheats.sol",
+        "lib/forge-std/src/StdError.sol",
+        "lib/forge-std/src/StdJson.sol",
+        "lib/forge-std/src/StdMath.sol",
+        "lib/forge-std/src/StdStorage.sol",
+        "lib/forge-std/src/StdUtils.sol",
+        "lib/forge-std/src\\Test.sol",
+        "lib/forge-std/src/Vm.sol",
+        "lib/forge-std/src\\console.sol",
+        "lib/forge-std/src/console2.sol",
+        "lib/gho-core/src/contracts/gho/ERC20.sol",
+        "lib/gho-core\\src/contracts/gho/GHOToken.sol",
+        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
+        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts\\contracts/utils/math/SafeMath.sol",
+        "lib/openzeppelin-contracts\\contracts/utils/structs/EnumerableSet.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
+        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
+        "lib/v3-core/contracts\\libraries/FullMath.sol",
+        "lib/v3-core/contracts\\libraries/TickMath.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
+        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol"
+      ],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "Eclypse": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "Eclypse.sol\\Eclypse.json"
         }
       }
     },
@@ -369,8 +471,8 @@
       }
     },
     "contracts/interfaces/IBorrowerOperations.sol": {
-      "lastModificationDate": 1677096481946,
-      "contentHash": "a6a87245a80ed1d850ca5631b1654e48",
+      "lastModificationDate": 1678043533198,
+      "contentHash": "4b57d11a7bd83f6f040290b38eb4d7eb",
       "sourceName": "contracts/interfaces/IBorrowerOperations.sol",
       "solcConfig": {
         "settings": {
@@ -405,6 +507,57 @@
       "artifacts": {
         "IBorrowerOperations": {
           "0.8.17+commit.8df45f5f.Windows.msvc": "IBorrowerOperations.sol\\IBorrowerOperations.json"
+        }
+      }
+    },
+    "contracts/interfaces/IEclypse.sol": {
+      "lastModificationDate": 1678043260963,
+      "contentHash": "7519437de5737e207bb1f53c4649109b",
+      "sourceName": "contracts/interfaces/IEclypse.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol"
+      ],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "IEclypse": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "IEclypse.sol\\IEclypse.json"
         }
       }
     },
@@ -3201,8 +3354,8 @@
       }
     },
     "test/ActivePoolTest.t.sol": {
-      "lastModificationDate": 1677096502319,
-      "contentHash": "f1a0f46321c9d016251c336810803f3d",
+      "lastModificationDate": 1678043260968,
+      "contentHash": "8946f8c050fb7fa46dd022957f1e9fc5",
       "sourceName": "test/ActivePoolTest.t.sol",
       "solcConfig": {
         "settings": {
@@ -3232,88 +3385,17 @@
           "libraries": {}
         }
       },
-      "imports": [
-        "contracts/ActivePool.sol",
-        "contracts/BorrowerOperations.sol",
-        "contracts/LPPositionsManager.sol",
-        "contracts/interfaces/IActivePool.sol",
-        "contracts/interfaces/IBorrowerOperations.sol",
-        "contracts/interfaces/ILPPositionsManager.sol",
-        "contracts/interfaces/IPool.sol",
-        "contracts/utils/CheckContract.sol",
-        "contracts/utils/Errors.sol",
-        "lib/forge-std/lib/ds-test/src\\test.sol",
-        "lib/forge-std/src/Common.sol",
-        "lib/forge-std/src/Components.sol",
-        "lib/forge-std/src/StdAssertions.sol",
-        "lib/forge-std/src/StdChains.sol",
-        "lib/forge-std/src/StdCheats.sol",
-        "lib/forge-std/src/StdError.sol",
-        "lib/forge-std/src/StdJson.sol",
-        "lib/forge-std/src/StdMath.sol",
-        "lib/forge-std/src/StdStorage.sol",
-        "lib/forge-std/src/StdUtils.sol",
-        "lib/forge-std/src\\Test.sol",
-        "lib/forge-std/src/Vm.sol",
-        "lib/forge-std/src\\console.sol",
-        "lib/forge-std/src/console2.sol",
-        "lib/gho-core/src/contracts/gho/ERC20.sol",
-        "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
-        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/math/SafeMath.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/structs/EnumerableSet.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
-        "lib/v3-core/contracts\\interfaces/callback/IUniswapV3SwapCallback.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
-        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
-        "lib/v3-core/contracts\\libraries/FullMath.sol",
-        "lib/v3-core/contracts\\libraries/TickMath.sol",
-        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
-        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
-        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
-        "lib/v3-periphery/contracts\\interfaces/IQuoterV2.sol",
-        "lib/v3-periphery/contracts\\interfaces/ISwapRouter.sol",
-        "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
-        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
-        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
-        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol",
-        "test\\UniswapTest.sol"
-      ],
-      "versionRequirement": "<0.9.0",
+      "imports": [],
+      "versionRequirement": null,
       "artifacts": {
-        "ActivePoolTest": {
-          "0.8.17+commit.8df45f5f.Windows.msvc": "ActivePoolTest.t.sol\\ActivePoolTest.json"
+        "ActivePoolTest.t": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "ActivePoolTest.t.sol\\ActivePoolTest.t.json"
         }
       }
     },
     "test/BorrowerOperations.t.sol": {
-      "lastModificationDate": 1677096487593,
-      "contentHash": "b0769da4f81f474d5efb65845d9434aa",
+      "lastModificationDate": 1678043260972,
+      "contentHash": "89754bc0197b8f06aa77b4ef10d249d6",
       "sourceName": "test/BorrowerOperations.t.sol",
       "solcConfig": {
         "settings": {
@@ -3346,9 +3428,11 @@
       "imports": [
         "contracts/ActivePool.sol",
         "contracts/BorrowerOperations.sol",
+        "contracts/Eclypse.sol",
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
+        "contracts/interfaces/IEclypse.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
         "contracts/utils/CheckContract.sol",
@@ -3423,8 +3507,8 @@
       }
     },
     "test/Complete.t.sol": {
-      "lastModificationDate": 1677096493928,
-      "contentHash": "dbc93b6b53e36da133b6cce22d6e6aa6",
+      "lastModificationDate": 1678043260976,
+      "contentHash": "8d826214f4f87c13657a2ded87665a9a",
       "sourceName": "test/Complete.t.sol",
       "solcConfig": {
         "settings": {
@@ -3454,80 +3538,11 @@
           "libraries": {}
         }
       },
-      "imports": [
-        "contracts/ActivePool.sol",
-        "contracts/BorrowerOperations.sol",
-        "contracts/LPPositionsManager.sol",
-        "contracts/interfaces/IActivePool.sol",
-        "contracts/interfaces/IBorrowerOperations.sol",
-        "contracts/interfaces/ILPPositionsManager.sol",
-        "contracts/interfaces/IPool.sol",
-        "contracts/utils/CheckContract.sol",
-        "contracts/utils/Errors.sol",
-        "lib/forge-std/lib/ds-test/src\\test.sol",
-        "lib/forge-std/src/Common.sol",
-        "lib/forge-std/src/Components.sol",
-        "lib/forge-std/src/StdAssertions.sol",
-        "lib/forge-std/src/StdChains.sol",
-        "lib/forge-std/src/StdCheats.sol",
-        "lib/forge-std/src/StdError.sol",
-        "lib/forge-std/src/StdJson.sol",
-        "lib/forge-std/src/StdMath.sol",
-        "lib/forge-std/src/StdStorage.sol",
-        "lib/forge-std/src/StdUtils.sol",
-        "lib/forge-std/src\\Test.sol",
-        "lib/forge-std/src/Vm.sol",
-        "lib/forge-std/src\\console.sol",
-        "lib/forge-std/src/console2.sol",
-        "lib/gho-core/src/contracts/gho/ERC20.sol",
-        "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
-        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/math/SafeMath.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/structs/EnumerableSet.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
-        "lib/v3-core/contracts\\interfaces/callback/IUniswapV3SwapCallback.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
-        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
-        "lib/v3-core/contracts\\libraries/FullMath.sol",
-        "lib/v3-core/contracts\\libraries/TickMath.sol",
-        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
-        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
-        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
-        "lib/v3-periphery/contracts\\interfaces/ISwapRouter.sol",
-        "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
-        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
-        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
-        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol"
-      ],
-      "versionRequirement": "^0.8.14",
+      "imports": [],
+      "versionRequirement": null,
       "artifacts": {
-        "CompleteTest": {
-          "0.8.17+commit.8df45f5f.Windows.msvc": "Complete.t.sol\\CompleteTest.json"
+        "Complete.t": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "Complete.t.sol\\Complete.t.json"
         }
       }
     },
@@ -3576,10 +3591,10 @@
         }
       }
     },
-    "test/LPPositionsManager.t.sol": {
-      "lastModificationDate": 1676830553062,
-      "contentHash": "1a6b6d122de86fa4048d54b1962d7fd8",
-      "sourceName": "test/LPPositionsManager.t.sol",
+    "test/EclypseTest.t.sol": {
+      "lastModificationDate": 1678046774804,
+      "contentHash": "7ba700cc03435d41b0240347b9d20593",
+      "sourceName": "test/EclypseTest.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -3611,9 +3626,11 @@
       "imports": [
         "contracts/ActivePool.sol",
         "contracts/BorrowerOperations.sol",
+        "contracts/Eclypse.sol",
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
+        "contracts/interfaces/IEclypse.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
         "contracts/utils/CheckContract.sol",
@@ -3682,14 +3699,14 @@
       ],
       "versionRequirement": "<0.9.0",
       "artifacts": {
-        "LPPositionsManagerTest": {
-          "0.8.17+commit.8df45f5f.Windows.msvc": "LPPositionsManager.t.sol\\LPPositionsManagerTest.json"
+        "EclypseTest": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "EclypseTest.t.sol\\EclypseTest.json"
         }
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1677096498900,
-      "contentHash": "1998411c3a787e88e1b73d5b783afb2d",
+      "lastModificationDate": 1678046316475,
+      "contentHash": "c53b40731432ad781b9776ac50b5d29f",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
@@ -3722,9 +3739,11 @@
       "imports": [
         "contracts/ActivePool.sol",
         "contracts/BorrowerOperations.sol",
+        "contracts/Eclypse.sol",
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
+        "contracts/interfaces/IEclypse.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
         "contracts/utils/CheckContract.sol",

@@ -21,8 +21,7 @@ interface IBorrowerOperations {
 
     // --- Functions ---
 
-    function setAddresses(address _lpPositionsManagerAddress, address _activePoolAddress, address _GHOTokenAddress)
-        external;
+    function setAddresses(address _eclypse, address _GhoAddress) external;
 
     function openPosition(uint256 _tokenId) external;
 

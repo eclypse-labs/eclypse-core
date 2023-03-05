@@ -46,7 +46,7 @@ contract EclypseTest is UniswapTest {
 		vm.startPrank(address(facticeUser1));
 		borrowerOperation.borrowGHO(300 * TOKEN18, facticeUser1_tokenId);
 		vm.stopPrank();
-		assertEq(eclypse.getPosition(facticeUser1_tokenId).debtPrincipal, 300 * TOKEN18, "Position should have 300 GHO debt.");
+		assertEq(eclypse.getPosition(facticeUser1_tokenId).debtPrincipal, 300 * TOKEN18, "Position should have 300 GHO debt. (debt principal)");
 		uint256 currentDebt = eclypse.debtOf(facticeUser1_tokenId);
 		assertEq(currentDebt, 300 * TOKEN18, "Position should have 300 GHO debt.");
 	}
@@ -72,6 +72,7 @@ contract EclypseTest is UniswapTest {
 		assertEq(uint256(eclypse.getPosition(facticeUser1_tokenId).status), 1, "Position should be active.");
 		vm.startPrank(address(facticeUser1));
 		borrowerOperation.borrowGHO(10 * TOKEN18, facticeUser1_tokenId);
+		ghoToken.approve(address(eclypse), 10 * TOKEN18);
 		borrowerOperation.repayGHO(10 * TOKEN18, facticeUser1_tokenId);
 		borrowerOperation.closePosition(facticeUser1_tokenId);
 		vm.stopPrank();
