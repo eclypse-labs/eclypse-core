@@ -107,7 +107,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @notice Returns the total number of positions owned by all users.
      * @return totalCount The number of positions owned by all users.
      */
-    function getPositionsCount() external view returns (uint256) {
+    function getPositionsCount() external view override returns (uint256) {
         return allPositions.length;
     }
 
@@ -126,17 +126,25 @@ contract Eclypse is IEclypse, Ownable, Test {
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
     /**
-     * @notice Changes the status of a position with a given token ID.
-     * @dev The position must have a different status than the one provided.
-     * @param _tokenId The token ID of the position.
-     * @param _status The new status of the position.
+     * @notice Closes a position.
+     * @param _owner The owner of the position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
      */
-    function changePositionStatus(uint256 _tokenId, Status _status) public onlyBorrowerOperations {
-        require(
-            positionFromTokenId[_tokenId].status != _status, "A position status cannot be changed to its current one."
-        );
-        positionFromTokenId[_tokenId].status = _status;
-        emit PositionStatusChanged(_tokenId, _status);
+    function closePosition(address _owner, uint256 _tokenId)
+        public
+        override
+        onlyActivePosition(_tokenId)
+        onlyBorrowerOperations
+    {
+        require(positionFromTokenId[_tokenId].user == _owner, "The position does not belong to the owner.");
+        uint256 debt = debtOf(_tokenId);
+        if (debt > 0) {
+            repayGHO(_owner, _tokenId, debt);
+        }
+        sendPosition(_owner, _tokenId);
+        positionFromTokenId[_tokenId].status = Status.closedByOwner;
+        emit PositionStatusChanged(_tokenId, Status.closedByOwner);
     }
 
     /**
@@ -244,7 +252,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _tokenId The ID of the position to increase the debt of.
      * @param _amount The amount to increase the debt of the position by.
      */
-    function increaseDebtOf(address sender, uint256 _tokenId, uint256 _amount)
+    function borrowGHO(address sender, uint256 _tokenId, uint256 _amount)
         public
         override
         onlyBorrowerOperations
@@ -280,7 +288,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _tokenId The ID of the position to decrease the debt of.
      * @param _amount The amount to decrease the debt of the position by.
      */
-    function decreaseDebtOf(address sender, uint256 _tokenId, uint256 _amount)
+    function repayGHO(address sender, uint256 _tokenId, uint256 _amount)
         public
         override
         onlyBorrowerOperations
@@ -413,7 +421,6 @@ contract Eclypse is IEclypse, Ownable, Test {
         return debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256;
     }
 
-
     /**
      * @notice Returns the risk constants of a pool.
      * @dev The risk constants are the minimum collateral ratio of the pool.
@@ -495,36 +502,6 @@ contract Eclypse is IEclypse, Ownable, Test {
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
     // Positions interaction
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-    /**
-     * @notice Mints a new LP position.
-     * @param params The parameters for the LP position to be minted.
-     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
-     * @return tokenId The ID of the newly minted LP position.
-     */
-    function mintPosition(INonfungiblePositionManager.MintParams memory params)
-        public
-        override
-        onlyBorrowerOperations
-        returns (uint256 tokenId)
-    {
-        TransferHelper.safeApprove(params.token0, address(uniswapPositionsNFT), params.amount0Desired);
-        TransferHelper.safeApprove(params.token1, address(uniswapPositionsNFT), params.amount1Desired);
-        (tokenId,,,) = uniswapPositionsNFT.mint(params);
-
-        emit PositionMinted(tokenId);
-        return tokenId;
-    }
-
-    /**
-     * @notice Burns an LP position.
-     * @param tokenId The ID of the LP position to be burned.
-     * @dev Only the Borrower Operations contract or the LP Positions Manager contract can call this function.
-     */
-    function burnPosition(uint256 tokenId) public override onlyBorrowerOperations {
-        uniswapPositionsNFT.burn(tokenId);
-        emit PositionBurned(tokenId);
-    }
 
     /**
      * @notice Increases the liquidity of an LP position.

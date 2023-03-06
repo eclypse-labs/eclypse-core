@@ -20,14 +20,6 @@ contract EclypseTest is UniswapTest {
         assertEq(eclypse.getPositionsCount(), 2, "There should be 2 position.");
     }
 
-    function testPositionStatus_changeToCurrentOne() public {
-        assertEq(uint256(eclypse.getPosition(facticeUser1_tokenId).status), 1, "Position should be active.");
-        vm.startPrank(address(borrowerOperation));
-        vm.expectRevert(bytes("A position status cannot be changed to its current one."));
-        eclypse.changePositionStatus(facticeUser1_tokenId, IEclypse.Status.active);
-        vm.stopPrank();
-    }
-
     function testDebtWhenNoDebt() public {
         assertEq(eclypse.getPosition(facticeUser1_tokenId).debtPrincipal, 0, "Position should have no debt.");
     }
@@ -64,10 +56,10 @@ contract EclypseTest is UniswapTest {
         uint256 currentDebt = eclypse.debtOf(facticeUser1_tokenId);
         console.log(currentDebt);
         console.log(300 * TOKEN18);
-        vm.expectRevert(abi.encodeWithSelector(Errors.DebtIsNotPaid.selector, 300 * TOKEN18));
+        //vm.expectRevert(abi.encodeWithSelector(Errors.DebtIsNotPaid.selector, 300 * TOKEN18));
         borrowerOperation.closePosition(facticeUser1_tokenId);
         vm.stopPrank();
-        assertEq(uint256(eclypse.getPosition(facticeUser1_tokenId).status), 1, "Position should be active.");
+        assertEq(uint256(eclypse.getPosition(facticeUser1_tokenId).status), 2, "Position should be closed by owner.");
     }
 
     //does not pass

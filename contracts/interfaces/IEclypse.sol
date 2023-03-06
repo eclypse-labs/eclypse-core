@@ -75,15 +75,15 @@ interface IEclypse {
     function getPosition(uint256 _tokenId) external view returns (Position memory position);
     function getPositionsCount() external view returns (uint256);
 
-    function changePositionStatus(uint256 _tokenId, Status _status) external;
     function openPosition(address _owner, uint256 _tokenId) external;
+    function closePosition(address _owner, uint256 _tokenId) external;
 
     function positionAmounts(uint256 _tokenId) external view returns (uint256 amountToken0, uint256 amountToken1);
 
     function debtOf(uint256 _tokenId) external view returns (uint256 currentDebt);
     function totalDebtOf(address _user) external view returns (uint256 totalDebtInGHO);
-    function increaseDebtOf(address sender, uint256 _tokenId, uint256 _amount) external;
-    function decreaseDebtOf(address sender, uint256 _tokenId, uint256 _amount) external;
+    function borrowGHO(address sender, uint256 _tokenId, uint256 _amount) external;
+    function repayGHO(address sender, uint256 _tokenId, uint256 _amount) external;
 
     function priceInETH(address _tokenAddress) external view returns (uint256 priceX96);
     function debtOfInETH(uint256 _tokenId) external view returns (uint256);
@@ -94,8 +94,6 @@ interface IEclypse {
     function getRiskConstants(address _pool) external view returns (uint256 riskConstants);
     function updateRiskConstants(address _pool, uint256 _riskConstants) external;
 
-    function mintPosition(INonfungiblePositionManager.MintParams memory params) external returns (uint256 tokenId);
-    function burnPosition(uint256 tokenId) external;
     function increaseLiquidity(address sender, uint256 _tokenId, uint256 amountAdd0, uint256 amountAdd1)
         external
         returns (uint128 liquidity, uint256 amount0, uint256 amount1);
