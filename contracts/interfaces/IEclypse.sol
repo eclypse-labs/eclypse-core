@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 
+import "./IActivePool.sol";
+import "./IBorrowerOperations.sol";
+
+import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+import "gho-core/src/contracts/gho/GHOToken.sol";
 
 // Common interface for the Trove Manager.
 interface IEclypse {
@@ -19,6 +24,14 @@ interface IEclypse {
         uint256 interestFactor;
         uint256 lastFactorUpdate;
         uint32 twapLength;
+    }
+
+    struct ProtocolContracts {
+        GhoToken GHO;
+        IActivePool activePool;
+        IUniswapV3Factory uniswapFactory;
+        INonfungiblePositionManager uniswapPositionsManager;
+        IBorrowerOperations borrowerOperations;
     }
 
     //The structure of a position.

@@ -32,12 +32,13 @@ contract Eclypse is IEclypse, Ownable, Test {
     uint256 constant MAX_UINT256 = 2 ** 256 - 1;
 
     ProtocolValues public protocolValues;
+    ProtocolContracts public protocolContracts;
 
     address constant WETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    IUniswapV3Factory internal uniswapFactory; // = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
+    /*IUniswapV3Factory internal uniswapFactory; // = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     INonfungiblePositionManager internal uniswapPositionsNFT; // = INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
     GhoToken public GHO;
-    IBorrowerOperations public borrowerOperations;
+    IBorrowerOperations public borrowerOperations;*/
 
     mapping(address => bool) private whiteListedPools;
     mapping(address => RiskConstants) private riskConstantsFromPool;
@@ -50,11 +51,15 @@ contract Eclypse is IEclypse, Ownable, Test {
         external
         onlyOwner
     {
-        uniswapFactory = IUniswapV3Factory(_uniFactory);
+        /*uniswapFactory = IUniswapV3Factory(_uniFactory);
         uniswapPositionsNFT = INonfungiblePositionManager(_uniPosNFT);
-
         GHO = GhoToken(_GhoAddr);
-        borrowerOperations = IBorrowerOperations(_borrowerOpAddr);
+        borrowerOperations = IBorrowerOperations(_borrowerOpAddr);*/
+
+        protocolContracts.uniswapFactory = IUniswapV3Factory(_uniFactory);
+        protocolContracts.uniswapPositionsManager = INonfungiblePositionManager(_uniPosNFT);
+        protocolContracts.GHO = GhoToken(_GhoAddr);
+        protocolContracts.borrowerOperations = IBorrowerOperations(_borrowerOpAddr);
 
         // renounceOwnership();
     }
@@ -155,9 +160,9 @@ contract Eclypse is IEclypse, Ownable, Test {
      */
     function openPosition(address _owner, uint256 _tokenId) public override onlyBorrowerOperations {
         (,, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity,,,,) =
-            uniswapPositionsNFT.positions(_tokenId);
+            protocolContracts.uniswapPositionsManager.positions(_tokenId);
 
-        address poolAddress = uniswapFactory.getPool(token0, token1, fee);
+        address poolAddress = protocolContracts.uniswapFactory.getPool(token0, token1, fee);
         require(whiteListedPools[poolAddress], "This pool is not accepted by the protocol.");
 
         Position memory position = Position(
@@ -212,8 +217,16 @@ contract Eclypse is IEclypse, Ownable, Test {
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    // Debt Functions
+    // Debt tracking Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+    function refreshDebtTracking() public {
+        uint256 newInterestFactor =
+            power(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
+        protocolValues.interestFactor =
+            FullMath.mulDivRoundingUp(protocolValues.interestFactor, newInterestFactor, FixedPoint96.Q96);
+        protocolValues.lastFactorUpdate = block.timestamp;
+    }
 
     /**
      * @notice Returns the total debt of a position, including interest.
@@ -227,8 +240,23 @@ contract Eclypse is IEclypse, Ownable, Test {
             debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
         );
         uint256 newInterestFactor =
-            lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
+            power(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
         currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
+    }
+
+    function allDebtComponentsOf(uint256 _tokenId)
+        public
+        view
+        returns (uint256 currentDebt, uint256 debtPrincipal, uint256 interest)
+    {
+        debtPrincipal = getPosition(_tokenId).debtPrincipal;
+        currentDebt = FullMath.mulDivRoundingUp(
+            debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
+        );
+        uint256 newInterestFactor =
+            power(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
+        currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
+        interest = currentDebt - debtPrincipal;
     }
 
     /**
@@ -260,26 +288,18 @@ contract Eclypse is IEclypse, Ownable, Test {
     {
         require(_amount > 0, "A debt cannot be increased by a negative amount or by 0.");
 
-        uint256 debtPrincipal = getPosition(_tokenId).debtPrincipal;
-        uint256 currentDebt = FullMath.mulDivRoundingUp(
-            debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
-        );
-        uint256 newInterestFactor =
-            lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
-        currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
+        refreshDebtTracking();
+        // From here, the interestFactor is up-to-date.
+        (uint256 totalDebt, uint256 debtPrincipal,) = allDebtComponentsOf(_tokenId);
 
-        GHO.mint(sender, _amount);
+        protocolContracts.GHO.mint(sender, _amount);
         protocolValues.totalBorrowedGho += _amount;
 
-        protocolValues.interestFactor =
-            FullMath.mulDivRoundingUp(protocolValues.interestFactor, newInterestFactor, FixedPoint96.Q96);
-        protocolValues.lastFactorUpdate = block.timestamp;
-
         positionFromTokenId[_tokenId].interestConstant =
-            FullMath.mulDivRoundingUp(protocolValues.interestFactor, debtPrincipal + _amount, currentDebt + _amount);
+            FullMath.mulDivRoundingUp(protocolValues.interestFactor, debtPrincipal + _amount, totalDebt + _amount);
         positionFromTokenId[_tokenId].debtPrincipal += _amount;
 
-        emit IncreasedDebt(positionFromTokenId[_tokenId].user, _tokenId, currentDebt, currentDebt + _amount);
+        emit IncreasedDebt(positionFromTokenId[_tokenId].user, _tokenId, totalDebt, totalDebt + _amount);
     }
 
     /**
@@ -296,47 +316,32 @@ contract Eclypse is IEclypse, Ownable, Test {
     {
         require(_amount > 0, "A debt cannot be decreased by a negative amount or by 0.");
 
-        uint256 debtPrincipal = getPosition(_tokenId).debtPrincipal;
-        uint256 currentDebt = FullMath.mulDivRoundingUp(
-            debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
-        );
-        uint256 newInterestFactor =
-            lessDumbPower(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
-        currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
-
-        uint256 oldDebt = currentDebt;
-        uint256 accumulatedInterest = currentDebt - debtPrincipal;
-
-        protocolValues.interestFactor =
-            FullMath.mulDivRoundingUp(protocolValues.interestFactor, newInterestFactor, FixedPoint96.Q96);
-        protocolValues.lastFactorUpdate = block.timestamp;
+        refreshDebtTracking();
+        // From here, the interestFactor is up-to-date.
+        (uint256 currentDebt, uint256 debtPrincipal, uint256 accumulatedInterest) = allDebtComponentsOf(_tokenId);
 
         _amount = Math.min(_amount, currentDebt);
 
-        if (_amount > accumulatedInterest) {
-            _amount -= accumulatedInterest;
-            accumulatedInterest = 0;
-        } else {
-            accumulatedInterest -= _amount;
-            _amount = 0;
+        uint256 interestRepayment = Math.min(_amount, accumulatedInterest);
+        uint256 principalRepayment = _amount - interestRepayment;
+
+        protocolContracts.GHO.transferFrom(sender, address(this), principalRepayment + interestRepayment);
+        if (principalRepayment > 0) {
+            protocolContracts.GHO.burn(principalRepayment);
+            protocolValues.totalBorrowedGho -= principalRepayment;
         }
 
-        currentDebt = debtPrincipal + accumulatedInterest;
+        uint256 newDebt = currentDebt - _amount;
+        uint256 newDebtPrincipal = debtPrincipal - principalRepayment;
+        if (newDebt > 0) {
+            positionFromTokenId[_tokenId].interestConstant =
+                FullMath.mulDivRoundingUp(protocolValues.interestFactor, newDebtPrincipal, newDebt);
+        } else {
+            positionFromTokenId[_tokenId].interestConstant = protocolValues.interestFactor;
+        }
+        positionFromTokenId[_tokenId].debtPrincipal = newDebtPrincipal;
 
-        uint256 totalAmountChange = Math.min(_amount, protocolValues.totalBorrowedGho);
-        GHO.transferFrom(sender, address(this), totalAmountChange);
-        GHO.burn(totalAmountChange);
-        protocolValues.totalBorrowedGho -= totalAmountChange;
-
-        positionFromTokenId[_tokenId].interestConstant = currentDebt - _amount > 0
-            ? FullMath.mulDivRoundingUp(protocolValues.interestFactor, debtPrincipal - _amount, currentDebt - _amount)
-            : protocolValues.interestFactor;
-
-        positionFromTokenId[_tokenId].debtPrincipal -= _amount;
-
-        emit DecreasedDebt(
-            positionFromTokenId[_tokenId].user, _tokenId, oldDebt, debtPrincipal + accumulatedInterest - _amount
-            );
+        emit DecreasedDebt(positionFromTokenId[_tokenId].user, _tokenId, currentDebt, newDebt);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -367,7 +372,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @return debtInETH The debt of the position in ETH.
      */
     function debtOfInETH(uint256 _tokenId) public view override returns (uint256) {
-        return FullMath.mulDivRoundingUp(debtOf(_tokenId), priceInETH(address(GHO)), FixedPoint96.Q96);
+        return FullMath.mulDivRoundingUp(debtOf(_tokenId), priceInETH(address(protocolContracts.GHO)), FixedPoint96.Q96);
     }
 
     /**
@@ -413,7 +418,7 @@ contract Eclypse is IEclypse, Ownable, Test {
         /*(uint256 fee0, uint256 fee1) = activePool.feesOwed(
             INonfungiblePositionManager.CollectParams(_tokenId, address(this), type(uint128).max, type(uint128).max)
         );*/
-        (,,,,,,,,,, uint128 fee0, uint128 fee1) = uniswapPositionsNFT.positions(_tokenId);
+        (,,,,,,,,,, uint128 fee0, uint128 fee1) = protocolContracts.uniswapPositionsManager.positions(_tokenId);
         uint256 fees = FullMath.mulDiv(fee0, priceInETH(positionFromTokenId[_tokenId].token0), FixedPoint96.Q96)
             + FullMath.mulDiv(fee1, priceInETH(positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
         uint256 debt = debtOfInETH(_tokenId);
@@ -488,11 +493,11 @@ contract Eclypse is IEclypse, Ownable, Test {
         require(_GHOToRepay >= debt, "The amount of GHO to repay is not enough to reimburse the debt of the position.");
 
         // Burn GHO
-        GHO.transferFrom(msg.sender, address(this), debt);
-        GHO.burn(debt);
+        protocolContracts.GHO.transferFrom(msg.sender, address(this), debt);
+        protocolContracts.GHO.burn(debt);
         protocolValues.totalBorrowedGho -= positionFromTokenId[_tokenId].debtPrincipal;
 
-        uniswapPositionsNFT.transferFrom(address(this), msg.sender, _tokenId);
+        protocolContracts.uniswapPositionsManager.transferFrom(address(this), msg.sender, _tokenId);
         emit PositionSent(msg.sender, _tokenId);
 
         positionFromTokenId[_tokenId].status = Status.closedByLiquidation;
@@ -526,10 +531,10 @@ contract Eclypse is IEclypse, Ownable, Test {
         TransferHelper.safeTransferFrom(token0, sender, address(this), amountAdd0);
         TransferHelper.safeTransferFrom(token1, sender, address(this), amountAdd1);
 
-        TransferHelper.safeApprove(token0, address(uniswapPositionsNFT), amountAdd0);
-        TransferHelper.safeApprove(token1, address(uniswapPositionsNFT), amountAdd1);
+        TransferHelper.safeApprove(token0, address(protocolContracts.uniswapPositionsManager), amountAdd0);
+        TransferHelper.safeApprove(token1, address(protocolContracts.uniswapPositionsManager), amountAdd1);
 
-        (liquidity, amount0, amount1) = uniswapPositionsNFT.increaseLiquidity(
+        (liquidity, amount0, amount1) = protocolContracts.uniswapPositionsManager.increaseLiquidity(
             INonfungiblePositionManager.IncreaseLiquidityParams({
                 tokenId: _tokenId,
                 amount0Desired: amountAdd0,
@@ -566,7 +571,7 @@ contract Eclypse is IEclypse, Ownable, Test {
             _liquidityToRemove > getPosition(_tokenId).liquidity ? getPosition(_tokenId).liquidity : _liquidityToRemove;
         // amount0Min and amount1Min are price slippage checks
 
-        uniswapPositionsNFT.decreaseLiquidity(
+        protocolContracts.uniswapPositionsManager.decreaseLiquidity(
             INonfungiblePositionManager.DecreaseLiquidityParams({
                 tokenId: _tokenId,
                 liquidity: _liquidityToRemove,
@@ -576,7 +581,7 @@ contract Eclypse is IEclypse, Ownable, Test {
             })
         );
 
-        (amount0, amount1) = uniswapPositionsNFT.collect(
+        (amount0, amount1) = protocolContracts.uniswapPositionsManager.collect(
             INonfungiblePositionManager.CollectParams({
                 tokenId: _tokenId,
                 recipient: address(this),
@@ -607,7 +612,7 @@ contract Eclypse is IEclypse, Ownable, Test {
     function sendPosition(address _account, uint256 _tokenId) public override onlyBorrowerOperations {
         //uniswapPositionsNFT.approve(to, tokenId);
 
-        uniswapPositionsNFT.transferFrom(address(this), _account, _tokenId);
+        protocolContracts.uniswapPositionsManager.transferFrom(address(this), _account, _tokenId);
         emit PositionSent(_account, _tokenId);
     }
 
@@ -629,19 +634,19 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @dev This modifier is used to restrict access to the borrower operations contract.
      */
     modifier onlyBorrowerOperations() {
-        require(msg.sender == address(borrowerOperations), "This operation is restricted");
+        require(msg.sender == address(protocolContracts.borrowerOperations), "This operation is restricted");
         _;
     }
 
     // base is a fixedpoint96 number, exponent is a regular unsigned integer
-    function lessDumbPower(uint256 _base, uint256 _exponent) public pure returns (uint256 result) {
+    function power(uint256 _base, uint256 _exponent) public pure returns (uint256 result) {
         // do fast exponentiation by checking parity of exponent
         if (_exponent == 0) {
             result = FixedPoint96.Q96;
         } else if (_exponent == 1) {
             result = _base;
         } else {
-            result = lessDumbPower(_base, _exponent / 2);
+            result = power(_base, _exponent / 2);
             // calculate the square of the square root with FullMath.mulDiv
             result = FullMath.mulDiv(result, result, FixedPoint96.Q96);
             if (_exponent % 2 == 1) {

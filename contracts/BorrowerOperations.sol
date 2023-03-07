@@ -135,7 +135,6 @@ contract BorrowerOperations is Ownable, CheckContract, IBorrowerOperations, Reen
         onlyActivePosition(_tokenId)
         onlyPositionOwner(_tokenId, msg.sender)
     {
-        _GHOAmount = Math.min(_GHOAmount, eclypse.debtOf(_tokenId));
         if (_GHOAmount <= 0) {
             revert Errors.AmountShouldBePositive();
         }

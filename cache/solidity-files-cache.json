@@ -114,8 +114,8 @@
       }
     },
     "contracts/BorrowerOperations.sol": {
-      "lastModificationDate": 1678097707162,
-      "contentHash": "6b34da4b305b301e3a832fe733b3d6df",
+      "lastModificationDate": 1678099296990,
+      "contentHash": "b1863e1b0a1d300f9979bfb392ed5b22",
       "sourceName": "contracts/BorrowerOperations.sol",
       "solcConfig": {
         "settings": {
@@ -221,8 +221,8 @@
       }
     },
     "contracts/Eclypse.sol": {
-      "lastModificationDate": 1678098023288,
-      "contentHash": "7320cfc3b631ab9842a09b11882b9d01",
+      "lastModificationDate": 1678171948584,
+      "contentHash": "d0e70cd571262f5f2c7a6cd9b19b0040",
       "sourceName": "contracts/Eclypse.sol",
       "solcConfig": {
         "settings": {
@@ -253,8 +253,10 @@
         }
       },
       "imports": [
+        "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
         "contracts/interfaces/IEclypse.sol",
+        "contracts/interfaces/IPool.sol",
         "lib/forge-std/lib/ds-test/src\\test.sol",
         "lib/forge-std/src/Common.sol",
         "lib/forge-std/src/Components.sol",
@@ -511,8 +513,8 @@
       }
     },
     "contracts/interfaces/IEclypse.sol": {
-      "lastModificationDate": 1678097847744,
-      "contentHash": "9d7fb1d8be79fff7529c877aa8c1fcae",
+      "lastModificationDate": 1678171694922,
+      "contentHash": "e5ccdde58ee0931322823da12b55953f",
       "sourceName": "contracts/interfaces/IEclypse.sol",
       "solcConfig": {
         "settings": {
@@ -543,10 +545,23 @@
         }
       },
       "imports": [
+        "contracts/interfaces/IActivePool.sol",
+        "contracts/interfaces/IBorrowerOperations.sol",
+        "contracts/interfaces/IPool.sol",
+        "lib/gho-core/src/contracts/gho/ERC20.sol",
+        "lib/gho-core\\src/contracts/gho/GHOToken.sol",
+        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
+        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/openzeppelin-contracts\\contracts/utils/structs/EnumerableSet.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
         "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
         "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
         "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
@@ -3394,7 +3409,7 @@
       }
     },
     "test/BorrowerOperations.t.sol": {
-      "lastModificationDate": 1678047948422,
+      "lastModificationDate": 1678099858015,
       "contentHash": "5823586efafa2d91fe60788527e3983e",
       "sourceName": "test/BorrowerOperations.t.sol",
       "solcConfig": {
@@ -3592,7 +3607,7 @@
       }
     },
     "test/EclypseTest.t.sol": {
-      "lastModificationDate": 1678098125635,
+      "lastModificationDate": 1678099817261,
       "contentHash": "ffb2e5cec737a7ed028ba659276eddd7",
       "sourceName": "test/EclypseTest.t.sol",
       "solcConfig": {
