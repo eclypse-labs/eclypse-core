@@ -75,7 +75,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _inv0 Whether the first token's price is inversed in the WETH pool.
      * @param _inv1 Whether the second token's price is inversed in the WETH pool.
      */
-    function addPairToProtocol(
+    function addPoolToProtocol(
         address _poolAddress,
         address _token0,
         address _token1,
@@ -414,7 +414,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @param _tokenId The ID of the position to get the collateral ratio of.
      * @return collRatio The collateral ratio of the position.
      */
-    function collRatioOf(uint256 _tokenId) public view returns (uint256) {
+    function collRatioOf(uint256 _tokenId) public view returns (uint256 collRatio) {
         /*(uint256 fee0, uint256 fee1) = activePool.feesOwed(
             INonfungiblePositionManager.CollectParams(_tokenId, address(this), type(uint128).max, type(uint128).max)
         );*/
@@ -562,7 +562,7 @@ contract Eclypse is IEclypse, Ownable, Test {
      * @return amount1 The amount of token1 removed from the LP position.
      * @dev Only the Borrower Operations contract can call this function.
      */
-    function decreaseLiquidity(uint256 _tokenId, uint128 _liquidityToRemove, address sender)
+    function decreaseLiquidity(address sender, uint256 _tokenId, uint128 _liquidityToRemove)
         public
         override
         returns (uint256 amount0, uint256 amount1)

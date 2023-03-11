@@ -3,10 +3,10 @@
 pragma solidity >=0.6.11;
 
 interface IPriceFeed {
-
-    // --- Events ---
-    event LastGoodPriceUpdated(uint _lastGoodPrice);
    
     // --- Function ---
-    function fetchPrice() external returns (uint);
+
+    // Returns the price of toToken denominated in fromToken.
+    function fetchPrice(address fromToken, address toToken) external returns (uint);
+    function fetchDollarPrice(address token) external returns (uint);
 }

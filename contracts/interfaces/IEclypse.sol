@@ -76,7 +76,7 @@ interface IEclypse {
     event PositionSent(address _account, uint256 _tokenId);
     event TokenSent(address _token, address _account, uint256 _amount);
 
-    function addPairToProtocol(
+    function addPoolToProtocol(
         address _poolAddress,
         address _token0,
         address _token1,
@@ -110,7 +110,7 @@ interface IEclypse {
     function increaseLiquidity(address sender, uint256 _tokenId, uint256 amountAdd0, uint256 amountAdd1)
         external
         returns (uint128 liquidity, uint256 amount0, uint256 amount1);
-    function decreaseLiquidity(uint256 _tokenId, uint128 _liquidityToRemove, address sender)
+    function decreaseLiquidity(address sender, uint256 _tokenId, uint128 _liquidityToRemove)
         external
         returns (uint256 amount0, uint256 amount1);
     function sendPosition(address _account, uint256 _tokenId) external;

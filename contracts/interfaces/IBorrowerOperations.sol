@@ -6,14 +6,13 @@ interface IBorrowerOperations {
     // --- Events ---
 
     event LPPositionsManagerAddressChanged(address _newLPPositionsManagerAddress);
-    event ActivePoolAddressChanged(address _activePoolAddress);
-    event GHOTokenAddressChanged(address _GHOTokenAddress);
+    //event ActivePoolAddressChanged(address _activePoolAddress);
 
     event OpenedPosition(address _borrower, uint256 _tokenId);
     event ClosedPosition(address _borrower, uint256 _tokenId);
 
-    event WithdrawnGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId);
-    event RepaidGHO(address _borrower, uint256 _GHOAmount, uint256 _tokenId);
+    event BorrowedStableCoin(address _borrower, uint256 _amount, uint256 _tokenId);
+    event RepaidStableCoin(address _borrower, uint256 _amount, uint256 _tokenId);
 
     event AddedCollateral(uint256 _tokenId, uint128 _liquidity, uint256 _amountAdd0, uint256 _amountAdd1);
 
@@ -21,12 +20,12 @@ interface IBorrowerOperations {
 
     // --- Functions ---
 
-    function setAddresses(address _eclypse, address _GhoAddress) external;
+    function setAddresses(address _lpPositionsManagerAddr) external;
     function openPosition(uint256 _tokenId) external;
     function closePosition(uint256 _tokenId) external;
 
-    function borrowGHO(uint256 _GHOAmount, uint256 _tokenId) external payable;
-    function repayGHO(uint256 _GHOAmount, uint256 _tokenId) external;
+    function borrow(uint256 _amount, uint256 _tokenId) external payable;
+    function repay(uint256 _amount, uint256 _tokenId) external;
 
     function addCollateral(uint256 _tokenId, uint256 _amountAdd0, uint256 _amountAdd1)
         external

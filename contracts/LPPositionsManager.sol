@@ -3,18 +3,24 @@ pragma solidity <0.9.0;
 
 import "./interfaces/IActivePool.sol";
 import "./interfaces/ILPPositionsManager.sol";
+import "./interfaces/IStableCoin.sol";
+
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "@uniswap-core/libraries/TickMath.sol";
 import "@uniswap-core/libraries/FullMath.sol";
 import "@uniswap-core/libraries/FixedPoint96.sol";
+import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
+
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
 import "@uniswap-periphery/libraries/PoolAddress.sol";
 import "@uniswap-periphery/libraries/OracleLibrary.sol";
+import "@uniswap-periphery/libraries/TransferHelper.sol";
+
 import "forge-std/console.sol";
-import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "forge-std/Test.sol";
 
 import "gho-core/src/contracts/gho/GHOToken.sol";
@@ -29,47 +35,19 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     // -- Integer Constants --
 
     uint256 constant MAX_UINT256 = 2 ** 256 - 1;
-    uint32 constant TWAP_LENGTH = 60; // Number of seconds to calculate the TWAP
-    uint256 constant interestRate = 79228162564014647528974148095; // 2% APY interest rate : fixedpoint96 value found by evaluating "1.02^(1/(31536000))*2^96" on https://www.mathsisfun.com/calculator-precision.html (31556952 is the number of seconds in a year)
 
-    // -- Addresses --
+    ProtocolValues public protocolValues;
+    ProtocolContracts public protocolContracts;
 
     address constant WETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address borrowerOperationsAddress;
 
-    // -- Interfaces&Contracts --
+    mapping(address => bool) private whiteListedPools;
+    mapping(address => PoolPricingInfo) private tokenToWETHPoolInfo;
+    mapping(address => RiskConstants) private riskConstantsFromPool;
 
-    IUniswapV3Factory internal uniswapFactory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-    INonfungiblePositionManager constant uniswapPositionsNFT =
-        INonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
-    IActivePool public activePool;
-
-    // TODO: Change this to the real GHO token
-    GhoToken public GHO;
-
-    // -- Mappings & Arrays --
-
-    // Is this pool accepted by the protocol?
-    mapping(address => bool) private _acceptedPoolAddresses;
-
-    // Retrieves a pool's data given the pool's address.
-    mapping(address => RiskConstants) private _riskConstantsFromPoolAddress;
-
-    // Retrieves every positions a user has, under the form of an array, given the user's address.
-    mapping(address => Position[]) private _positionsFromAddress;
-
-    // Retrieves a position given its tokenId.
-    mapping(uint256 => Position) private _positionFromTokenId;
-
-    // Retrieves the address of the pool associated with the pair (token/ETH) where given the token's address.
-    mapping(address => PoolPricingInfo) private _tokenToWETHPoolInfo;
-
-    // An array of all positions.
-    Position[] private _allPositions;
-
-    uint256 private interestConstant = FixedPoint96.Q96; // 1 in fixedpoint96
-    uint256 private interestConstantTimestamp = block.timestamp;
-    uint256 private totalGhoBorrowed = 0;
+    mapping(address => Position[]) private positionsFromAddress;
+    mapping(uint256 => Position) private positionFromTokenId;
+    Position[] private allPositions;
 
     // -- Methods --
 
@@ -79,22 +57,29 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
     /**
      * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
-     * @param _borrowerOperationsAddress The address of the borrower operations contract.
-     * @param _activePoolAddress The address of the active pool contract.
+     * @param _uniFactory The address of the Uniswap V3 factory contract.
+     * @param _uniPosNFT The address of the Uniswap V3 positions NFT contract.
+     * @param _StableCoinAddr The address of the StableCoin token contract.
+     * @param _borrowerOpAddr The address of the borrower operations contract.
+     * @param _activePoolAddr The address of the active pool contract.
      * @dev This function can only be called by the contract owner.
      */
-    function setAddresses(address _borrowerOperationsAddress, address _activePoolAddress, address _GhoAddress)
-        external
-        override
-        onlyOwner
-    {
-        borrowerOperationsAddress = _borrowerOperationsAddress;
-        activePool = IActivePool(_activePoolAddress);
-        GHO = GhoToken(_GhoAddress);
+    function setAddresses(
+        address _uniFactory,
+        address _uniPosNFT,
+        address _StableCoinAddr,
+        address _borrowerOpAddr,
+        address _activePoolAddr
+    ) external override onlyOwner {
+        protocolContracts.borrowerOperationsAddr = _borrowerOpAddr;
+        protocolContracts.activePool = IActivePool(_activePoolAddr);
+        protocolContracts.stableCoin = IStableCoin(_StableCoinAddr);
+        protocolContracts.uniswapFactory = IUniswapV3Factory(_uniFactory);
+        protocolContracts.uniswapPositionsManager = INonfungiblePositionManager(_uniPosNFT);
 
-        emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
-        emit ActivePoolAddressChanged(_activePoolAddress);
-        emit GHOTokenAddressChanged(_GhoAddress);
+        emit BorrowerOperationsAddressChanged(_borrowerOpAddr);
+        emit ActivePoolAddressChanged(_activePoolAddr);
+        emit StableCoinAddressChanged(_StableCoinAddr);
 
         // renounceOwnership();
     }
@@ -110,7 +95,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _inv0 Whether the first token's price is inversed in the WETH pool.
      * @param _inv1 Whether the second token's price is inversed in the WETH pool.
      */
-    function addPairToProtocol(
+    function addPoolToProtocol(
         address _poolAddress,
         address _token0,
         address _token1,
@@ -119,13 +104,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         bool _inv0,
         bool _inv1
     ) public override onlyOwner {
-        _acceptedPoolAddresses[_poolAddress] = true;
+        whiteListedPools[_poolAddress] = true;
         if (_token0 != WETHAddress) {
-            _tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
+            tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
             emit TokenAddedToPool(_token0, _ETHpoolToken0);
         }
         if (_token1 != WETHAddress) {
-            _tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
+            tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
             emit TokenAddedToPool(_token1, _ETHpoolToken1);
         }
     }
@@ -140,7 +125,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @return position The position of the given token
      */
     function getPosition(uint256 _tokenId) public view returns (Position memory position) {
-        return _positionFromTokenId[_tokenId];
+        return positionFromTokenId[_tokenId];
     }
 
     /**
@@ -148,26 +133,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @return totalCount The number of positions owned by all users.
      */
     function getPositionsCount() external view returns (uint256) {
-        return _allPositions.length;
+        return allPositions.length;
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    // Position Statuses
+    // Position Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-    /**
-     * @notice Changes the status of a position with a given token ID.
-     * @dev The position must have a different status than the one provided.
-     * @param _tokenId The token ID of the position.
-     * @param _status The new status of the position.
-     */
-    function changePositionStatus(uint256 _tokenId, Status _status) public onlyBorrowerOperations {
-        require(
-            _positionFromTokenId[_tokenId].status != _status, "A position status cannot be changed to its current one."
-        );
-        _positionFromTokenId[_tokenId].status = _status;
-        emit PositionStatusChanged(_tokenId, _status);
-    }
 
     /**
      * @notice Opens a new position for the given token ID and owner.
@@ -176,11 +147,15 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the Uniswap NFT representing the position.
      */
     function openPosition(address _owner, uint256 _tokenId) public override onlyBorrowerOperations {
-        (,, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity,,,,) =
-            uniswapPositionsNFT.positions(_tokenId);
+        protocolContracts.uniswapPositionsManager.safeTransferFrom(
+            _owner, address(protocolContracts.activePool), _tokenId
+        );
 
-        address poolAddress = uniswapFactory.getPool(token0, token1, fee);
-        require(_acceptedPoolAddresses[poolAddress], "This pool is not accepted by the protocol.");
+        (,, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity,,,,) =
+            protocolContracts.uniswapPositionsManager.positions(_tokenId);
+
+        address poolAddress = protocolContracts.uniswapFactory.getPool(token0, token1, fee);
+        require(whiteListedPools[poolAddress], "This pool is not accepted by the protocol.");
 
         Position memory position = Position(
             _owner,
@@ -194,14 +169,35 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
             _tokenId,
             Status.active,
             0,
-            interestConstant
+            protocolValues.interestFactor
         );
 
-        _allPositions.push(position);
-        _positionsFromAddress[_owner].push(position);
-        _positionFromTokenId[_tokenId] = position;
+        allPositions.push(position);
+        positionsFromAddress[_owner].push(position);
+        positionFromTokenId[_tokenId] = position;
+    }
 
-        emit DepositedLP(_owner, _tokenId);
+    /**
+     * @notice Closes a position.
+     * @param _owner The owner of the position.
+     * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+     * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
+     */
+    function closePosition(address _owner, uint256 _tokenId)
+        public
+        override
+        onlyActivePosition(_tokenId)
+        onlyBorrowerOperations
+    {
+        require(positionFromTokenId[_tokenId].user == _owner, "The position does not belong to the owner.");
+
+        protocolContracts.activePool.sendPosition(_owner, _tokenId);
+
+        uint256 debt = debtOf(_tokenId);
+        if (debt > 0) {
+            repay(_owner, _tokenId, debt);
+        }
+        positionFromTokenId[_tokenId].status = Status.closedByOwner;
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -221,8 +217,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
         override
         returns (uint256 amountToken0, uint256 amountToken1)
     {
-        Position memory _position = _positionFromTokenId[_tokenId];
-        (int24 twappedTick,) = OracleLibrary.consult(_position.poolAddress, TWAP_LENGTH);
+        Position memory _position = positionFromTokenId[_tokenId];
+        (int24 twappedTick,) = OracleLibrary.consult(_position.poolAddress, protocolValues.twapLength);
 
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(_position.tickLower);
@@ -234,8 +230,16 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
-    // Debt Functions
+    // Debt tracking Functions
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+    function refreshDebtTracking() public {
+        uint256 newInterestFactor =
+            power(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
+        protocolValues.interestFactor =
+            FullMath.mulDivRoundingUp(protocolValues.interestFactor, newInterestFactor, FixedPoint96.Q96);
+        protocolValues.lastFactorUpdate = block.timestamp;
+    }
 
     /**
      * @notice Returns the total debt of a position, including interest.
@@ -245,9 +249,27 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function debtOf(uint256 _tokenId) public view override returns (uint256 currentDebt) {
         uint256 debtPrincipal = getPosition(_tokenId).debtPrincipal;
-        currentDebt = FullMath.mulDivRoundingUp(debtPrincipal, interestConstant, getPosition(_tokenId).interestConstant);
-        uint256 newInterestFactor = lessDumbPower(interestRate, block.timestamp - interestConstantTimestamp);
+        currentDebt = FullMath.mulDivRoundingUp(
+            debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
+        );
+        uint256 newInterestFactor =
+            power(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
         currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
+    }
+
+    function allDebtComponentsOf(uint256 _tokenId)
+        public
+        view
+        returns (uint256 currentDebt, uint256 debtPrincipal, uint256 interest)
+    {
+        debtPrincipal = getPosition(_tokenId).debtPrincipal;
+        currentDebt = FullMath.mulDivRoundingUp(
+            debtPrincipal, protocolValues.interestFactor, getPosition(_tokenId).interestConstant
+        );
+        uint256 newInterestFactor =
+            power(protocolValues.interestRate, block.timestamp - protocolValues.lastFactorUpdate);
+        currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
+        interest = currentDebt - debtPrincipal;
     }
 
     /**
@@ -257,9 +279,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @return totalDebtInGHO The total debt of the user, including interest.
      */
     function totalDebtOf(address _user) public view returns (uint256 totalDebtInGHO) {
-        for (uint32 i = 0; i < _positionsFromAddress[_user].length; i++) {
-            if (_positionsFromAddress[_user][i].status == Status.active) {
-                totalDebtInGHO += debtOf(_positionsFromAddress[_user][i].tokenId);
+        for (uint32 i = 0; i < positionsFromAddress[_user].length; i++) {
+            if (positionsFromAddress[_user][i].status == Status.active) {
+                totalDebtInGHO += debtOf(positionsFromAddress[_user][i].tokenId);
             }
         }
         return totalDebtInGHO;
@@ -268,32 +290,34 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     /**
      * @notice Increases the debt of a position by a given amount.
      * @dev The debt is increased by the given amount, and the last update timestamp is set to the current block timestamp.
+     * @param sender The address of the user that is increasing its debt.
      * @param _tokenId The ID of the position to increase the debt of.
      * @param _amount The amount to increase the debt of the position by.
      */
-    function increaseDebtOf(uint256 _tokenId, uint256 _amount)
+    function borrow(address sender, uint256 _tokenId, uint256 _amount)
         public
         override
         onlyBorrowerOperations
         onlyActivePosition(_tokenId)
     {
-        require(_amount > 0, "A debt cannot be increased by a negative amount or by 0.");
+        require(_amount > 0, "A debt cannot be increased by 0.");
 
-        uint256 debtPrincipal = getPosition(_tokenId).debtPrincipal;
-        uint256 currentDebt =
-            FullMath.mulDivRoundingUp(debtPrincipal, interestConstant, getPosition(_tokenId).interestConstant);
-        uint256 newInterestFactor = lessDumbPower(interestRate, block.timestamp - interestConstantTimestamp);
-        currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
+        refreshDebtTracking();
+        // From here, the interestFactor is up-to-date.
+        (uint256 totalDebt, uint256 debtPrincipal,) = allDebtComponentsOf(_tokenId);
 
-        totalGhoBorrowed += _amount;
-        interestConstant = FullMath.mulDivRoundingUp(interestConstant, newInterestFactor, FixedPoint96.Q96);
-        interestConstantTimestamp = block.timestamp;
+        protocolContracts.activePool.mint(sender, _amount, address(protocolContracts.stableCoin));
+        protocolValues.totalBorrowedStableCoin += _amount;
 
-        _positionFromTokenId[_tokenId].interestConstant =
-            FullMath.mulDivRoundingUp(currentDebt + _amount, FixedPoint96.Q96 * FixedPoint96.Q96, interestConstant);
-        _positionFromTokenId[_tokenId].debtPrincipal += _amount;
+        positionFromTokenId[_tokenId].interestConstant =
+            FullMath.mulDiv(protocolValues.interestFactor, debtPrincipal + _amount, totalDebt + _amount);
+        positionFromTokenId[_tokenId].debtPrincipal += _amount;
 
-        emit IncreasedDebt(_positionFromTokenId[_tokenId].user, _tokenId, currentDebt, currentDebt + _amount);
+        if (liquidatable(_tokenId)) {
+            revert("The position can't be liquidatable!");
+        }
+
+        emit IncreasedDebt(positionFromTokenId[_tokenId].user, _tokenId, totalDebt, totalDebt + _amount);
     }
 
     /**
@@ -302,46 +326,44 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to decrease the debt of.
      * @param _amount The amount to decrease the debt of the position by.
      */
-    function decreaseDebtOf(uint256 _tokenId, uint256 _amount)
+    function repay(address sender, uint256 _tokenId, uint256 _amount)
         public
         override
         onlyBorrowerOperations
         onlyActivePosition(_tokenId)
     {
-        require(_amount > 0, "A debt cannot be decreased by a negative amount or by 0.");
+        require(_amount > 0, "A debt cannot be decreased by 0.");
 
-        uint256 debtPrincipal = getPosition(_tokenId).debtPrincipal;
-        uint256 currentDebt =
-            FullMath.mulDivRoundingUp(debtPrincipal, interestConstant, getPosition(_tokenId).interestConstant);
-        uint256 newInterestFactor = lessDumbPower(interestRate, block.timestamp - interestConstantTimestamp);
-        currentDebt = FullMath.mulDivRoundingUp(currentDebt, newInterestFactor, FixedPoint96.Q96);
-
-        uint256 oldDebt = currentDebt;
-        uint256 accumulatedInterest = currentDebt - debtPrincipal;
-
-        interestConstant = FullMath.mulDivRoundingUp(interestConstant, newInterestFactor, FixedPoint96.Q96);
-        interestConstantTimestamp = block.timestamp;
+        refreshDebtTracking();
+        // From here, the interestFactor is up-to-date.
+        (uint256 currentDebt, uint256 debtPrincipal, uint256 accumulatedInterest) = allDebtComponentsOf(_tokenId);
 
         _amount = Math.min(_amount, currentDebt);
 
-        if (_amount > accumulatedInterest) {
-            _amount -= accumulatedInterest;
-            accumulatedInterest = 0;
-        } else {
-            accumulatedInterest -= _amount;
-            _amount = 0;
+        uint256 interestRepayment = Math.min(_amount, accumulatedInterest);
+        uint256 principalRepayment = _amount - interestRepayment;
+
+        IERC20(address(protocolContracts.stableCoin)).transferFrom(
+            sender, address(protocolContracts.activePool), principalRepayment + interestRepayment
+        );
+        if (principalRepayment > 0) {
+            protocolContracts.activePool.burn(principalRepayment, address(protocolContracts.stableCoin));
+            protocolValues.totalBorrowedStableCoin -= principalRepayment;
         }
 
-        currentDebt = debtPrincipal + accumulatedInterest;
-        totalGhoBorrowed -= _amount;
+        uint256 newDebt = currentDebt - _amount;
+        uint256 newDebtPrincipal = debtPrincipal - principalRepayment;
+        console.log("newDebtPrincipal", newDebtPrincipal);
+        console.log("newDebt", newDebt);
+        if (newDebt > 0) {
+            positionFromTokenId[_tokenId].interestConstant =
+                FullMath.mulDivRoundingUp(protocolValues.interestFactor, newDebtPrincipal, newDebt);
+        } else {
+            positionFromTokenId[_tokenId].interestConstant = protocolValues.interestFactor;
+        }
+        positionFromTokenId[_tokenId].debtPrincipal = newDebtPrincipal;
 
-        _positionFromTokenId[_tokenId].interestConstant =
-            FullMath.mulDivRoundingUp(currentDebt - _amount, FixedPoint96.Q96 * FixedPoint96.Q96, interestConstant);
-        _positionFromTokenId[_tokenId].debtPrincipal -= _amount;
-
-        emit DecreasedDebt(
-            _positionFromTokenId[_tokenId].user, _tokenId, oldDebt, debtPrincipal + accumulatedInterest - _amount
-            );
+        emit DecreasedDebt(positionFromTokenId[_tokenId].user, _tokenId, currentDebt, newDebt);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -356,10 +378,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function priceInETH(address _tokenAddress) public view override returns (uint256) {
         if (_tokenAddress == WETHAddress) return FixedPoint96.Q96;
-        (int24 twappedTick,) = OracleLibrary.consult(_tokenToWETHPoolInfo[_tokenAddress].poolAddress, TWAP_LENGTH);
+        (int24 twappedTick,) =
+            OracleLibrary.consult(tokenToWETHPoolInfo[_tokenAddress].poolAddress, protocolValues.twapLength);
         uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(twappedTick);
         uint256 ratio = FullMath.mulDiv(sqrtRatioX96, sqrtRatioX96, FixedPoint96.Q96);
-        if (_tokenToWETHPoolInfo[_tokenAddress].inv) return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
+        if (tokenToWETHPoolInfo[_tokenAddress].inv) return FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
         // need to confirm if this is mathematically correct!
         else return ratio;
     }
@@ -371,7 +394,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @return debtInETH The debt of the position in ETH.
      */
     function debtOfInETH(uint256 _tokenId) public view override returns (uint256) {
-        return FullMath.mulDivRoundingUp(debtOf(_tokenId), priceInETH(address(GHO)), FixedPoint96.Q96);
+        return FullMath.mulDivRoundingUp(
+            debtOf(_tokenId), priceInETH(address(protocolContracts.stableCoin)), FixedPoint96.Q96
+        );
     }
 
     /**
@@ -382,8 +407,8 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function positionValueInETH(uint256 _tokenId) public view override returns (uint256 value) {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
-        address token0 = _positionFromTokenId[_tokenId].token0;
-        address token1 = _positionFromTokenId[_tokenId].token1;
+        address token0 = positionFromTokenId[_tokenId].token0;
+        address token1 = positionFromTokenId[_tokenId].token1;
         return FullMath.mulDiv(amount0, priceInETH(token0), FixedPoint96.Q96)
             + FullMath.mulDiv(amount1, priceInETH(token1), FixedPoint96.Q96);
     }
@@ -396,12 +421,70 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function totalPositionsValueInETH(address _user) public view override returns (uint256 totalValue) {
         totalValue = 0;
-        for (uint32 i = 0; i < _positionsFromAddress[_user].length; i++) {
-            if (_positionsFromAddress[_user][i].status == Status.active) {
-                totalValue += positionValueInETH(_positionsFromAddress[_user][i].tokenId);
+        for (uint32 i = 0; i < positionsFromAddress[_user].length; i++) {
+            if (positionsFromAddress[_user][i].status == Status.active) {
+                totalValue += positionValueInETH(positionsFromAddress[_user][i].tokenId);
             }
         }
         return totalValue;
+    }
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+    // Positions interaction
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+    /** 
+     * @notice Increases the liquidity of an LP position.
+     * @param sender The address of the account that is increasing the liquidity of the LP position.
+     * @param tokenId The ID of the LP position to be increased.
+     * @param amountAdd0 The amount of token0 to be added to the LP position.
+     * @param amountAdd1 The amount of token1 to be added to the LP position.
+     * @return liquidity The amount of liquidity added to the LP position.
+     * @return amount0 The amount of token0 added to the LP position.
+     * @return amount1 The amount of token1 added to the LP position.
+     * @dev Only the Borrower Operations contract can call this function.
+     */
+    function increaseLiquidity(address sender, uint256 tokenId, uint256 amountAdd0, uint256 amountAdd1)
+        public
+        override
+        onlyBorrowerOperations
+        returns (uint128 liquidity, uint256 amount0, uint256 amount1)
+    {
+        Position memory position = getPosition(tokenId);
+        address token0 = position.token0;
+        address token1 = position.token1;
+
+        (liquidity,,) = protocolContracts.activePool.increaseLiquidity(sender, tokenId, token0, token1, amountAdd0, amountAdd1);
+
+        Position storage _position = positionFromTokenId[tokenId];
+        _position.liquidity = liquidity;
+
+        emit LiquidityIncreased(tokenId, liquidity);
+    }
+
+    /**
+     * @notice Decreases the liquidity of an LP position.
+     * @param tokenId The ID of the LP position to be decreased.
+     * @param liquidityToRemove The amount of liquidity to be removed from the LP position.
+     * @return amount0 The amount of token0 removed from the LP position.
+     * @return amount1 The amount of token1 removed from the LP position.
+     * @dev Only the Borrower Operations contract can call this function.
+     */
+    function decreaseLiquidity(address sender, uint256 tokenId, uint128 liquidityToRemove)
+        public
+        override
+        returns (uint256 amount0, uint256 amount1)
+    {
+        liquidityToRemove =
+            liquidityToRemove > getPosition(tokenId).liquidity ? getPosition(tokenId).liquidity : liquidityToRemove;
+        // amount0Min and amount1Min are price slippage checks
+
+        protocolContracts.activePool.decreaseLiquidity(sender, tokenId, liquidityToRemove);
+
+        Position storage _position = positionFromTokenId[tokenId];
+        _position.liquidity = getPosition(tokenId).liquidity - liquidityToRemove;
+
+        emit LiquidityDecreased(tokenId, liquidityToRemove);
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -413,12 +496,13 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to get the collateral ratio of.
      * @return collRatio The collateral ratio of the position.
      */
-    function computeCR(uint256 _tokenId) public returns (uint256) {
-        (uint256 fee0, uint256 fee1) = activePool.feesOwed(
+    function collRatioOf(uint256 _tokenId) public view returns (uint256 collRatio) {
+        /*(uint256 fee0, uint256 fee1) = activePool.feesOwed(
             INonfungiblePositionManager.CollectParams(_tokenId, address(this), type(uint128).max, type(uint128).max)
-        );
-        uint256 fees = FullMath.mulDiv(fee0, priceInETH(_positionFromTokenId[_tokenId].token0), FixedPoint96.Q96)
-            + FullMath.mulDiv(fee1, priceInETH(_positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
+        );*/
+        (,,,,,,,,,, uint128 fee0, uint128 fee1) = protocolContracts.uniswapPositionsManager.positions(_tokenId);
+        uint256 fees = FullMath.mulDiv(fee0, priceInETH(positionFromTokenId[_tokenId].token0), FixedPoint96.Q96)
+            + FullMath.mulDiv(fee1, priceInETH(positionFromTokenId[_tokenId].token1), FixedPoint96.Q96);
         uint256 debt = debtOfInETH(_tokenId);
         uint256 collValue = positionValueInETH(_tokenId) + fees;
         return debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256;
@@ -431,7 +515,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @return riskConstants The risk constants ratio of the pool.
      */
     function getRiskConstants(address _pool) public view returns (uint256 riskConstants) {
-        return _riskConstantsFromPoolAddress[_pool].minCR;
+        return riskConstantsFromPool[_pool].minCR;
     }
 
     /**
@@ -442,7 +526,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      */
     function updateRiskConstants(address _pool, uint256 _riskConstants) public {
         require(_riskConstants > FixedPoint96.Q96, "The minimum collateral ratio must be greater than 1.");
-        _riskConstantsFromPoolAddress[_pool].minCR = _riskConstants;
+        riskConstantsFromPool[_pool].minCR = _riskConstants;
     }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -455,7 +539,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _liquidity The new liquidity of the position.
      */
     function setNewLiquidity(uint256 _tokenId, uint128 _liquidity) public onlyBOorAP onlyActivePosition(_tokenId) {
-        Position storage _position = _positionFromTokenId[_tokenId];
+        Position storage _position = positionFromTokenId[_tokenId];
         _position.liquidity = _liquidity;
     }
 
@@ -489,7 +573,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     //         "The new max tick must be smaller than 887272."
     //     );
 
-    //     Position memory _position = _positionFromTokenId[_tokenId];
+    //     Position memory _position = positionFromTokenId[_tokenId];
 
     //     (uint256 _amount0, uint256 _amount1) = activePool.decreaseLiquidity(
     //         _tokenId,
@@ -577,9 +661,9 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
     //         lastUpdateTimestamp: _lastUpdate
     //     });
 
-    //     _allPositions.push(position);
-    //     _positionsFromAddress[_owner].push(position);
-    //     _positionFromTokenId[_newTokenId] = position;
+    //     allPositions.push(position);
+    //     positionsFromAddress[_owner].push(position);
+    //     positionFromTokenId[_newTokenId] = position;
     // }
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -592,9 +676,11 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to check.
      * @return isLiquidatable, true if the position is liquidatable and false otherwise.
      */
-    function liquidatable(uint256 _tokenId) public override returns (bool) {
-        Position memory position = _positionFromTokenId[_tokenId];
-        return computeCR(_tokenId) < _riskConstantsFromPoolAddress[position.poolAddress].minCR;
+    function liquidatable(uint256 _tokenId) public override view returns (bool) {
+        Position memory position = positionFromTokenId[_tokenId];
+        console.log("collRatioOf(_tokenId): ", collRatioOf(_tokenId));
+        console.log("riskConstantsFromPool[position.poolAddress].minCR: ", riskConstantsFromPool[position.poolAddress].minCR);
+        return collRatioOf(_tokenId) < riskConstantsFromPool[position.poolAddress].minCR;
     }
 
     /**
@@ -604,52 +690,19 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _GHOToRepay The amount of GHO to repay to reimburse the debt of the position.
      * @return hasBeenLiquidated, true if the position has been liquidated and false otherwise.
      */
-    function liquidatePosition(uint256 _tokenId, uint256 _GHOToRepay) public override returns (bool) {
-        require(liquidatable(_tokenId), "Position is not liquidatable");
-        require(debtOf(_tokenId) <= _GHOToRepay, "Not enough GHO to repay debt");
+    function liquidatePosition(uint256 _tokenId, uint256 _GHOToRepay) public returns (bool) {
+        require(liquidatable(_tokenId), "The position is not liquidatable.");
+        uint256 debt = debtOf(_tokenId);
+        require(_GHOToRepay >= debt, "The amount of GHO to repay is not enough to reimburse the debt of the position.");
 
-        uint256 repayAmount = _GHOToRepay;
-        uint256 GHOfees = 0;
+        // Burn GHO
+        protocolContracts.stableCoin.transferFrom(msg.sender, address(protocolContracts.activePool), debt);
+        protocolContracts.activePool.burn(debt, address(protocolContracts.stableCoin));
+        protocolValues.totalBorrowedStableCoin -= positionFromTokenId[_tokenId].debtPrincipal;
 
-        // BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
-        // for (uint32 i = 0; i < _borrowDataArray.length; i++) {
-        //     if (repayAmount == 0) {
-        //         break;
-        //     } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
-        //         repayAmount -= _debtOf(_borrowDataArray[i]);
-        //         GHOfees += _debtOf(_borrowDataArray[i]);
-        //         if (repayAmount >= _borrowDataArray[i].mintedAmount) {
-        //             repayAmount -= _borrowDataArray[i].mintedAmount;
-        //             activePool.decreaseMintedSupply(
-        //                 _borrowDataArray[i].mintedAmount,
-        //                 _positionFromTokenId[_tokenId].user
-        //             );
-        //             delete _borrowDataFromTokenId[_tokenId][i];
-        //         } else {
-        //             _borrowDataFromTokenId[_tokenId][i].amount = 0;
-        //             _borrowDataFromTokenId[_tokenId][i]
-        //                 .mintedAmount -= repayAmount;
-        //             activePool.decreaseMintedSupply(
-        //                 repayAmount,
-        //                 _positionFromTokenId[_tokenId].user
-        //             );
-        //             repayAmount = 0;
-        //         }
-        //     } else {
-        //         _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
-        //         GHOfees += repayAmount;
-        //         repayAmount = 0;
-        //     }
-        // }
+        protocolContracts.uniswapPositionsManager.transferFrom(address(this), msg.sender, _tokenId);
 
-        // activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
-        // Position memory position = _positionFromTokenId[_tokenId];
-        // position.debt = 0;
-        // position.status = Status.closedByLiquidation;
-        // _positionFromTokenId[_tokenId] = position;
-
-        // activePool.sendPosition(msg.sender, _tokenId);
-
+        positionFromTokenId[_tokenId].status = Status.closedByLiquidation;
         return true;
     }
 
@@ -670,47 +723,6 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
 
         uint256 repayAmount = _GHOToRepay;
         uint256 GHOfees = 0;
-
-        // BorrowData[] memory _borrowDataArray = _borrowDataFromTokenId[_tokenId];
-        // for (uint32 i = 0; i < _borrowDataArray.length; i++) {
-        //     if (repayAmount == 0) {
-        //         break;
-        //     } else if (repayAmount > _debtOf(_borrowDataArray[i])) {
-        //         repayAmount -= _debtOf(_borrowDataArray[i]);
-        //         GHOfees += _debtOf(_borrowDataArray[i]);
-        //         if (repayAmount >= _borrowDataArray[i].mintedAmount) {
-        //             repayAmount -= _borrowDataArray[i].mintedAmount;
-        //             activePool.decreaseMintedSupply(
-        //                 _borrowDataArray[i].mintedAmount,
-        //                 _positionFromTokenId[_tokenId].user
-        //             );
-        //             delete _borrowDataFromTokenId[_tokenId][i];
-        //         } else {
-        //             _borrowDataFromTokenId[_tokenId][i].amount = 0;
-        //             _borrowDataFromTokenId[_tokenId][i]
-        //                 .mintedAmount -= repayAmount;
-        //             activePool.decreaseMintedSupply(
-        //                 repayAmount,
-        //                 _positionFromTokenId[_tokenId].user
-        //             );
-        //             repayAmount = 0;
-        //         }
-        //     } else {
-        //         _borrowDataFromTokenId[_tokenId][i].amount -= repayAmount;
-        //         GHOfees += repayAmount;
-        //         repayAmount = 0;
-        //     }
-        // }
-
-        // Position memory position = _positionFromTokenId[_tokenId];
-
-        // activePool.repayInterestFromUserToProtocol(msg.sender, GHOfees);
-
-        // activePool.decreaseLiquidity(_tokenId, position.liquidity, msg.sender);
-
-        // position.debt = 0;
-        // position.status = Status.closedByLiquidation;
-        // _positionFromTokenId[_tokenId] = position;
     }
 
     /**
@@ -735,7 +747,7 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @param _tokenId The ID of the position to check.
      */
     modifier onlyActivePosition(uint256 _tokenId) {
-        require(_positionFromTokenId[_tokenId].status == Status.active, "Position does not exist or is closed");
+        require(positionFromTokenId[_tokenId].status == Status.active, "Position does not exist or is closed");
         _;
     }
 
@@ -744,31 +756,28 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
      * @dev This modifier is used to restrict access to the borrower operations contract.
      */
     modifier onlyBorrowerOperations() {
-        require(msg.sender == borrowerOperationsAddress, "This operation is restricted");
+        require(msg.sender == protocolContracts.borrowerOperationsAddr, "This operation is restricted");
         _;
     }
 
     modifier onlyBOorAP() {
         require(
-            msg.sender == borrowerOperationsAddress || msg.sender == address(activePool), "This operation is restricted"
+            msg.sender == protocolContracts.borrowerOperationsAddr
+                || msg.sender == address(protocolContracts.activePool),
+            "This operation is restricted"
         );
         _;
     }
 
-    modifier onlyBOorLPPM() {
-        require(msg.sender == address(this) || msg.sender == borrowerOperationsAddress, "This operation is restricted2");
-        _;
-    }
-
     // base is a fixedpoint96 number, exponent is a regular unsigned integer
-    function lessDumbPower(uint256 _base, uint256 _exponent) public pure returns (uint256 result) {
+    function power(uint256 _base, uint256 _exponent) public pure returns (uint256 result) {
         // do fast exponentiation by checking parity of exponent
         if (_exponent == 0) {
             result = FixedPoint96.Q96;
         } else if (_exponent == 1) {
             result = _base;
         } else {
-            result = lessDumbPower(_base, _exponent / 2);
+            result = power(_base, _exponent / 2);
             // calculate the square of the square root with FullMath.mulDiv
             result = FullMath.mulDiv(result, result, FixedPoint96.Q96);
             if (_exponent % 2 == 1) {
@@ -776,5 +785,12 @@ contract LPPositionsManager is ILPPositionsManager, Ownable, Test {
                 result = FullMath.mulDiv(result, _base, FixedPoint96.Q96);
             }
         }
+    }
+
+    function getProtocolValues() external view returns (ProtocolValues memory) {
+        return protocolValues;
+    }
+    function setProtocolValues(ProtocolValues memory _protocolValues) external {
+        protocolValues = _protocolValues;
     }
 }

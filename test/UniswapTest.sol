@@ -39,10 +39,9 @@ abstract contract UniswapTest is Test {
 	IERC20 WETH = IERC20(wethAddr);
 	IERC20 USDC = IERC20(usdcAddr);
 
-	//ActivePool activePool;
+	ActivePool activePool;
 	BorrowerOperations borrowerOperation;
-	//LPPositionsManager lpPositionsManager;
-	Eclypse eclypse;
+	LPPositionsManager lpPositionsManager;
 	INonfungiblePositionManager uniswapPositionsNFT;
 	ISwapRouter swapRouter;
 	IUniswapV3Pool uniV3PoolWeth_Usdc;
@@ -79,38 +78,36 @@ abstract contract UniswapTest is Test {
 
 		uniV3PoolWeth_Usdc = IUniswapV3Pool(uniPoolUsdcETHAddr);
 
-		//activePool = new ActivePool();
+		activePool = new ActivePool();
 		borrowerOperation = new BorrowerOperations();
-		//lpPositionsManager = new LPPositionsManager();
-		eclypse = new Eclypse();
+		lpPositionsManager = new LPPositionsManager();
 
 		ghoToken = new GhoToken();
-		ghoToken.addFacilitator(address(eclypse), IGhoToken.Facilitator(1_000_000 * 10**18, 0, "Eclypse"));
+		ghoToken.addFacilitator(address(activePool), IGhoToken.Facilitator(1_000_000 * 10**18, 0, "Eclypse (ActivePool)"));
 
-		borrowerOperation.setAddresses(address(eclypse), address(ghoToken));
-		//lpPositionsManager.setAddresses(address(borrowerOperation), address(activePool), address(ghoToken));
-		//activePool.setAddresses(address(borrowerOperation), address(lpPositionsManager), address(ghoToken));
-		eclypse.setAddresses(uniswapFactoryAddr, uniswapPositionsNFTAddr, address(ghoToken), address(borrowerOperation));
+		borrowerOperation.setAddresses(address(lpPositionsManager));
+		lpPositionsManager.setAddresses(uniswapFactoryAddr, uniswapPositionsNFTAddr, address(ghoToken), address(borrowerOperation), address(activePool));
+		activePool.setAddresses(address(lpPositionsManager));
 
 		// whitelist la pool: updateRiskConstants
 		// pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
-		eclypse.addPairToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
+		lpPositionsManager.addPoolToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
 
 		vm.stopPrank();
 
 		vm.startPrank(deployer);
 
 		uint256 _minCR = Math.mulDiv(15, FixedPoint96.Q96, 10);
-		eclypse.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
+		lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
 
 		// protocol values are initialized here
-		IEclypse.ProtocolValues memory protocolValues;
+		ILPPositionsManager.ProtocolValues memory protocolValues;
 		protocolValues.interestRate = 79228162564014647528974148095;
-		protocolValues.totalBorrowedGho = 0;
+		protocolValues.totalBorrowedStableCoin = 0;
 		protocolValues.interestFactor = 1 << 96;
 		protocolValues.lastFactorUpdate = block.timestamp;
 		protocolValues.twapLength = 60;
-		eclypse.setProtocolValues(protocolValues);
+		lpPositionsManager.setProtocolValues(protocolValues);
 
 		vm.stopPrank();
 		createEthGhoPool();
@@ -121,23 +118,14 @@ abstract contract UniswapTest is Test {
 		vm.label(address(uniPoolUsdcETHAddr), "USDC/ETH pool");
 		vm.label(address(ghoToken), "GHO");
 		vm.label(address(borrowerOperation), "BorrowerOperation");
-		vm.label(address(eclypse), "Eclypse");
+		vm.label(address(lpPositionsManager), "LPPositionsManager");
+		vm.label(address(activePool), "ActivePool");
+		//vm.label(address(eclypse), "Eclypse");
 		vm.label(address(uniswapPositionsNFT), "UniswapPositionsNFT");
 		vm.label(address(swapRouter), "SwapRouter");
 		vm.label(uniswapPositionsNFTAddr, "UniswapPositionsNFT");
 	}
 
-	function addUserOnMainnet() private {
-		vm.startPrank(user1);
-		uniswapPositionsNFT.approve(address(borrowerOperation), 549666);
-		borrowerOperation.openPosition(549666);
-		vm.stopPrank();
-
-		vm.startPrank(user2);
-		uniswapPositionsNFT.approve(address(borrowerOperation), 549638);
-		borrowerOperation.openPosition(549638);
-		vm.stopPrank();
-	}
 
 	function addFacticeUser() private {
 		vm.startPrank(facticeUser1);
@@ -146,7 +134,7 @@ abstract contract UniswapTest is Test {
 
 		USDC.approve(address(uniswapPositionsNFT), 100_000_000_000_000_000 * TOKEN6);
 		WETH.approve(address(uniswapPositionsNFT), 100 ether);
-		ghoToken.approve(address(eclypse), 1000 * TOKEN18);
+		ghoToken.approve(address(lpPositionsManager), 1000 * TOKEN18);
 
 		// uniswapPositionsNFT::mint((0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174,
 		// 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, 500, 204920, 204930, 0,
@@ -175,21 +163,21 @@ abstract contract UniswapTest is Test {
 		(facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
 		(facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
 
-		uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId);
-		uniswapPositionsNFT.approve(address(borrowerOperation), facticeUser1_tokenId2);
+		uniswapPositionsNFT.approve(address(lpPositionsManager), facticeUser1_tokenId);
+		uniswapPositionsNFT.approve(address(lpPositionsManager), facticeUser1_tokenId2);
 
 		borrowerOperation.openPosition(facticeUser1_tokenId);
 		borrowerOperation.openPosition(facticeUser1_tokenId2);
 		vm.stopPrank();
 
-		vm.startPrank(address(eclypse));
+		vm.startPrank(address(activePool));
 		ghoToken.mint(facticeUser1, 1000 * TOKEN18);
 		ghoToken.mint(facticeUser2, 1000 * TOKEN18);
 
 		vm.stopPrank();
 
 		vm.startPrank(facticeUser2);
-		ghoToken.approve(address(eclypse), 100 * TOKEN18);
+		ghoToken.approve(address(lpPositionsManager), 100 * TOKEN18);
 		vm.stopPrank();
 	}
 
@@ -240,7 +228,7 @@ abstract contract UniswapTest is Test {
 		}
 		uniswapPositionsNFT.mint{ value: 1000 ether }(mintParams);
 
-		eclypse.addPairToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), true, true);
+		lpPositionsManager.addPoolToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, false);
 
 		ghoToken.approve(swapRouterAddr, 25 * 2 * TOKEN18);
 

@@ -12,8 +12,8 @@
   },
   "files": {
     "contracts/ActivePool.sol": {
-      "lastModificationDate": 1677096512126,
-      "contentHash": "1a2270b88d935574a462d65ba7576bc7",
+      "lastModificationDate": 1678566699968,
+      "contentHash": "d002d0d8ca3eeb2ed9f4f5e41d8f15f7",
       "sourceName": "contracts/ActivePool.sol",
       "solcConfig": {
         "settings": {
@@ -46,8 +46,10 @@
       "imports": [
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
+        "contracts/interfaces/IBorrowerOperations.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
+        "contracts/interfaces/IStableCoin.sol",
         "contracts/utils/CheckContract.sol",
         "lib/forge-std/lib/ds-test/src\\test.sol",
         "lib/forge-std/src/Common.sol",
@@ -66,12 +68,12 @@
         "lib/forge-std/src/console2.sol",
         "lib/gho-core/src/contracts/gho/ERC20.sol",
         "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
@@ -114,8 +116,8 @@
       }
     },
     "contracts/BorrowerOperations.sol": {
-      "lastModificationDate": 1678099296990,
-      "contentHash": "b1863e1b0a1d300f9979bfb392ed5b22",
+      "lastModificationDate": 1678566636420,
+      "contentHash": "8c5ce67287f31f9f33e03d597d7dea2d",
       "sourceName": "contracts/BorrowerOperations.sol",
       "solcConfig": {
         "settings": {
@@ -146,13 +148,12 @@
         }
       },
       "imports": [
-        "contracts/Eclypse.sol",
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
-        "contracts/interfaces/IEclypse.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
+        "contracts/interfaces/IStableCoin.sol",
         "contracts/utils/CheckContract.sol",
         "contracts/utils/Errors.sol",
         "lib/forge-std/lib/ds-test/src\\test.sol",
@@ -172,13 +173,13 @@
         "lib/forge-std/src/console2.sol",
         "lib/gho-core/src/contracts/gho/ERC20.sol",
         "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
@@ -220,10 +221,10 @@
         }
       }
     },
-    "contracts/Eclypse.sol": {
-      "lastModificationDate": 1678171948584,
-      "contentHash": "d0e70cd571262f5f2c7a6cd9b19b0040",
-      "sourceName": "contracts/Eclypse.sol",
+    "contracts/LPPositionsManager.sol": {
+      "lastModificationDate": 1678567662823,
+      "contentHash": "fc57b93642ef1dc607a95214e95813ca",
+      "sourceName": "contracts/LPPositionsManager.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -255,8 +256,9 @@
       "imports": [
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
-        "contracts/interfaces/IEclypse.sol",
+        "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
+        "contracts/interfaces/IStableCoin.sol",
         "lib/forge-std/lib/ds-test/src\\test.sol",
         "lib/forge-std/src/Common.sol",
         "lib/forge-std/src/Components.sol",
@@ -274,12 +276,12 @@
         "lib/forge-std/src/console2.sol",
         "lib/gho-core/src/contracts/gho/ERC20.sol",
         "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
@@ -316,113 +318,14 @@
       ],
       "versionRequirement": "<0.9.0",
       "artifacts": {
-        "Eclypse": {
-          "0.8.17+commit.8df45f5f.Windows.msvc": "Eclypse.sol\\Eclypse.json"
-        }
-      }
-    },
-    "contracts/LPPositionsManager.sol": {
-      "lastModificationDate": 1677096473374,
-      "contentHash": "6eb5b37b2826f9dd0a0d7cccf15bf507",
-      "sourceName": "contracts/LPPositionsManager.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs",
-            "appendCBOR": true
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ]
-            }
-          },
-          "evmVersion": "london",
-          "libraries": {}
-        }
-      },
-      "imports": [
-        "contracts/interfaces/IActivePool.sol",
-        "contracts/interfaces/ILPPositionsManager.sol",
-        "contracts/interfaces/IPool.sol",
-        "lib/forge-std/lib/ds-test/src\\test.sol",
-        "lib/forge-std/src/Common.sol",
-        "lib/forge-std/src/Components.sol",
-        "lib/forge-std/src/StdAssertions.sol",
-        "lib/forge-std/src/StdChains.sol",
-        "lib/forge-std/src/StdCheats.sol",
-        "lib/forge-std/src/StdError.sol",
-        "lib/forge-std/src/StdJson.sol",
-        "lib/forge-std/src/StdMath.sol",
-        "lib/forge-std/src/StdStorage.sol",
-        "lib/forge-std/src/StdUtils.sol",
-        "lib/forge-std/src\\Test.sol",
-        "lib/forge-std/src/Vm.sol",
-        "lib/forge-std/src\\console.sol",
-        "lib/forge-std/src/console2.sol",
-        "lib/gho-core/src/contracts/gho/ERC20.sol",
-        "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
-        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/math/SafeMath.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/structs/EnumerableSet.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
-        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
-        "lib/v3-core/contracts\\libraries/FullMath.sol",
-        "lib/v3-core/contracts\\libraries/TickMath.sol",
-        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
-        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
-        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
-        "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
-        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
-        "lib/v3-periphery/contracts/libraries/PoolAddress.sol"
-      ],
-      "versionRequirement": "<0.9.0",
-      "artifacts": {
         "LPPositionsManager": {
           "0.8.17+commit.8df45f5f.Windows.msvc": "LPPositionsManager.sol\\LPPositionsManager.json"
         }
       }
     },
     "contracts/interfaces/IActivePool.sol": {
-      "lastModificationDate": 1677096385567,
-      "contentHash": "af648478dec414661f03f33286b3c44c",
+      "lastModificationDate": 1678566686265,
+      "contentHash": "f7423adfe6fe43b4b3363c09165d4e39",
       "sourceName": "contracts/interfaces/IActivePool.sol",
       "solcConfig": {
         "settings": {
@@ -473,8 +376,8 @@
       }
     },
     "contracts/interfaces/IBorrowerOperations.sol": {
-      "lastModificationDate": 1678050629046,
-      "contentHash": "0a1967db108a5c67be15aa1bd5855a1c",
+      "lastModificationDate": 1678561711455,
+      "contentHash": "5142bb6fc10dd56c0eea294d2f710772",
       "sourceName": "contracts/interfaces/IBorrowerOperations.sol",
       "solcConfig": {
         "settings": {
@@ -513,8 +416,8 @@
       }
     },
     "contracts/interfaces/IEclypse.sol": {
-      "lastModificationDate": 1678171694922,
-      "contentHash": "e5ccdde58ee0931322823da12b55953f",
+      "lastModificationDate": 1678562795551,
+      "contentHash": "5c6cf78aa3a2e23d6964dfe858814335",
       "sourceName": "contracts/interfaces/IEclypse.sol",
       "solcConfig": {
         "settings": {
@@ -550,8 +453,8 @@
         "contracts/interfaces/IPool.sol",
         "lib/gho-core/src/contracts/gho/ERC20.sol",
         "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
@@ -577,8 +480,8 @@
       }
     },
     "contracts/interfaces/ILPPositionsManager.sol": {
-      "lastModificationDate": 1677096475090,
-      "contentHash": "7dbc1d79d7bbbb002899c24679023e8e",
+      "lastModificationDate": 1678566276326,
+      "contentHash": "e33a4b1eb9ce591f73f8b0bb2f2b4ffd",
       "sourceName": "contracts/interfaces/ILPPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -608,7 +511,26 @@
           "libraries": {}
         }
       },
-      "imports": [],
+      "imports": [
+        "contracts/interfaces/IActivePool.sol",
+        "contracts/interfaces/IBorrowerOperations.sol",
+        "contracts/interfaces/IPool.sol",
+        "contracts/interfaces/IStableCoin.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol"
+      ],
       "versionRequirement": "<0.9.0",
       "artifacts": {
         "ILPPositionsManager": {
@@ -653,6 +575,50 @@
       "artifacts": {
         "IPool": {
           "0.8.17+commit.8df45f5f.Windows.msvc": "IPool.sol\\IPool.json"
+        }
+      }
+    },
+    "contracts/interfaces/IStableCoin.sol": {
+      "lastModificationDate": 1678565098716,
+      "contentHash": "7a9d47c578de350b4a9cf179d569c8b7",
+      "sourceName": "contracts/interfaces/IStableCoin.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionRequirement": ">=0.6.11",
+      "artifacts": {
+        "IStableCoin": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "IStableCoin.sol\\IStableCoin.json"
         }
       }
     },
@@ -1480,8 +1446,8 @@
       },
       "imports": [
         "lib/gho-core/src/contracts/gho/ERC20.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
@@ -1608,8 +1574,8 @@
         }
       },
       "imports": [
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
       ],
       "versionRequirement": "^0.8.0",
@@ -3409,8 +3375,8 @@
       }
     },
     "test/BorrowerOperations.t.sol": {
-      "lastModificationDate": 1678099858015,
-      "contentHash": "5823586efafa2d91fe60788527e3983e",
+      "lastModificationDate": 1678567988652,
+      "contentHash": "edf2568ba48f9251f75b2225310607f8",
       "sourceName": "test/BorrowerOperations.t.sol",
       "solcConfig": {
         "settings": {
@@ -3443,13 +3409,13 @@
       "imports": [
         "contracts/ActivePool.sol",
         "contracts/BorrowerOperations.sol",
-        "contracts/Eclypse.sol",
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
         "contracts/interfaces/IEclypse.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
+        "contracts/interfaces/IStableCoin.sol",
         "contracts/utils/CheckContract.sol",
         "contracts/utils/Errors.sol",
         "lib/forge-std/lib/ds-test/src\\test.sol",
@@ -3469,13 +3435,13 @@
         "lib/forge-std/src/console2.sol",
         "lib/gho-core/src/contracts/gho/ERC20.sol",
         "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
@@ -3606,122 +3572,9 @@
         }
       }
     },
-    "test/EclypseTest.t.sol": {
-      "lastModificationDate": 1678099817261,
-      "contentHash": "ffb2e5cec737a7ed028ba659276eddd7",
-      "sourceName": "test/EclypseTest.t.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs",
-            "appendCBOR": true
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ]
-            }
-          },
-          "evmVersion": "london",
-          "libraries": {}
-        }
-      },
-      "imports": [
-        "contracts/ActivePool.sol",
-        "contracts/BorrowerOperations.sol",
-        "contracts/Eclypse.sol",
-        "contracts/LPPositionsManager.sol",
-        "contracts/interfaces/IActivePool.sol",
-        "contracts/interfaces/IBorrowerOperations.sol",
-        "contracts/interfaces/IEclypse.sol",
-        "contracts/interfaces/ILPPositionsManager.sol",
-        "contracts/interfaces/IPool.sol",
-        "contracts/utils/CheckContract.sol",
-        "contracts/utils/Errors.sol",
-        "lib/forge-std/lib/ds-test/src\\test.sol",
-        "lib/forge-std/src/Common.sol",
-        "lib/forge-std/src/Components.sol",
-        "lib/forge-std/src/StdAssertions.sol",
-        "lib/forge-std/src/StdChains.sol",
-        "lib/forge-std/src/StdCheats.sol",
-        "lib/forge-std/src/StdError.sol",
-        "lib/forge-std/src/StdJson.sol",
-        "lib/forge-std/src/StdMath.sol",
-        "lib/forge-std/src/StdStorage.sol",
-        "lib/forge-std/src/StdUtils.sol",
-        "lib/forge-std/src\\Test.sol",
-        "lib/forge-std/src/Vm.sol",
-        "lib/forge-std/src\\console.sol",
-        "lib/forge-std/src/console2.sol",
-        "lib/gho-core/src/contracts/gho/ERC20.sol",
-        "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
-        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
-        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/math/SafeMath.sol",
-        "lib/openzeppelin-contracts\\contracts/utils/structs/EnumerableSet.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
-        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
-        "lib/v3-core/contracts\\interfaces/callback/IUniswapV3SwapCallback.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
-        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
-        "lib/v3-core/contracts\\libraries/FullMath.sol",
-        "lib/v3-core/contracts\\libraries/TickMath.sol",
-        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
-        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
-        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
-        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
-        "lib/v3-periphery/contracts\\interfaces/IQuoterV2.sol",
-        "lib/v3-periphery/contracts\\interfaces/ISwapRouter.sol",
-        "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
-        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
-        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
-        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol",
-        "test\\UniswapTest.sol"
-      ],
-      "versionRequirement": "<0.9.0",
-      "artifacts": {
-        "EclypseTest": {
-          "0.8.17+commit.8df45f5f.Windows.msvc": "EclypseTest.t.sol\\EclypseTest.json"
-        }
-      }
-    },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1678046316475,
-      "contentHash": "c53b40731432ad781b9776ac50b5d29f",
+      "lastModificationDate": 1678567984893,
+      "contentHash": "99c3a7d7afc88474f5c1305181712f51",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
@@ -3754,13 +3607,13 @@
       "imports": [
         "contracts/ActivePool.sol",
         "contracts/BorrowerOperations.sol",
-        "contracts/Eclypse.sol",
         "contracts/LPPositionsManager.sol",
         "contracts/interfaces/IActivePool.sol",
         "contracts/interfaces/IBorrowerOperations.sol",
         "contracts/interfaces/IEclypse.sol",
         "contracts/interfaces/ILPPositionsManager.sol",
         "contracts/interfaces/IPool.sol",
+        "contracts/interfaces/IStableCoin.sol",
         "contracts/utils/CheckContract.sol",
         "contracts/utils/Errors.sol",
         "lib/forge-std/lib/ds-test/src\\test.sol",
@@ -3780,13 +3633,13 @@
         "lib/forge-std/src/console2.sol",
         "lib/gho-core/src/contracts/gho/ERC20.sol",
         "lib/gho-core\\src/contracts/gho/GHOToken.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
-        "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
+        "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
