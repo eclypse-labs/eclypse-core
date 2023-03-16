@@ -26,6 +26,7 @@ interface IPositionsManager {
         Status status;
         uint256 debtPrincipal;
         uint256 interestConstant;
+        address _assetAddress;
     }
 
     struct ProtocolContracts {
@@ -33,10 +34,9 @@ interface IPositionsManager {
         IEclypseVault eclypseVault;
         IUniswapV3Factory uniswapFactory;
         INonfungiblePositionManager uniswapPositionsManager;
-        address stableCoin;
     }
 
-    struct ProtocolValues {
+    struct AssetsValues {
         uint256 interestRate;
         uint256 totalBorrowedStableCoin;
         uint256 interestFactor;
@@ -106,10 +106,6 @@ interface IPositionsManager {
     // Price functions
     //TODO: Rewrite method when PriceFeed contract is done.
     function priceInETH(address _tokenAddress) external returns (uint256);
-
-    // Colletaral functions
-    function _mint(address _sender, uint256 _amount) external;
-    function _burn(uint256 _amount) external;
 
 
     // Liquidation functions

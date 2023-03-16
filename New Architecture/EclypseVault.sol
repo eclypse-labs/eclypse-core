@@ -46,11 +46,11 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
     }
 
     function mint(address _caller, address _sender, uint256 _amount) public override onlyChildren {
-        (bool _ok, ) = _caller.delegatecall(abi.encodeWithSignature("_mint(address,uint256)", _sender, _amount));
+        (bool _ok, ) = _caller.delegatecall(abi.encodeWithSignature("mint(address,uint256)", _sender, _amount));
     }
 
     function burn(address _caller, uint256 _amount) public override onlyChildren {
-        (bool _ok, ) = _caller.delegatecall(abi.encodeWithSignature("_burn(uint256)", _amount));
+        (bool _ok, ) = _caller.delegatecall(abi.encodeWithSignature("burn(uint256)", _amount));
     }
 
     function increaseLiquidity(
