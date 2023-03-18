@@ -6,7 +6,9 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 interface IEclypseVault {
 
     function initialize(
-        address _uniPosNFT
+        address _uniPosNFT,
+        address _positionsManagerAddress,
+        address _borrowerAddress
     ) external;
 
     function addChildren(address _children) external;

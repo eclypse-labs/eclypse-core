@@ -96,10 +96,10 @@ interface IPositionsManager {
     function repay(address sender, uint256 _tokenId, uint256 _amount) external;
     
     // LP functions
-    function increaseLiquidity(address _sender, uint256 _tokenId, uint256 _amountAdd0, uint256 _amountAdd1)
+    function deposit(address _sender, uint256 _tokenId, uint256 _amountAdd0, uint256 _amountAdd1)
         external
         returns (uint128 liquidity, uint256 amount0, uint256 amount1);
-    function decreaseLiquidity(address _sender, uint256 _tokenId, uint128 _liquidityToRemove)
+    function withdraw(address _sender, uint256 _tokenId, uint128 _liquidityToRemove)
         external
         returns (uint256 amount0, uint256 amount1);
 
