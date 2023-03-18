@@ -100,7 +100,7 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
         if (_amount0 <= 0 || _amount1 <= 0) {
             revert Errors.AmountShouldBePositive();
         }
-
+        
         (liquidity, amount0, amount1) =
             manager.increaseLiquidity(msg.sender, _tokenId, _amount0, _amount1);
     }
