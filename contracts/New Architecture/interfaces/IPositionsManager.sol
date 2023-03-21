@@ -4,6 +4,8 @@ pragma solidity <0.9.0;
 import "./IEclypseVault.sol";
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+import "./IPriceFeed.sol";
+
 interface IPositionsManager {
 
     enum Status {
@@ -34,6 +36,7 @@ interface IPositionsManager {
         IEclypseVault eclypseVault;
         IUniswapV3Factory uniswapFactory;
         INonfungiblePositionManager uniswapPositionsManager;
+        IPriceFeed priceFeed;
     }
 
     struct AssetsValues {
@@ -63,7 +66,8 @@ interface IPositionsManager {
         address _uniPosNFT,
         address _StableCoinAddress,
         address _userInteractionsAddress,
-        address _eclypseVaultAddress
+        address _eclypseVaultAddress,
+        address _priceFeedAddress
     ) external;
 
     function addPoolToProtocol(
@@ -110,7 +114,7 @@ interface IPositionsManager {
 
     // Liquidation functions
     function liquidatable(uint256 _tokenId) external returns (bool);
-    function liquidatePosition(uint256 _tokenId, uint256 _StableCoinToRepay) external returns (bool);
-    function liquidateUnderlyings(uint256 _tokenId, uint256 _StableCoinToRepay) external returns (bool);
+    function liquidatePosition(uint256 _tokenId, uint256 _StableCoinToRepay) external;
+    function liquidateUnderlyings(uint256 _tokenId, uint256 _StableCoinToRepay) external;
     function batchliquidate(uint256[] memory _tokenIds, uint256[] memory _StableCoinToRepay) external;
 }

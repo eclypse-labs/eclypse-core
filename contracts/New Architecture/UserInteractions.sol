@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 import "./interfaces/IUserInteractions.sol";
-import "PositionsManager.sol";
+import "./PositionsManager.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
