@@ -172,17 +172,17 @@
     }
   ],
   "bytecode": {
-    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212202c5faaf8a413f1db58b0519b49fc96ba00303e555562ab6c9419c04505ae5bcb64736f6c63430008110033",
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220c707f6f0803d22a9e625d7bcd8ed7f235967afc2e3f48d0ccaf708d8171dde0364736f6c63430008110033",
     "sourceMap": "57:963:12:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;57:963:12;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212202c5faaf8a413f1db58b0519b49fc96ba00303e555562ab6c9419c04505ae5bcb64736f6c63430008110033",
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220c707f6f0803d22a9e625d7bcd8ed7f235967afc2e3f48d0ccaf708d8171dde0364736f6c63430008110033",
     "sourceMap": "57:963:12:-:0;;;;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AmountShouldBePositive\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"CannotBeUndercollateralized\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_debt\",\"type\":\"uint256\"}],\"name\":\"CannotRepayMoreThanDebt\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"debt\",\"type\":\"uint256\"}],\"name\":\"DebtIsNotPaid\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"allowance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientAllowance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"supply\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientSupply\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"totalSupply\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientTotalSupply\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_liquidity\",\"type\":\"uint256\"}],\"name\":\"MustRemoveLessLiquidity\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"NotOwnerOfPosition\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotOwnerOfTokenId\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PositionILiquidatable\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"PositionIsAlreadyActive\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"PositionIsNotActiveOrIsClosed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"SupplyNotAvailable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/New Architecture/utils/Errors.sol\":\"Errors\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/New Architecture/utils/Errors.sol\":{\"keccak256\":\"0x57c2da0704694b82db2a35b1befb0c362e6e3bb3d04f958cd536646b306b4a41\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://95a517c8d5ba3b2f72cbb1572de96267ca6ddb883fa92b01e09fc47f81ff2675\",\"dweb:/ipfs/QmbuYr7hmzvxJhW6TxG4cTKE8kK4hkPYpbwz34t3oyiqKo\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AmountShouldBePositive\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"CannotBeUndercollateralized\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_debt\",\"type\":\"uint256\"}],\"name\":\"CannotRepayMoreThanDebt\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"debt\",\"type\":\"uint256\"}],\"name\":\"DebtIsNotPaid\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"allowance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientAllowance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"supply\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientSupply\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"totalSupply\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"InsufficientTotalSupply\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_liquidity\",\"type\":\"uint256\"}],\"name\":\"MustRemoveLessLiquidity\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"NotOwnerOfPosition\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotOwnerOfTokenId\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PositionILiquidatable\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"PositionIsAlreadyActive\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"PositionIsNotActiveOrIsClosed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"SupplyNotAvailable\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/New Architecture/utils/Errors.sol\":\"Errors\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/New Architecture/utils/Errors.sol\":{\"keccak256\":\"0x57c2da0704694b82db2a35b1befb0c362e6e3bb3d04f958cd536646b306b4a41\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://95a517c8d5ba3b2f72cbb1572de96267ca6ddb883fa92b01e09fc47f81ff2675\",\"dweb:/ipfs/QmbuYr7hmzvxJhW6TxG4cTKE8kK4hkPYpbwz34t3oyiqKo\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -380,7 +380,7 @@
         ":@uniswap-core/=lib/v3-core/contracts/",
         ":@uniswap-periphery/=lib/v3-periphery/contracts/",
         ":aave-v3-core/=lib/aave-v3-core/",
-        ":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/",
+        ":chainlink/=lib/chainlink/",
         ":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/",
         ":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/",
         ":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/",
@@ -422,17 +422,17 @@
   },
   "ast": {
     "absolutePath": "contracts/New Architecture/utils/Errors.sol",
-    "id": 5950,
+    "id": 5954,
     "exportedSymbols": {
       "Errors": [
-        5949
+        5953
       ]
     },
     "nodeType": "SourceUnit",
     "src": "32:989:12",
     "nodes": [
       {
-        "id": 5884,
+        "id": 5888,
         "nodeType": "PragmaDirective",
         "src": "32:23:12",
         "nodes": [],
@@ -444,12 +444,12 @@
         ]
       },
       {
-        "id": 5949,
+        "id": 5953,
         "nodeType": "ContractDefinition",
         "src": "57:963:12",
         "nodes": [
           {
-            "id": 5886,
+            "id": 5890,
             "nodeType": "ErrorDefinition",
             "src": "78:20:12",
             "nodes": [],
@@ -457,14 +457,14 @@
             "name": "ZeroAddress",
             "nameLocation": "84:11:12",
             "parameters": {
-              "id": 5885,
+              "id": 5889,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "95:2:12"
             }
           },
           {
-            "id": 5892,
+            "id": 5896,
             "nodeType": "ErrorDefinition",
             "src": "103:59:12",
             "nodes": [],
@@ -472,17 +472,17 @@
             "name": "InsufficientBalance",
             "nameLocation": "109:19:12",
             "parameters": {
-              "id": 5891,
+              "id": 5895,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5888,
+                  "id": 5892,
                   "mutability": "mutable",
                   "name": "balance",
                   "nameLocation": "137:7:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5892,
+                  "scope": 5896,
                   "src": "129:15:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -491,7 +491,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5887,
+                    "id": 5891,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "129:7:12",
@@ -504,12 +504,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5890,
+                  "id": 5894,
                   "mutability": "mutable",
                   "name": "amount",
                   "nameLocation": "154:6:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5892,
+                  "scope": 5896,
                   "src": "146:14:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -518,7 +518,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5889,
+                    "id": 5893,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "146:7:12",
@@ -534,7 +534,7 @@
             }
           },
           {
-            "id": 5898,
+            "id": 5902,
             "nodeType": "ErrorDefinition",
             "src": "167:63:12",
             "nodes": [],
@@ -542,17 +542,17 @@
             "name": "InsufficientAllowance",
             "nameLocation": "173:21:12",
             "parameters": {
-              "id": 5897,
+              "id": 5901,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5894,
+                  "id": 5898,
                   "mutability": "mutable",
                   "name": "allowance",
                   "nameLocation": "203:9:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5898,
+                  "scope": 5902,
                   "src": "195:17:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -561,7 +561,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5893,
+                    "id": 5897,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "195:7:12",
@@ -574,12 +574,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5896,
+                  "id": 5900,
                   "mutability": "mutable",
                   "name": "amount",
                   "nameLocation": "222:6:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5898,
+                  "scope": 5902,
                   "src": "214:14:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -588,7 +588,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5895,
+                    "id": 5899,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "214:7:12",
@@ -604,7 +604,7 @@
             }
           },
           {
-            "id": 5904,
+            "id": 5908,
             "nodeType": "ErrorDefinition",
             "src": "269:57:12",
             "nodes": [],
@@ -612,17 +612,17 @@
             "name": "InsufficientSupply",
             "nameLocation": "275:18:12",
             "parameters": {
-              "id": 5903,
+              "id": 5907,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5900,
+                  "id": 5904,
                   "mutability": "mutable",
                   "name": "supply",
                   "nameLocation": "302:6:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5904,
+                  "scope": 5908,
                   "src": "294:14:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -631,7 +631,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5899,
+                    "id": 5903,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "294:7:12",
@@ -644,12 +644,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5902,
+                  "id": 5906,
                   "mutability": "mutable",
                   "name": "amount",
                   "nameLocation": "318:6:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5904,
+                  "scope": 5908,
                   "src": "310:14:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -658,7 +658,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5901,
+                    "id": 5905,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "310:7:12",
@@ -674,7 +674,7 @@
             }
           },
           {
-            "id": 5910,
+            "id": 5914,
             "nodeType": "ErrorDefinition",
             "src": "331:67:12",
             "nodes": [],
@@ -682,17 +682,17 @@
             "name": "InsufficientTotalSupply",
             "nameLocation": "337:23:12",
             "parameters": {
-              "id": 5909,
+              "id": 5913,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5906,
+                  "id": 5910,
                   "mutability": "mutable",
                   "name": "totalSupply",
                   "nameLocation": "369:11:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5910,
+                  "scope": 5914,
                   "src": "361:19:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -701,7 +701,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5905,
+                    "id": 5909,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "361:7:12",
@@ -714,12 +714,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5908,
+                  "id": 5912,
                   "mutability": "mutable",
                   "name": "amount",
                   "nameLocation": "390:6:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5910,
+                  "scope": 5914,
                   "src": "382:14:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -728,7 +728,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5907,
+                    "id": 5911,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "382:7:12",
@@ -744,7 +744,7 @@
             }
           },
           {
-            "id": 5914,
+            "id": 5918,
             "nodeType": "ErrorDefinition",
             "src": "403:54:12",
             "nodes": [],
@@ -752,17 +752,17 @@
             "name": "PositionIsNotActiveOrIsClosed",
             "nameLocation": "409:29:12",
             "parameters": {
-              "id": 5913,
+              "id": 5917,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5912,
+                  "id": 5916,
                   "mutability": "mutable",
                   "name": "_tokenId",
                   "nameLocation": "447:8:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5914,
+                  "scope": 5918,
                   "src": "439:16:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -771,7 +771,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5911,
+                    "id": 5915,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "439:7:12",
@@ -787,7 +787,7 @@
             }
           },
           {
-            "id": 5918,
+            "id": 5922,
             "nodeType": "ErrorDefinition",
             "src": "483:48:12",
             "nodes": [],
@@ -795,17 +795,17 @@
             "name": "PositionIsAlreadyActive",
             "nameLocation": "489:23:12",
             "parameters": {
-              "id": 5917,
+              "id": 5921,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5916,
+                  "id": 5920,
                   "mutability": "mutable",
                   "name": "_tokenId",
                   "nameLocation": "521:8:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5918,
+                  "scope": 5922,
                   "src": "513:16:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -814,7 +814,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5915,
+                    "id": 5919,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "513:7:12",
@@ -830,7 +830,7 @@
             }
           },
           {
-            "id": 5922,
+            "id": 5926,
             "nodeType": "ErrorDefinition",
             "src": "536:43:12",
             "nodes": [],
@@ -838,17 +838,17 @@
             "name": "NotOwnerOfPosition",
             "nameLocation": "542:18:12",
             "parameters": {
-              "id": 5921,
+              "id": 5925,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5920,
+                  "id": 5924,
                   "mutability": "mutable",
                   "name": "_tokenId",
                   "nameLocation": "569:8:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5922,
+                  "scope": 5926,
                   "src": "561:16:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -857,7 +857,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5919,
+                    "id": 5923,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "561:7:12",
@@ -873,7 +873,7 @@
             }
           },
           {
-            "id": 5924,
+            "id": 5928,
             "nodeType": "ErrorDefinition",
             "src": "584:26:12",
             "nodes": [],
@@ -881,14 +881,14 @@
             "name": "NotOwnerOfTokenId",
             "nameLocation": "590:17:12",
             "parameters": {
-              "id": 5923,
+              "id": 5927,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "607:2:12"
             }
           },
           {
-            "id": 5926,
+            "id": 5930,
             "nodeType": "ErrorDefinition",
             "src": "617:31:12",
             "nodes": [],
@@ -896,14 +896,14 @@
             "name": "AmountShouldBePositive",
             "nameLocation": "623:22:12",
             "parameters": {
-              "id": 5925,
+              "id": 5929,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "645:2:12"
             }
           },
           {
-            "id": 5928,
+            "id": 5932,
             "nodeType": "ErrorDefinition",
             "src": "653:30:12",
             "nodes": [],
@@ -911,14 +911,14 @@
             "name": "PositionILiquidatable",
             "nameLocation": "659:21:12",
             "parameters": {
-              "id": 5927,
+              "id": 5931,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "680:2:12"
             }
           },
           {
-            "id": 5930,
+            "id": 5934,
             "nodeType": "ErrorDefinition",
             "src": "705:27:12",
             "nodes": [],
@@ -926,14 +926,14 @@
             "name": "SupplyNotAvailable",
             "nameLocation": "711:18:12",
             "parameters": {
-              "id": 5929,
+              "id": 5933,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "729:2:12"
             }
           },
           {
-            "id": 5936,
+            "id": 5940,
             "nodeType": "ErrorDefinition",
             "src": "753:62:12",
             "nodes": [],
@@ -941,17 +941,17 @@
             "name": "CannotRepayMoreThanDebt",
             "nameLocation": "759:23:12",
             "parameters": {
-              "id": 5935,
+              "id": 5939,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5932,
+                  "id": 5936,
                   "mutability": "mutable",
                   "name": "_amount",
                   "nameLocation": "791:7:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5936,
+                  "scope": 5940,
                   "src": "783:15:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -960,7 +960,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5931,
+                    "id": 5935,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "783:7:12",
@@ -973,12 +973,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5934,
+                  "id": 5938,
                   "mutability": "mutable",
                   "name": "_debt",
                   "nameLocation": "808:5:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5936,
+                  "scope": 5940,
                   "src": "800:13:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -987,7 +987,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5933,
+                    "id": 5937,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "800:7:12",
@@ -1003,7 +1003,7 @@
             }
           },
           {
-            "id": 5940,
+            "id": 5944,
             "nodeType": "ErrorDefinition",
             "src": "841:34:12",
             "nodes": [],
@@ -1011,17 +1011,17 @@
             "name": "DebtIsNotPaid",
             "nameLocation": "847:13:12",
             "parameters": {
-              "id": 5939,
+              "id": 5943,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5938,
+                  "id": 5942,
                   "mutability": "mutable",
                   "name": "debt",
                   "nameLocation": "869:4:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5940,
+                  "scope": 5944,
                   "src": "861:12:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1030,7 +1030,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5937,
+                    "id": 5941,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "861:7:12",
@@ -1046,7 +1046,7 @@
             }
           },
           {
-            "id": 5946,
+            "id": 5950,
             "nodeType": "ErrorDefinition",
             "src": "904:67:12",
             "nodes": [],
@@ -1054,17 +1054,17 @@
             "name": "MustRemoveLessLiquidity",
             "nameLocation": "910:23:12",
             "parameters": {
-              "id": 5945,
+              "id": 5949,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5942,
+                  "id": 5946,
                   "mutability": "mutable",
                   "name": "_amount",
                   "nameLocation": "942:7:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5946,
+                  "scope": 5950,
                   "src": "934:15:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1073,7 +1073,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5941,
+                    "id": 5945,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "934:7:12",
@@ -1086,12 +1086,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5944,
+                  "id": 5948,
                   "mutability": "mutable",
                   "name": "_liquidity",
                   "nameLocation": "959:10:12",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5946,
+                  "scope": 5950,
                   "src": "951:18:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1100,7 +1100,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5943,
+                    "id": 5947,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "951:7:12",
@@ -1116,7 +1116,7 @@
             }
           },
           {
-            "id": 5948,
+            "id": 5952,
             "nodeType": "ErrorDefinition",
             "src": "976:36:12",
             "nodes": [],
@@ -1124,7 +1124,7 @@
             "name": "CannotBeUndercollateralized",
             "nameLocation": "982:27:12",
             "parameters": {
-              "id": 5947,
+              "id": 5951,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1009:2:12"
@@ -1138,28 +1138,28 @@
         "contractKind": "library",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          5949
+          5953
         ],
         "name": "Errors",
         "nameLocation": "65:6:12",
-        "scope": 5950,
+        "scope": 5954,
         "usedErrors": [
-          5886,
-          5892,
-          5898,
-          5904,
-          5910,
+          5890,
+          5896,
+          5902,
+          5908,
           5914,
           5918,
           5922,
-          5924,
           5926,
           5928,
           5930,
-          5936,
+          5932,
+          5934,
           5940,
-          5946,
-          5948
+          5944,
+          5950,
+          5952
         ]
       }
     ],

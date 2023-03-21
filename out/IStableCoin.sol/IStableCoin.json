@@ -235,7 +235,7 @@
     "transfer(address,uint256)": "a9059cbb",
     "transferFrom(address,address,uint256)": "23b872dd"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"allowance(address,address)\":{\"details\":\"Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called.\"},\"approve(address,uint256)\":{\"details\":\"Sets `amount` as the allowance of `spender` over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Approval} event.\"},\"balanceOf(address)\":{\"details\":\"Returns the amount of tokens owned by `account`.\"},\"burn(uint256)\":{\"details\":\"Destroys `amount` tokens from caller\",\"params\":{\"amount\":\"The amount of tokens to destroy\"}},\"mint(address,uint256)\":{\"details\":\"Creates `amount` new tokens for `account`\",\"params\":{\"account\":\"The address to create tokens for\",\"amount\":\"The amount of tokens to create\"}},\"totalSupply()\":{\"details\":\"Returns the amount of tokens in existence.\"},\"transfer(address,uint256)\":{\"details\":\"Moves `amount` tokens from the caller's account to `to`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"transferFrom(address,address,uint256)\":{\"details\":\"Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IStableCoin.sol\":\"IStableCoin\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/interfaces/IStableCoin.sol\":{\"keccak256\":\"0xa18efe5ec9462bb880710529475b4f79799d20a3870b63bf220c133acde93c3c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e75fb6a02a150deb4d4a9f9889450f18f25734fa2608a95c210a101c611fa8ce\",\"dweb:/ipfs/QmfBX4EGo3P6kZHiFG8Cy3krhnk2954dcMGpm93Xy8A4hj\"]},\"lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol\":{\"keccak256\":\"0x44a61300ec9e5feaa4e2b34c8334eb5a1e2bd06406f5f38c304ff3ed6f34e256\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://73e70675df3692672649bd17ea78f13c90bf4ae81f1b94f553ab53307f40e37a\",\"dweb:/ipfs/QmRraUEqzAZoxCofMZfLMm9RcJa9eQsC8gVQMLKdo5vNWE\"]},\"lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol\":{\"keccak256\":\"0x15facb955dfc3ee2e37cf8cfc80129cc1435f073399e9d868b87fb1347c55a02\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e09a54d197e8dc12bdf0b594345450f6bca25149de1f4eb70ebda52bbf9c6ec4\",\"dweb:/ipfs/Qma35NUSAxcGR8fxHvtLxYFfh9fPknwbAEjSuNJL8kp7KN\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"allowance(address,address)\":{\"details\":\"Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called.\"},\"approve(address,uint256)\":{\"details\":\"Sets `amount` as the allowance of `spender` over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Approval} event.\"},\"balanceOf(address)\":{\"details\":\"Returns the amount of tokens owned by `account`.\"},\"burn(uint256)\":{\"details\":\"Destroys `amount` tokens from caller\",\"params\":{\"amount\":\"The amount of tokens to destroy\"}},\"mint(address,uint256)\":{\"details\":\"Creates `amount` new tokens for `account`\",\"params\":{\"account\":\"The address to create tokens for\",\"amount\":\"The amount of tokens to create\"}},\"totalSupply()\":{\"details\":\"Returns the amount of tokens in existence.\"},\"transfer(address,uint256)\":{\"details\":\"Moves `amount` tokens from the caller's account to `to`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"transferFrom(address,address,uint256)\":{\"details\":\"Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IStableCoin.sol\":\"IStableCoin\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/interfaces/IStableCoin.sol\":{\"keccak256\":\"0xa18efe5ec9462bb880710529475b4f79799d20a3870b63bf220c133acde93c3c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e75fb6a02a150deb4d4a9f9889450f18f25734fa2608a95c210a101c611fa8ce\",\"dweb:/ipfs/QmfBX4EGo3P6kZHiFG8Cy3krhnk2954dcMGpm93Xy8A4hj\"]},\"lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol\":{\"keccak256\":\"0x44a61300ec9e5feaa4e2b34c8334eb5a1e2bd06406f5f38c304ff3ed6f34e256\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://73e70675df3692672649bd17ea78f13c90bf4ae81f1b94f553ab53307f40e37a\",\"dweb:/ipfs/QmRraUEqzAZoxCofMZfLMm9RcJa9eQsC8gVQMLKdo5vNWE\"]},\"lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol\":{\"keccak256\":\"0x15facb955dfc3ee2e37cf8cfc80129cc1435f073399e9d868b87fb1347c55a02\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e09a54d197e8dc12bdf0b594345450f6bca25149de1f4eb70ebda52bbf9c6ec4\",\"dweb:/ipfs/Qma35NUSAxcGR8fxHvtLxYFfh9fPknwbAEjSuNJL8kp7KN\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -507,7 +507,7 @@
         ":@uniswap-core/=lib/v3-core/contracts/",
         ":@uniswap-periphery/=lib/v3-periphery/contracts/",
         ":aave-v3-core/=lib/aave-v3-core/",
-        ":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/",
+        ":chainlink/=lib/chainlink/",
         ":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/",
         ":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/",
         ":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/",
@@ -573,26 +573,26 @@
   },
   "ast": {
     "absolutePath": "contracts/interfaces/IStableCoin.sol",
-    "id": 6897,
+    "id": 6901,
     "exportedSymbols": {
       "IERC20": [
-        33580
+        33584
       ],
       "IERC20Burnable": [
-        32621
+        32625
       ],
       "IERC20Mintable": [
-        32633
+        32637
       ],
       "IStableCoin": [
-        6896
+        6900
       ]
     },
     "nodeType": "SourceUnit",
     "src": "35:297:18",
     "nodes": [
       {
-        "id": 6886,
+        "id": 6890,
         "nodeType": "PragmaDirective",
         "src": "35:25:18",
         "nodes": [],
@@ -604,46 +604,46 @@
         ]
       },
       {
-        "id": 6887,
+        "id": 6891,
         "nodeType": "ImportDirective",
         "src": "64:66:18",
         "nodes": [],
         "absolutePath": "lib/gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
         "file": "gho-core/src/contracts/gho/interfaces/IERC20Mintable.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 6897,
-        "sourceUnit": 32634,
+        "scope": 6901,
+        "sourceUnit": 32638,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 6888,
+        "id": 6892,
         "nodeType": "ImportDirective",
         "src": "132:66:18",
         "nodes": [],
         "absolutePath": "lib/gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
         "file": "gho-core/src/contracts/gho/interfaces/IERC20Burnable.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 6897,
-        "sourceUnit": 32622,
+        "scope": 6901,
+        "sourceUnit": 32626,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 6889,
+        "id": 6893,
         "nodeType": "ImportDirective",
         "src": "200:56:18",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "file": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 6897,
-        "sourceUnit": 33581,
+        "scope": 6901,
+        "sourceUnit": 33585,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 6896,
+        "id": 6900,
         "nodeType": "ContractDefinition",
         "src": "260:70:18",
         "nodes": [],
@@ -651,46 +651,46 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 6890,
+              "id": 6894,
               "name": "IERC20Mintable",
               "nameLocations": [
                 "285:14:18"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 32633,
+              "referencedDeclaration": 32637,
               "src": "285:14:18"
             },
-            "id": 6891,
+            "id": 6895,
             "nodeType": "InheritanceSpecifier",
             "src": "285:14:18"
           },
           {
             "baseName": {
-              "id": 6892,
+              "id": 6896,
               "name": "IERC20Burnable",
               "nameLocations": [
                 "301:14:18"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 32621,
+              "referencedDeclaration": 32625,
               "src": "301:14:18"
             },
-            "id": 6893,
+            "id": 6897,
             "nodeType": "InheritanceSpecifier",
             "src": "301:14:18"
           },
           {
             "baseName": {
-              "id": 6894,
+              "id": 6898,
               "name": "IERC20",
               "nameLocations": [
                 "317:6:18"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 33580,
+              "referencedDeclaration": 33584,
               "src": "317:6:18"
             },
-            "id": 6895,
+            "id": 6899,
             "nodeType": "InheritanceSpecifier",
             "src": "317:6:18"
           }
@@ -700,14 +700,14 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          6896,
-          33580,
-          32621,
-          32633
+          6900,
+          33584,
+          32625,
+          32637
         ],
         "name": "IStableCoin",
         "nameLocation": "270:11:18",
-        "scope": 6897,
+        "scope": 6901,
         "usedErrors": []
       }
     ],

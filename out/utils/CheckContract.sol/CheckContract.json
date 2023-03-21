@@ -1,17 +1,17 @@
 {
   "abi": [],
   "bytecode": {
-    "object": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122081da7cf1b7c83fee7888271df2d1871fb2a52758e833871ffea79b8268020af264736f6c63430008110033",
+    "object": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212203f76796ed6e5d81433f2537fc8fd264f3eef7d304a05b55d704164f01114903764736f6c63430008110033",
     "sourceMap": "61:565:11:-:0;;;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x6080604052600080fdfea264697066735822122081da7cf1b7c83fee7888271df2d1871fb2a52758e833871ffea79b8268020af264736f6c63430008110033",
+    "object": "0x6080604052600080fdfea26469706673582212203f76796ed6e5d81433f2537fc8fd264f3eef7d304a05b55d704164f01114903764736f6c63430008110033",
     "sourceMap": "61:565:11:-:0;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/New Architecture/utils/CheckContract.sol\":\"CheckContract\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/New Architecture/utils/CheckContract.sol\":{\"keccak256\":\"0xde3dfead532807b6ecdcca9999b4324e656daa54b40da8921f1eba996756f77c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d976c74f522c9dee464fa4c7914a997b3ca66cf13d9de8fdbdada5fa84aac132\",\"dweb:/ipfs/Qmag2DheznW8pAXRk311EnKCvLgCp3H2yrwHnySyioKefv\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/New Architecture/utils/CheckContract.sol\":\"CheckContract\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/New Architecture/utils/CheckContract.sol\":{\"keccak256\":\"0xde3dfead532807b6ecdcca9999b4324e656daa54b40da8921f1eba996756f77c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d976c74f522c9dee464fa4c7914a997b3ca66cf13d9de8fdbdada5fa84aac132\",\"dweb:/ipfs/Qmag2DheznW8pAXRk311EnKCvLgCp3H2yrwHnySyioKefv\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -38,7 +38,7 @@
         ":@uniswap-core/=lib/v3-core/contracts/",
         ":@uniswap-periphery/=lib/v3-periphery/contracts/",
         ":aave-v3-core/=lib/aave-v3-core/",
-        ":chainlink/=lib/chainlink/integration-tests/contracts/ethereum/src/",
+        ":chainlink/=lib/chainlink/",
         ":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/",
         ":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/",
         ":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/",
@@ -80,17 +80,17 @@
   },
   "ast": {
     "absolutePath": "contracts/New Architecture/utils/CheckContract.sol",
-    "id": 5883,
+    "id": 5887,
     "exportedSymbols": {
       "CheckContract": [
-        5882
+        5886
       ]
     },
     "nodeType": "SourceUnit",
     "src": "33:594:11",
     "nodes": [
       {
-        "id": 5853,
+        "id": 5857,
         "nodeType": "PragmaDirective",
         "src": "33:25:11",
         "nodes": [],
@@ -102,17 +102,17 @@
         ]
       },
       {
-        "id": 5882,
+        "id": 5886,
         "nodeType": "ContractDefinition",
         "src": "61:565:11",
         "nodes": [
           {
-            "id": 5881,
+            "id": 5885,
             "nodeType": "FunctionDefinition",
             "src": "294:330:11",
             "nodes": [],
             "body": {
-              "id": 5880,
+              "id": 5884,
               "nodeType": "Block",
               "src": "349:275:11",
               "nodes": [],
@@ -125,17 +125,17 @@
                           "typeIdentifier": "t_address",
                           "typeString": "address"
                         },
-                        "id": 5865,
+                        "id": 5869,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "leftExpression": {
-                          "id": 5860,
+                          "id": 5864,
                           "name": "_account",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 5856,
+                          "referencedDeclaration": 5860,
                           "src": "367:8:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_address",
@@ -148,7 +148,7 @@
                           "arguments": [
                             {
                               "hexValue": "30",
-                              "id": 5863,
+                              "id": 5867,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
@@ -170,7 +170,7 @@
                                 "typeString": "int_const 0"
                               }
                             ],
-                            "id": 5862,
+                            "id": 5866,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -182,14 +182,14 @@
                               "typeString": "type(address)"
                             },
                             "typeName": {
-                              "id": 5861,
+                              "id": 5865,
                               "name": "address",
                               "nodeType": "ElementaryTypeName",
                               "src": "379:7:11",
                               "typeDescriptions": {}
                             }
                           },
-                          "id": 5864,
+                          "id": 5868,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -213,7 +213,7 @@
                       },
                       {
                         "hexValue": "4163636f756e742063616e6e6f74206265207a65726f2061646472657373",
-                        "id": 5866,
+                        "id": 5870,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -239,7 +239,7 @@
                           "typeString": "literal_string \"Account cannot be zero address\""
                         }
                       ],
-                      "id": 5859,
+                      "id": 5863,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -253,7 +253,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 5867,
+                    "id": 5871,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -269,23 +269,23 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5868,
+                  "id": 5872,
                   "nodeType": "ExpressionStatement",
                   "src": "359:65:11"
                 },
                 {
                   "assignments": [
-                    5870
+                    5874
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 5870,
+                      "id": 5874,
                       "mutability": "mutable",
                       "name": "size",
                       "nameLocation": "443:4:11",
                       "nodeType": "VariableDeclaration",
-                      "scope": 5880,
+                      "scope": 5884,
                       "src": "435:12:11",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -294,7 +294,7 @@
                         "typeString": "uint256"
                       },
                       "typeName": {
-                        "id": 5869,
+                        "id": 5873,
                         "name": "uint256",
                         "nodeType": "ElementaryTypeName",
                         "src": "435:7:11",
@@ -306,7 +306,7 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 5871,
+                  "id": 5875,
                   "nodeType": "VariableDeclarationStatement",
                   "src": "435:12:11"
                 },
@@ -347,21 +347,21 @@
                   "evmVersion": "london",
                   "externalReferences": [
                     {
-                      "declaration": 5856,
+                      "declaration": 5860,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "544:8:11",
                       "valueSize": 1
                     },
                     {
-                      "declaration": 5870,
+                      "declaration": 5874,
                       "isOffset": false,
                       "isSlot": false,
                       "src": "524:4:11",
                       "valueSize": 1
                     }
                   ],
-                  "id": 5872,
+                  "id": 5876,
                   "nodeType": "InlineAssembly",
                   "src": "513:42:11"
                 },
@@ -373,17 +373,17 @@
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
                         },
-                        "id": 5876,
+                        "id": 5880,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "leftExpression": {
-                          "id": 5874,
+                          "id": 5878,
                           "name": "size",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 5870,
+                          "referencedDeclaration": 5874,
                           "src": "572:4:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
@@ -394,7 +394,7 @@
                         "operator": ">",
                         "rightExpression": {
                           "hexValue": "30",
-                          "id": 5875,
+                          "id": 5879,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -416,7 +416,7 @@
                       },
                       {
                         "hexValue": "4163636f756e7420636f64652073697a652063616e6e6f74206265207a65726f",
-                        "id": 5877,
+                        "id": 5881,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -442,7 +442,7 @@
                           "typeString": "literal_string \"Account code size cannot be zero\""
                         }
                       ],
-                      "id": 5873,
+                      "id": 5877,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -456,7 +456,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 5878,
+                    "id": 5882,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -472,14 +472,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5879,
+                  "id": 5883,
                   "nodeType": "ExpressionStatement",
                   "src": "564:53:11"
                 }
               ]
             },
             "documentation": {
-              "id": 5854,
+              "id": 5858,
               "nodeType": "StructuredDocumentation",
               "src": "90:199:11",
               "text": " Check that the account is an already deployed non-destroyed contract.\n See: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Address.sol#L12"
@@ -490,17 +490,17 @@
             "name": "checkContract",
             "nameLocation": "303:13:11",
             "parameters": {
-              "id": 5857,
+              "id": 5861,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5856,
+                  "id": 5860,
                   "mutability": "mutable",
                   "name": "_account",
                   "nameLocation": "325:8:11",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5881,
+                  "scope": 5885,
                   "src": "317:16:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -509,7 +509,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 5855,
+                    "id": 5859,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "317:7:11",
@@ -525,12 +525,12 @@
               "src": "316:18:11"
             },
             "returnParameters": {
-              "id": 5858,
+              "id": 5862,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "349:0:11"
             },
-            "scope": 5882,
+            "scope": 5886,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "internal"
@@ -543,11 +543,11 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          5882
+          5886
         ],
         "name": "CheckContract",
         "nameLocation": "70:13:11",
-        "scope": 5883,
+        "scope": 5887,
         "usedErrors": []
       }
     ],
