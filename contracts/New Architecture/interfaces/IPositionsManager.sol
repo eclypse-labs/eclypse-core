@@ -28,7 +28,7 @@ interface IPositionsManager {
         Status status;
         uint256 debtPrincipal;
         uint256 interestConstant;
-        address _assetAddress;
+        address assetAddress;
     }
 
     struct ProtocolContracts {
@@ -58,13 +58,12 @@ interface IPositionsManager {
 
     struct UserPositions {
         uint256 counter;
-        mapping(uint256 => Positions) positions;
+        mapping(uint256 => Position) positions;
     }
 
     function initialize(
         address _uniFactory,
         address _uniPosNFT,
-        address _StableCoinAddress,
         address _userInteractionsAddress,
         address _eclypseVaultAddress,
         address _priceFeedAddress
@@ -81,15 +80,15 @@ interface IPositionsManager {
     ) external;
 
     // Position functions
-    function openPosition(address _owner, uint256 _tokenId) external;
+    function openPosition(address _owner, uint256 _tokenId, address _assetAddress) external;
     function closePosition(address _owner, uint256 _tokenId) external;
 
     function getPosition(uint256 _tokenId) external view returns (Position memory position);
     
     function positionAmounts(uint256 _tokenId) external view returns (uint256 amountToken0, uint256 amountToken1);
 
-    function positionValueInETH(uint256 _tokenId) external view returns (uint256 value);
-    function totalPositionsValueInETH(address _user) external view returns (uint256 totalValue);
+    function positionValueInETH(uint256 _tokenId) external returns (uint256 value);
+    function totalPositionsValueInETH(address _user) external returns (uint256 totalValue);
 
      // Debt functions
     function debtOf(uint256 _tokenId) external returns (uint256);
@@ -115,6 +114,6 @@ interface IPositionsManager {
     // Liquidation functions
     function liquidatable(uint256 _tokenId) external returns (bool);
     function liquidatePosition(uint256 _tokenId, uint256 _StableCoinToRepay) external;
-    function liquidateUnderlyings(uint256 _tokenId, uint256 _StableCoinToRepay) external;
+    function liquidateUnderlyings(uint256 _tokenId, uint256 _amountRepay) external;
     function batchliquidate(uint256[] memory _tokenIds, uint256[] memory _StableCoinToRepay) external;
 }

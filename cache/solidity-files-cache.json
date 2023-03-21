@@ -3,7 +3,7 @@
   "paths": {
     "artifacts": "out",
     "build_infos": "out/build-info",
-    "sources": "src",
+    "sources": "contracts/New Architecture",
     "tests": "test",
     "scripts": "script",
     "libraries": [
@@ -72,7 +72,7 @@
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
@@ -178,7 +178,7 @@
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
@@ -280,7 +280,7 @@
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
@@ -320,6 +320,536 @@
       "artifacts": {
         "LPPositionsManager": {
           "0.8.17+commit.8df45f5f.Windows.msvc": "LPPositionsManager.sol\\LPPositionsManager.json"
+        }
+      }
+    },
+    "contracts/New Architecture/EclypseVault.sol": {
+      "lastModificationDate": 1679420197794,
+      "contentHash": "2d5955001cf2e203058650ababda6443",
+      "sourceName": "contracts/New Architecture/EclypseVault.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/New Architecture\\interfaces\\IEclypseVault.sol",
+        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/v3-core/contracts\\libraries/FullMath.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol"
+      ],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "EclypseVault": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "EclypseVault.sol\\EclypseVault.json"
+        }
+      }
+    },
+    "contracts/New Architecture/PositionsManager.sol": {
+      "lastModificationDate": 1679423707899,
+      "contentHash": "c9fc6da97a444a2790de7e9395d4c4e1",
+      "sourceName": "contracts/New Architecture/PositionsManager.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/New Architecture\\interfaces\\IEclypseVault.sol",
+        "contracts/New Architecture\\interfaces\\IPositionsManager.sol",
+        "contracts/New Architecture\\interfaces\\IPriceFeed.sol",
+        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/openzeppelin-contracts\\contracts/utils/math/SafeMath.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
+        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
+        "lib/v3-core/contracts\\libraries/FullMath.sol",
+        "lib/v3-core/contracts\\libraries/TickMath.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
+        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol"
+      ],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "PositionsManager": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "PositionsManager.sol\\PositionsManager.json"
+        }
+      }
+    },
+    "contracts/New Architecture/PriceFeed.sol": {
+      "lastModificationDate": 1679422524941,
+      "contentHash": "5e5fd214a943c2b0215e124f080c9542",
+      "sourceName": "contracts/New Architecture/PriceFeed.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/New Architecture\\interfaces\\IPriceFeed.sol",
+        "lib/chainlink/contracts\\src/v0.8/interfaces/AggregatorV3Interface.sol",
+        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
+        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
+        "lib/v3-core/contracts\\libraries/FullMath.sol",
+        "lib/v3-core/contracts\\libraries/TickMath.sol",
+        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol"
+      ],
+      "versionRequirement": ">=0.6.11",
+      "artifacts": {
+        "UniswapPriceFeed": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "PriceFeed.sol\\UniswapPriceFeed.json"
+        }
+      }
+    },
+    "contracts/New Architecture/UserInteractions.sol": {
+      "lastModificationDate": 1679423139086,
+      "contentHash": "713895441486a5a5111184ffa61cbca0",
+      "sourceName": "contracts/New Architecture/UserInteractions.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/New Architecture\\PositionsManager.sol",
+        "contracts/New Architecture\\interfaces\\IEclypseVault.sol",
+        "contracts/New Architecture\\interfaces\\IPositionsManager.sol",
+        "contracts/New Architecture\\interfaces\\IPriceFeed.sol",
+        "contracts/New Architecture\\interfaces\\IUserInteractions.sol",
+        "contracts/New Architecture\\utils\\Errors.sol",
+        "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/openzeppelin-contracts\\contracts/utils/math/SafeMath.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Pool.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
+        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
+        "lib/v3-core/contracts\\libraries/FixedPoint96.sol",
+        "lib/v3-core/contracts\\libraries/FullMath.sol",
+        "lib/v3-core/contracts\\libraries/TickMath.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts\\libraries/LiquidityAmounts.sol",
+        "lib/v3-periphery/contracts\\libraries/OracleLibrary.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol",
+        "lib/v3-periphery/contracts\\libraries/TransferHelper.sol"
+      ],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "UserInteractions": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "UserInteractions.sol\\UserInteractions.json"
+        }
+      }
+    },
+    "contracts/New Architecture/interfaces/IEclypseVault.sol": {
+      "lastModificationDate": 1679422927335,
+      "contentHash": "a88c77bcf6fb49e19630155f624ed3bf",
+      "sourceName": "contracts/New Architecture/interfaces/IEclypseVault.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol"
+      ],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "IEclypseVault": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "IEclypseVault.sol\\IEclypseVault.json"
+        }
+      }
+    },
+    "contracts/New Architecture/interfaces/IPositionsManager.sol": {
+      "lastModificationDate": 1679423685367,
+      "contentHash": "e4b74d089041338faed4d95b231068eb",
+      "sourceName": "contracts/New Architecture/interfaces/IPositionsManager.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "contracts/New Architecture\\interfaces\\IEclypseVault.sol",
+        "contracts/New Architecture\\interfaces\\IPriceFeed.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "lib/v3-core/contracts\\interfaces/IUniswapV3Factory.sol",
+        "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
+        "lib/v3-periphery/contracts\\interfaces/INonfungiblePositionManager.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
+        "lib/v3-periphery/contracts/interfaces/IPeripheryPayments.sol",
+        "lib/v3-periphery/contracts/interfaces/IPoolInitializer.sol",
+        "lib/v3-periphery/contracts/libraries/PoolAddress.sol"
+      ],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "IPositionsManager": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "IPositionsManager.sol\\IPositionsManager.json"
+        }
+      }
+    },
+    "contracts/New Architecture/interfaces/IPriceFeed.sol": {
+      "lastModificationDate": 1679417401655,
+      "contentHash": "4d45c74bec4f66d6bf369cb765cbe187",
+      "sourceName": "contracts/New Architecture/interfaces/IPriceFeed.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.6.11",
+      "artifacts": {
+        "IPriceFeed": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "IPriceFeed.sol\\IPriceFeed.json"
+        }
+      }
+    },
+    "contracts/New Architecture/interfaces/IUserInteractions.sol": {
+      "lastModificationDate": 1679422644541,
+      "contentHash": "c258eb63b9a4b546c0e0aa63c345d0d3",
+      "sourceName": "contracts/New Architecture/interfaces/IUserInteractions.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "<0.9.0",
+      "artifacts": {
+        "IUserInteractions": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "IUserInteractions.sol\\IUserInteractions.json"
+        }
+      }
+    },
+    "contracts/New Architecture/utils/CheckContract.sol": {
+      "lastModificationDate": 1676830552948,
+      "contentHash": "e34590042ad8229a6cf980f1f07ea8b5",
+      "sourceName": "contracts/New Architecture/utils/CheckContract.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": ">=0.6.11",
+      "artifacts": {
+        "CheckContract": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "utils\\CheckContract.sol\\CheckContract.json"
+        }
+      }
+    },
+    "contracts/New Architecture/utils/Errors.sol": {
+      "lastModificationDate": 1676830552948,
+      "contentHash": "aa5a553d69b6176eb81ebba8db3a9f2f",
+      "sourceName": "contracts/New Architecture/utils/Errors.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "Errors": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "utils\\Errors.sol\\Errors.json"
         }
       }
     },
@@ -457,7 +987,7 @@
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
@@ -518,7 +1048,7 @@
         "contracts/interfaces/IStableCoin.sol",
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Enumerable.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/extensions/IERC721Metadata.sol",
@@ -613,7 +1143,7 @@
       "imports": [
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol"
       ],
       "versionRequirement": ">=0.6.11",
       "artifacts": {
@@ -699,6 +1229,46 @@
       "artifacts": {
         "Errors": {
           "0.8.17+commit.8df45f5f.Windows.msvc": "Errors.sol\\Errors.json"
+        }
+      }
+    },
+    "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol": {
+      "lastModificationDate": 1679418385745,
+      "contentHash": "d9654a0fc044a31d4106ee6bca772add",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "AggregatorV3Interface": {
+          "0.8.17+commit.8df45f5f.Windows.msvc": "AggregatorV3Interface.sol\\AggregatorV3Interface.json"
         }
       }
     },
@@ -1403,7 +1973,7 @@
         }
       },
       "imports": [
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol"
       ],
       "versionRequirement": "^0.8.0",
       "artifacts": {
@@ -1450,7 +2020,7 @@
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts\\contracts/utils/structs/EnumerableSet.sol"
       ],
@@ -1576,7 +2146,7 @@
       "imports": [
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Burnable.sol",
         "lib/gho-core\\src/contracts/gho/interfaces/IERC20Mintable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol"
       ],
       "versionRequirement": "^0.8.0",
       "artifacts": {
@@ -1700,7 +2270,7 @@
         }
       },
       "imports": [
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol"
       ],
@@ -1784,7 +2354,7 @@
         }
       },
       "imports": [
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol"
       ],
       "versionRequirement": "^0.8.0",
       "artifacts": {
@@ -3325,7 +3895,7 @@
         }
       },
       "imports": [
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol"
       ],
       "versionRequirement": ">=0.6.0",
       "artifacts": {
@@ -3440,7 +4010,7 @@
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",
@@ -3561,7 +4131,7 @@
       },
       "imports": [
         "lib/openzeppelin-contracts\\contracts/token/ERC20/ERC20.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol"
       ],
@@ -3638,7 +4208,7 @@
         "lib/gho-core/src/contracts/gho/interfaces/IGhoToken.sol",
         "lib/openzeppelin-contracts\\contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts\\contracts/security/ReentrancyGuard.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts\\contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/ERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts\\contracts/token/ERC721/IERC721Receiver.sol",

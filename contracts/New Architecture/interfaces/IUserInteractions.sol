@@ -16,13 +16,13 @@ interface IUserInteractions {
 
     function initialize(address _uniPosNFT, address _PositionManagerAddress) external;
 
-    function openPosition(uint256 _tokenId) external;
+    function openPosition(uint256 _tokenId, address _asset) external;
 
     function closePosition(uint256 _tokenId) external;
 
-    function borrow(uint256 _amount, uint256 _tokenId) external payable;
+    function borrow(uint256 _amount, uint256 _tokenId) external;
 
-    function repay(uint256 _amount, uint256 _tokenId) external payable;
+    function repay(uint256 _amount, uint256 _tokenId) external;
 
     function deposit(uint256 _amount0, uint256 _amount1, uint256 _tokenId) 
         external 

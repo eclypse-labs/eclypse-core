@@ -37,7 +37,7 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
      * @dev The caller must have approved the transfer of the Uniswap V3 NFT from their wallet to the BorrowerOperations contract.
      */
     function openPosition(uint256 _tokenId, address _asset) external {
-        require(manager.getPosition(_tokenId).status = 0);
+        require(manager.getPosition(_tokenId).status == IPositionsManager.Status.nonExistent);
         manager.openPosition(msg.sender, _tokenId, _asset);
     }
 
@@ -46,8 +46,8 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      */
     function closePosition(uint256 _tokenId) external {
-        require(manager.getPosition(_tokenId).status = 1);
-        require(manager.getPosition(_tokenId).user = msg.sender);
+        require(manager.getPosition(_tokenId).status == IPositionsManager.Status.active);
+        require(manager.getPosition(_tokenId).user == msg.sender);
         manager.closePosition(msg.sender, _tokenId);
     }
 
@@ -56,9 +56,9 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
      * @param _amount The amount of stablecoin to withdraw.
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      */
-    function borrow(uint256 _amount, uint256 _tokenId) public payable override nonReentrant {
-        require(manager.getPosition(_tokenId).status = 1);
-        require(manager.getPosition(_tokenId).user = msg.sender);
+    function borrow(uint256 _amount, uint256 _tokenId) public override nonReentrant {
+        require(manager.getPosition(_tokenId).status == IPositionsManager.Status.active);
+        require(manager.getPosition(_tokenId).user == msg.sender);
 
         if (!(_amount > 0)) {
             revert Errors.AmountShouldBePositive();
@@ -73,8 +73,8 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      */
     function repay(uint256 _amount, uint256 _tokenId) public override nonReentrant {
-        require(manager.getPosition(_tokenId).status = 1);
-        require(manager.getPosition(_tokenId).user = msg.sender);
+        require(manager.getPosition(_tokenId).status == IPositionsManager.Status.active);
+        require(manager.getPosition(_tokenId).user == msg.sender);
 
         if (_amount <= 0) {
             revert Errors.AmountShouldBePositive();
@@ -89,20 +89,20 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
      * @param _amount1 The amount of token1 to add.
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      * @return liquidity The amount of liquidity added.
-     * @return amount0 The amount of token0 added.
+     * @return amount0 The amount of token0 added. 
      * @return amount1 The amount of token1 added.
      */
     function deposit(uint256 _amount0, uint256 _amount1, uint256 _tokenId) public override nonReentrant 
-    returns (uint128 liquidity, uint256 amount0, uint256 amoun1) {
-        require(manager.getPosition(_tokenId).status = 1);
-        require(manager.getPosition(_tokenId).user = msg.sender);
+    returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
+        require(manager.getPosition(_tokenId).status == IPositionsManager.Status.active);
+        require(manager.getPosition(_tokenId).user == msg.sender);
 
         if (_amount0 <= 0 || _amount1 <= 0) {
             revert Errors.AmountShouldBePositive();
         }
         
         (liquidity, amount0, amount1) =
-            manager.increaseLiquidity(msg.sender, _tokenId, _amount0, _amount1);
+            manager.deposit(msg.sender, _tokenId, _amount0, _amount1);
     }
 
     /**
@@ -112,13 +112,13 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
      * @return amount0 The amount of token0 removed.
      * @return amount1 The amount of token1 removed.
      */
-    function withdraw(uint256 _liquidity, uint256 _tokenId) 
+    function withdraw(uint128 _liquidity, uint256 _tokenId) 
     public override nonReentrant returns(uint256 amount0, uint256 amount1) {
 
-        require(manager.getPosition(_tokenId).status = 1);
-        require(manager.getPosition(_tokenId).user = msg.sender);
+        require(manager.getPosition(_tokenId).status == IPositionsManager.Status.active);
+        require(manager.getPosition(_tokenId).user == msg.sender);
 
-        (amount0, amount1) = manager.decreaseLiquidity(msg.sender, _tokenId, _liquidity);
+        (amount0, amount1) = manager.withdraw(msg.sender, _tokenId, _liquidity);
 
         require(!manager.liquidatable(_tokenId), "Collateral Ratio cannot be lower than the minimum collateral ratio.");
 

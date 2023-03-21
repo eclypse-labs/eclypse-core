@@ -34,7 +34,7 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
 
     /**
      * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
-     * @param _uniFactory The address of the Uniswap V3 factory contract.
+     * @param _uniPosNFT The address of the Uniswap V3 NonfungiblePositionManager contract.
      * @param _positionsManagerAddress The address of the PositionsManager contract.
      * @param _borrowerAddress The address of the userInteractions contract.
      * @dev This function can only be called by the contract owner.
@@ -94,10 +94,10 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
         TransferHelper.safeTransferFrom(_token0, _sender, address(this), _amountAdd0);
         TransferHelper.safeTransferFrom(_token1, _sender, address(this), _amountAdd1);
 
-        TransferHelper.safeApprove(_token0, address(uniswapPositionsNFT), _amountAdd0);
-        TransferHelper.safeApprove(_token1, address(uniswapPositionsNFT), _amountAdd1);
+        TransferHelper.safeApprove(_token0, address(uniswapV3NFPositionsManager), _amountAdd0);
+        TransferHelper.safeApprove(_token1, address(uniswapV3NFPositionsManager), _amountAdd1);
 
-        (liquidity, amount0, amount1) = uniswapPositionsNFT.increaseLiquidity(
+        (liquidity, amount0, amount1) = uniswapV3NFPositionsManager.increaseLiquidity(
             INonfungiblePositionManager.IncreaseLiquidityParams({
                 tokenId: _tokenId,
                 amount0Desired: _amountAdd0,
@@ -108,11 +108,11 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
             })
         );
 
-        if (_amount0 < _amountAdd0) {
-            TransferHelper.safeTransfer(_token0, _sender, _amountAdd0 - _amount0);
+        if (amount0 < _amountAdd0) {
+            TransferHelper.safeTransfer(_token0, _sender, _amountAdd0 - amount0);
         }
-        if (_amount1 < _amountAdd1) {
-            TransferHelper.safeTransfer(_token1, _sender, _amountAdd1 - _amount1);
+        if (amount1 < _amountAdd1) {
+            TransferHelper.safeTransfer(_token1, _sender, _amountAdd1 - amount1);
         }
 
     }
@@ -132,7 +132,7 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
         uint128 _liquidityToRemove
     ) public override onlyManager returns (uint256 amount0, uint256 amount1){
 
-        uniswapPositionsNFT.decreaseLiquidity(
+        uniswapV3NFPositionsManager.decreaseLiquidity(
             INonfungiblePositionManager.DecreaseLiquidityParams({
                 tokenId: _tokenId,
                 liquidity: _liquidityToRemove,
@@ -142,10 +142,10 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
             })
         );
 
-        (amount0, amount1) = uniswapPositionsNFT.collect(
+        (amount0, amount1) = uniswapV3NFPositionsManager.collect(
             INonfungiblePositionManager.CollectParams({
                 tokenId: _tokenId,
-                recipient: sender,
+                recipient: _sender,
                 amount0Max: type(uint128).max,
                 amount1Max: type(uint128).max
             })

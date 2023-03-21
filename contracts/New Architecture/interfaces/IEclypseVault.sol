@@ -11,7 +11,7 @@ interface IEclypseVault {
         address _borrowerAddress
     ) external;
 
-    function addChildren(address _children) external;
+    //function addChildren(address _children) external;
 
     function mint(address _caller, address _sender, uint256 _amount) external;
     function burn(address _caller, uint256 _amount) external;

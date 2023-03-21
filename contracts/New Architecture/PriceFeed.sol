@@ -34,28 +34,29 @@ contract UniswapPriceFeed is IPriceFeed, Ownable {
 	// Is this pool accepted by the protocol?
 	mapping(address => bool) private _acceptedPoolAddresses;
 
-	//Squaaa´s Implementation
-	mapping(address => mapping(address => address)) public pairToPool;
+	//squaaa's Implementation
+	//mapping(address => mapping(address => address)) public pairToPool;
 
 	uint public lastGoodPrice;
+	OracleStatus public oracleStatus;
 
 	struct ChainlinkResponse {
 		uint80 roundId;
-		int256 answer;
+		uint256 answer;
 		uint256 timestamp;
 		bool success;
 		uint8 decimals;
 	}
 
 	struct UniV3TWAPResponse {
-		int256 answer;
+		uint256 answer;
 		uint256 timestamp;
 		bool success;
 	}
 
 	/**
 	 * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
-	 * @param _borrowerOperationsAddress The address of the borrower operations contract.
+	 * @param _userInteractionAddress The address of the user operations contract.
 	 * @dev This function can only be called by the contract owner.
 	 */
 	function initialize(address _userInteractionAddress) external onlyOwner {
@@ -66,7 +67,7 @@ contract UniswapPriceFeed is IPriceFeed, Ownable {
 		// renounceOwnership();
 	}
 
-	function fetchPrice(_tokenAddress) external returns (uint256) {
+	function fetchPrice(address _tokenAddress) external returns (uint256) {
 		uint256 price = lastGoodPrice;
 
 		UniV3TWAPResponse memory univ3TWAPResponse = _getUniv3TWAPResponse(_tokenAddress);
@@ -81,7 +82,7 @@ contract UniswapPriceFeed is IPriceFeed, Ownable {
 			}
 		}
 
-		if (oracleStatus = OracleStatus.chainlinkWorking) {
+		if (oracleStatus == OracleStatus.chainlinkWorking) {
 			if (calculatePriceDifference(univ3TWAPResponse, chainLinkResponse) <= MAX_PRICE_DIFFERENCE_BETWEEN_ORACLES) {
 				oracleStatus = OracleStatus.UniV3TWAPworking;
 				price = univ3TWAPResponse.answer;
@@ -122,7 +123,7 @@ contract UniswapPriceFeed is IPriceFeed, Ownable {
 	function _getUniv3TWAPResponse(address _tokenAddress) public view returns (UniV3TWAPResponse memory uniV3TWAPResponse) {
 		//processes the fact that the WETH address can be given
 		if (_tokenAddress == WETHAddress) {
-			uniV3TWAPResponse.answer = int256(FixedPoint96.Q96); //wrong, can't do this type of conversion
+			uniV3TWAPResponse.answer = uint256(FixedPoint96.Q96); //wrong, can't do this type of conversion
 			uniV3TWAPResponse.success = true;
 			uniV3TWAPResponse.timestamp = block.timestamp;
 			return uniV3TWAPResponse;
@@ -133,7 +134,7 @@ contract UniswapPriceFeed is IPriceFeed, Ownable {
 		uint256 ratio = FullMath.mulDiv(sqrtRatioX96, sqrtRatioX96, FixedPoint96.Q96);
 		if (_tokenToWETHPoolInfo[_tokenAddress].inv) ratio = FullMath.mulDiv(FixedPoint96.Q96, FixedPoint96.Q96, ratio);
 
-		uniV3TWAPResponse.answer = int256(ratio);
+		uniV3TWAPResponse.answer = uint256(ratio);
 		uniV3TWAPResponse.success = true;
 		uniV3TWAPResponse.timestamp = block.timestamp;
 		return uniV3TWAPResponse;
@@ -154,7 +155,7 @@ contract UniswapPriceFeed is IPriceFeed, Ownable {
 		}
 
 		chainlinkResponse.roundId = roundId;
-		chainlinkResponse.answer = price;
+		chainlinkResponse.answer = uint256(price);
 		chainlinkResponse.timestamp = timestamp;
 		chainlinkResponse.success = true;
 		chainlinkResponse.decimals = priceFeedChainLink.decimals();
@@ -180,14 +181,14 @@ contract UniswapPriceFeed is IPriceFeed, Ownable {
 		UniV3TWAPResponse memory _uniV3TWAPResponse,
 		ChainlinkResponse memory _chainlinkResponse
 	) internal returns (uint256) {
-		uint256 uniswapTWAPPrice = _univ3TWAPResponse.answer;
-		uint256 chainlinkPrice = _chainLinkResponse.answer;
+		uint256 uniswapTWAPPrice = _uniV3TWAPResponse.answer;
+		uint256 chainlinkPrice = _chainlinkResponse.answer;
 		uint256 finalPriceDifference = 0;
 
 		if (uniswapTWAPPrice < chainlinkPrice) {
 			finalPriceDifference = chainlinkPrice - uniswapTWAPPrice;
 		} else if (chainlinkPrice < uniswapTWAPPrice) {
-			finalPriceDifference = uniswapTAPPrice - chainlinkPrice;
+			finalPriceDifference = uniswapTWAPPrice - chainlinkPrice;
 		}
 		uint256 pricePercentage = FullMath.mulDiv(finalPriceDifference, FixedPoint96.Q96, uniswapTWAPPrice);
 	}
