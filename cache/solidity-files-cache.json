@@ -11,10 +11,10 @@
     ]
   },
   "files": {
-    "contracts/New Architecture/EclypseVault.sol": {
+    "contracts/EclypseVault.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "2d5955001cf2e203058650ababda6443",
-      "sourceName": "contracts/New Architecture/EclypseVault.sol",
+      "sourceName": "contracts/EclypseVault.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -44,7 +44,7 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/interfaces/IEclypseVault.sol",
+        "contracts/interfaces/IEclypseVault.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
@@ -69,10 +69,10 @@
         }
       }
     },
-    "contracts/New Architecture/PositionsManager.sol": {
+    "contracts/PositionsManager.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "c112e7f002c749baff0ef98276691360",
-      "sourceName": "contracts/New Architecture/PositionsManager.sol",
+      "sourceName": "contracts/PositionsManager.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -102,9 +102,9 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/interfaces/IEclypseVault.sol",
-        "contracts/New Architecture/interfaces/IPositionsManager.sol",
-        "contracts/New Architecture/interfaces/IPriceFeed.sol",
+        "contracts/interfaces/IEclypseVault.sol",
+        "contracts/interfaces/IPositionsManager.sol",
+        "contracts/interfaces/IPriceFeed.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
@@ -142,10 +142,10 @@
         }
       }
     },
-    "contracts/New Architecture/UniswapPriceFeed.sol": {
+    "contracts/UniswapPriceFeed.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "5e5fd214a943c2b0215e124f080c9542",
-      "sourceName": "contracts/New Architecture/UniswapPriceFeed.sol",
+      "sourceName": "contracts/UniswapPriceFeed.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -175,7 +175,7 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/interfaces/IPriceFeed.sol",
+        "contracts/interfaces/IPriceFeed.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -199,10 +199,10 @@
         }
       }
     },
-    "contracts/New Architecture/UserInteractions.sol": {
+    "contracts/UserInteractions.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "7376203b42b63524b4712d370be03741",
-      "sourceName": "contracts/New Architecture/UserInteractions.sol",
+      "sourceName": "contracts/UserInteractions.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -232,12 +232,12 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/PositionsManager.sol",
-        "contracts/New Architecture/interfaces/IEclypseVault.sol",
-        "contracts/New Architecture/interfaces/IPositionsManager.sol",
-        "contracts/New Architecture/interfaces/IPriceFeed.sol",
-        "contracts/New Architecture/interfaces/IUserInteractions.sol",
-        "contracts/New Architecture/utils/Errors.sol",
+        "contracts/PositionsManager.sol",
+        "contracts/interfaces/IEclypseVault.sol",
+        "contracts/interfaces/IPositionsManager.sol",
+        "contracts/interfaces/IPriceFeed.sol",
+        "contracts/interfaces/IUserInteractions.sol",
+        "contracts/utils/Errors.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
@@ -276,10 +276,10 @@
         }
       }
     },
-    "contracts/New Architecture/interfaces/IEclypseVault.sol": {
+    "contracts/interfaces/IEclypseVault.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "a88c77bcf6fb49e19630155f624ed3bf",
-      "sourceName": "contracts/New Architecture/interfaces/IEclypseVault.sol",
+      "sourceName": "contracts/interfaces/IEclypseVault.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -327,10 +327,10 @@
         }
       }
     },
-    "contracts/New Architecture/interfaces/IPositionsManager.sol": {
+    "contracts/interfaces/IPositionsManager.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "e4b74d089041338faed4d95b231068eb",
-      "sourceName": "contracts/New Architecture/interfaces/IPositionsManager.sol",
+      "sourceName": "contracts/interfaces/IPositionsManager.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -360,8 +360,8 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/interfaces/IEclypseVault.sol",
-        "contracts/New Architecture/interfaces/IPriceFeed.sol",
+        "contracts/interfaces/IEclypseVault.sol",
+        "contracts/interfaces/IPriceFeed.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol",
@@ -381,10 +381,10 @@
         }
       }
     },
-    "contracts/New Architecture/interfaces/IPriceFeed.sol": {
+    "contracts/interfaces/IPriceFeed.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "4d45c74bec4f66d6bf369cb765cbe187",
-      "sourceName": "contracts/New Architecture/interfaces/IPriceFeed.sol",
+      "sourceName": "contracts/interfaces/IPriceFeed.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -421,10 +421,10 @@
         }
       }
     },
-    "contracts/New Architecture/interfaces/IUserInteractions.sol": {
+    "contracts/interfaces/IUserInteractions.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "c258eb63b9a4b546c0e0aa63c345d0d3",
-      "sourceName": "contracts/New Architecture/interfaces/IUserInteractions.sol",
+      "sourceName": "contracts/interfaces/IUserInteractions.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -461,10 +461,10 @@
         }
       }
     },
-    "contracts/New Architecture/utils/Errors.sol": {
+    "contracts/utils/Errors.sol": {
       "lastModificationDate": 1679862867333,
       "contentHash": "aa5a553d69b6176eb81ebba8db3a9f2f",
-      "sourceName": "contracts/New Architecture/utils/Errors.sol",
+      "sourceName": "contracts/utils/Errors.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -3077,15 +3077,15 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/EclypseVault.sol",
-        "contracts/New Architecture/PositionsManager.sol",
-        "contracts/New Architecture/UniswapPriceFeed.sol",
-        "contracts/New Architecture/UserInteractions.sol",
-        "contracts/New Architecture/interfaces/IEclypseVault.sol",
-        "contracts/New Architecture/interfaces/IPositionsManager.sol",
-        "contracts/New Architecture/interfaces/IPriceFeed.sol",
-        "contracts/New Architecture/interfaces/IUserInteractions.sol",
-        "contracts/New Architecture/utils/Errors.sol",
+        "contracts/EclypseVault.sol",
+        "contracts/PositionsManager.sol",
+        "contracts/UniswapPriceFeed.sol",
+        "contracts/UserInteractions.sol",
+        "contracts/interfaces/IEclypseVault.sol",
+        "contracts/interfaces/IPositionsManager.sol",
+        "contracts/interfaces/IPriceFeed.sol",
+        "contracts/interfaces/IUserInteractions.sol",
+        "contracts/utils/Errors.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
         "lib/forge-std/lib/ds-test/src/test.sol",
         "lib/forge-std/src/Common.sol",
@@ -3152,8 +3152,8 @@
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1680038345222,
-      "contentHash": "044650cf93031e0b4dd03ed35b1f95fb",
+      "lastModificationDate": 1680107671969,
+      "contentHash": "052710dbd67d95387f2487071d98b7ec",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
@@ -3184,15 +3184,15 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/EclypseVault.sol",
-        "contracts/New Architecture/PositionsManager.sol",
-        "contracts/New Architecture/UniswapPriceFeed.sol",
-        "contracts/New Architecture/UserInteractions.sol",
-        "contracts/New Architecture/interfaces/IEclypseVault.sol",
-        "contracts/New Architecture/interfaces/IPositionsManager.sol",
-        "contracts/New Architecture/interfaces/IPriceFeed.sol",
-        "contracts/New Architecture/interfaces/IUserInteractions.sol",
-        "contracts/New Architecture/utils/Errors.sol",
+        "contracts/EclypseVault.sol",
+        "contracts/PositionsManager.sol",
+        "contracts/UniswapPriceFeed.sol",
+        "contracts/UserInteractions.sol",
+        "contracts/interfaces/IEclypseVault.sol",
+        "contracts/interfaces/IPositionsManager.sol",
+        "contracts/interfaces/IPriceFeed.sol",
+        "contracts/interfaces/IUserInteractions.sol",
+        "contracts/utils/Errors.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
         "lib/forge-std/lib/ds-test/src/test.sol",
         "lib/forge-std/src/Common.sol",
@@ -3258,8 +3258,8 @@
       }
     },
     "test/UserInteractions.t.sol": {
-      "lastModificationDate": 1680038512427,
-      "contentHash": "8dbd55a18591c88429cd483add2a01fe",
+      "lastModificationDate": 1680107695529,
+      "contentHash": "3729029c09e4e9e2d06c43f6710d84a2",
       "sourceName": "test/UserInteractions.t.sol",
       "solcConfig": {
         "settings": {
@@ -3290,15 +3290,15 @@
         }
       },
       "imports": [
-        "contracts/New Architecture/EclypseVault.sol",
-        "contracts/New Architecture/PositionsManager.sol",
-        "contracts/New Architecture/UniswapPriceFeed.sol",
-        "contracts/New Architecture/UserInteractions.sol",
-        "contracts/New Architecture/interfaces/IEclypseVault.sol",
-        "contracts/New Architecture/interfaces/IPositionsManager.sol",
-        "contracts/New Architecture/interfaces/IPriceFeed.sol",
-        "contracts/New Architecture/interfaces/IUserInteractions.sol",
-        "contracts/New Architecture/utils/Errors.sol",
+        "contracts/EclypseVault.sol",
+        "contracts/PositionsManager.sol",
+        "contracts/UniswapPriceFeed.sol",
+        "contracts/UserInteractions.sol",
+        "contracts/interfaces/IEclypseVault.sol",
+        "contracts/interfaces/IPositionsManager.sol",
+        "contracts/interfaces/IPriceFeed.sol",
+        "contracts/interfaces/IUserInteractions.sol",
+        "contracts/utils/Errors.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
         "lib/forge-std/lib/ds-test/src/test.sol",
         "lib/forge-std/src/Common.sol",

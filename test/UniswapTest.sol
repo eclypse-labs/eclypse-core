@@ -21,11 +21,11 @@ import "@uniswap-core/libraries/FullMath.sol";
 ////////////////////////////////////////////////////
 // NEW IMPORTS BELOW
 
-import "../contracts/New Architecture/EclypseVault.sol";
-import "../contracts/New Architecture/UserInteractions.sol";
-import "../contracts/New Architecture/interfaces/IEclypseVault.sol";
-import "../contracts/New Architecture/PositionsManager.sol";
-import "../contracts/New Architecture/UniswapPriceFeed.sol";
+import "../contracts/EclypseVault.sol";
+import "../contracts/UserInteractions.sol";
+import "../contracts/interfaces/IEclypseVault.sol";
+import "../contracts/PositionsManager.sol";
+import "../contracts/UniswapPriceFeed.sol";
 import "gho-core/src/contracts/gho/GhoToken.sol";
 
 abstract contract UniswapTest is Test {
