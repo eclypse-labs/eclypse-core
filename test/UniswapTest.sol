@@ -25,7 +25,7 @@ import "../contracts/EclypseVault.sol";
 import "../contracts/UserInteractions.sol";
 import "../contracts/interfaces/IEclypseVault.sol";
 import "../contracts/PositionsManager.sol";
-import "../contracts/UniswapPriceFeed.sol";
+import "../contracts/PriceFeed.sol";
 import "gho-core/src/contracts/gho/GhoToken.sol";
 
 abstract contract UniswapTest is Test {
@@ -56,7 +56,7 @@ abstract contract UniswapTest is Test {
 	EclypseVault eclypseVault;
 	UserInteractions userInteractions;
 	PositionsManager positionsManager;
-	UniswapPriceFeed priceFeed;
+	PriceFeed priceFeed;
 	INonfungiblePositionManager uniswapPositionsNFT;
 	ISwapRouter swapRouter;
 	IUniswapV3Pool uniV3PoolWeth_Usdc;
@@ -96,7 +96,7 @@ abstract contract UniswapTest is Test {
 		eclypseVault = new EclypseVault();
 		userInteractions = new UserInteractions();
 		positionsManager = new PositionsManager();
-		priceFeed = new UniswapPriceFeed();
+		priceFeed = new PriceFeed();
 
 		ghoToken = new GhoToken();
 		ghoToken.addFacilitator(address(eclypseVault), IGhoToken.Facilitator(1_000_000 * 10 ** 18, 0, "Eclypse (EclypseVault)"));

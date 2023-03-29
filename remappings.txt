@@ -15,4 +15,4 @@ openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 @uniswap-periphery/=lib/v3-periphery/contracts/
 @openzeppelin/=lib/openzeppelin-contracts/
 @aave/core-v3/=lib/aave-v3-core
-@chainlink=lib/chainlink/contracts/
+@chainlink=lib/chainlink/contracts/src/v0.8

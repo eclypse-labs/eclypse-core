@@ -106,10 +106,6 @@ interface IPositionsManager {
         external
         returns (uint256 amount0, uint256 amount1);
 
-    // Price functions
-    //TODO: Rewrite method when PriceFeed contract is done.
-    function priceInETH(address _tokenAddress) external returns (uint256);
-
 
     // Liquidation functions
     function liquidatable(uint256 _tokenId) external returns (bool);
