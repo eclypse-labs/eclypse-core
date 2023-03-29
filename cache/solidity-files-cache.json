@@ -70,8 +70,8 @@
       }
     },
     "contracts/PositionsManager.sol": {
-      "lastModificationDate": 1679862867333,
-      "contentHash": "c112e7f002c749baff0ef98276691360",
+      "lastModificationDate": 1680111022861,
+      "contentHash": "682affdce901bab406b53057a493be55",
       "sourceName": "contracts/PositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -105,6 +105,7 @@
         "contracts/interfaces/IEclypseVault.sol",
         "contracts/interfaces/IPositionsManager.sol",
         "contracts/interfaces/IPriceFeed.sol",
+        "lib/chainlink/contracts/src/v0.8/Denominations.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
@@ -142,10 +143,10 @@
         }
       }
     },
-    "contracts/UniswapPriceFeed.sol": {
-      "lastModificationDate": 1679862867333,
-      "contentHash": "5e5fd214a943c2b0215e124f080c9542",
-      "sourceName": "contracts/UniswapPriceFeed.sol",
+    "contracts/PriceFeed.sol": {
+      "lastModificationDate": 1680109896454,
+      "contentHash": "45179f8ded1cefdb27954d17b0d2f2d6",
+      "sourceName": "contracts/PriceFeed.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -176,26 +177,35 @@
       },
       "imports": [
         "contracts/interfaces/IPriceFeed.sol",
+        "lib/chainlink/contracts/src/v0.8/Denominations.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol",
+        "lib/forge-std/lib/ds-test/src/test.sol",
+        "lib/forge-std/src/Common.sol",
+        "lib/forge-std/src/Components.sol",
+        "lib/forge-std/src/StdAssertions.sol",
+        "lib/forge-std/src/StdChains.sol",
+        "lib/forge-std/src/StdCheats.sol",
+        "lib/forge-std/src/StdError.sol",
+        "lib/forge-std/src/StdJson.sol",
+        "lib/forge-std/src/StdMath.sol",
+        "lib/forge-std/src/StdStorage.sol",
+        "lib/forge-std/src/StdUtils.sol",
+        "lib/forge-std/src/Test.sol",
+        "lib/forge-std/src/Vm.sol",
+        "lib/forge-std/src/console.sol",
+        "lib/forge-std/src/console2.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
-        "lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolDerivedState.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolErrors.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolEvents.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolImmutables.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolOwnerActions.sol",
-        "lib/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol",
         "lib/v3-core/contracts/libraries/FixedPoint96.sol",
-        "lib/v3-core/contracts/libraries/FullMath.sol",
-        "lib/v3-core/contracts/libraries/TickMath.sol",
-        "lib/v3-periphery/contracts/libraries/OracleLibrary.sol"
+        "lib/v3-core/contracts/libraries/FullMath.sol"
       ],
-      "versionRequirement": ">=0.6.11",
+      "versionRequirement": "<0.9.0",
       "artifacts": {
-        "UniswapPriceFeed": {
-          "0.8.17+commit.8df45f5f.Darwin.appleclang": "UniswapPriceFeed.sol/UniswapPriceFeed.json"
+        "PriceFeed": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "PriceFeed.sol/PriceFeed.json"
         }
       }
     },
@@ -238,6 +248,7 @@
         "contracts/interfaces/IPriceFeed.sol",
         "contracts/interfaces/IUserInteractions.sol",
         "contracts/utils/Errors.sol",
+        "lib/chainlink/contracts/src/v0.8/Denominations.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
@@ -328,8 +339,8 @@
       }
     },
     "contracts/interfaces/IPositionsManager.sol": {
-      "lastModificationDate": 1679862867333,
-      "contentHash": "e4b74d089041338faed4d95b231068eb",
+      "lastModificationDate": 1680109896454,
+      "contentHash": "2a2da2d7426a14b5cb0a73bee576c7dc",
       "sourceName": "contracts/interfaces/IPositionsManager.sol",
       "solcConfig": {
         "settings": {
@@ -382,8 +393,8 @@
       }
     },
     "contracts/interfaces/IPriceFeed.sol": {
-      "lastModificationDate": 1679862867333,
-      "contentHash": "4d45c74bec4f66d6bf369cb765cbe187",
+      "lastModificationDate": 1680109896455,
+      "contentHash": "0ed1875219ce9a8cf1831d3f4a6889ec",
       "sourceName": "contracts/interfaces/IPriceFeed.sol",
       "solcConfig": {
         "settings": {
@@ -501,6 +512,129 @@
         }
       }
     },
+    "lib/chainlink/contracts/src/v0.8/Denominations.sol": {
+      "lastModificationDate": 1680033310813,
+      "contentHash": "a1810950a97c795af2c1e8181856928f",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/Denominations.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "Denominations": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "Denominations.sol/Denominations.json"
+        }
+      }
+    },
+    "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol": {
+      "lastModificationDate": 1680033310823,
+      "contentHash": "f00f7f6071813249ee968d1114635a81",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "AggregatorInterface": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "AggregatorInterface.sol/AggregatorInterface.json"
+        }
+      }
+    },
+    "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol": {
+      "lastModificationDate": 1680033310823,
+      "contentHash": "8634be6a1c8b65b4c0bfd6d1fa765e72",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol"
+      ],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "AggregatorV2V3Interface": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "AggregatorV2V3Interface.sol/AggregatorV2V3Interface.json"
+        }
+      }
+    },
     "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol": {
       "lastModificationDate": 1680033310823,
       "contentHash": "d9654a0fc044a31d4106ee6bca772add",
@@ -538,6 +672,50 @@
       "artifacts": {
         "AggregatorV3Interface": {
           "0.8.17+commit.8df45f5f.Darwin.appleclang": "AggregatorV3Interface.sol/AggregatorV3Interface.json"
+        }
+      }
+    },
+    "lib/chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol": {
+      "lastModificationDate": 1680033310823,
+      "contentHash": "e3badff7f0fc236bc61be014cc18c453",
+      "sourceName": "lib/chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol"
+      ],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "FeedRegistryInterface": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "FeedRegistryInterface.sol/FeedRegistryInterface.json"
         }
       }
     },
@@ -3079,14 +3257,18 @@
       "imports": [
         "contracts/EclypseVault.sol",
         "contracts/PositionsManager.sol",
-        "contracts/UniswapPriceFeed.sol",
+        "contracts/PriceFeed.sol",
         "contracts/UserInteractions.sol",
         "contracts/interfaces/IEclypseVault.sol",
         "contracts/interfaces/IPositionsManager.sol",
         "contracts/interfaces/IPriceFeed.sol",
         "contracts/interfaces/IUserInteractions.sol",
         "contracts/utils/Errors.sol",
+        "lib/chainlink/contracts/src/v0.8/Denominations.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol",
         "lib/forge-std/lib/ds-test/src/test.sol",
         "lib/forge-std/src/Common.sol",
         "lib/forge-std/src/Components.sol",
@@ -3152,8 +3334,8 @@
       }
     },
     "test/UniswapTest.sol": {
-      "lastModificationDate": 1680107671969,
-      "contentHash": "052710dbd67d95387f2487071d98b7ec",
+      "lastModificationDate": 1680110866856,
+      "contentHash": "b10bef5ef50e67f54775ec4415689025",
       "sourceName": "test/UniswapTest.sol",
       "solcConfig": {
         "settings": {
@@ -3186,14 +3368,18 @@
       "imports": [
         "contracts/EclypseVault.sol",
         "contracts/PositionsManager.sol",
-        "contracts/UniswapPriceFeed.sol",
+        "contracts/PriceFeed.sol",
         "contracts/UserInteractions.sol",
         "contracts/interfaces/IEclypseVault.sol",
         "contracts/interfaces/IPositionsManager.sol",
         "contracts/interfaces/IPriceFeed.sol",
         "contracts/interfaces/IUserInteractions.sol",
         "contracts/utils/Errors.sol",
+        "lib/chainlink/contracts/src/v0.8/Denominations.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol",
         "lib/forge-std/lib/ds-test/src/test.sol",
         "lib/forge-std/src/Common.sol",
         "lib/forge-std/src/Components.sol",
@@ -3258,8 +3444,8 @@
       }
     },
     "test/UserInteractions.t.sol": {
-      "lastModificationDate": 1680107695529,
-      "contentHash": "3729029c09e4e9e2d06c43f6710d84a2",
+      "lastModificationDate": 1680112427866,
+      "contentHash": "9a5ac15b36e44aba0de1e7648eabf7fe",
       "sourceName": "test/UserInteractions.t.sol",
       "solcConfig": {
         "settings": {
@@ -3292,14 +3478,18 @@
       "imports": [
         "contracts/EclypseVault.sol",
         "contracts/PositionsManager.sol",
-        "contracts/UniswapPriceFeed.sol",
+        "contracts/PriceFeed.sol",
         "contracts/UserInteractions.sol",
         "contracts/interfaces/IEclypseVault.sol",
         "contracts/interfaces/IPositionsManager.sol",
         "contracts/interfaces/IPriceFeed.sol",
         "contracts/interfaces/IUserInteractions.sol",
         "contracts/utils/Errors.sol",
+        "lib/chainlink/contracts/src/v0.8/Denominations.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol",
         "lib/chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol",
+        "lib/chainlink/contracts/src/v0.8/interfaces/FeedRegistryInterface.sol",
         "lib/forge-std/lib/ds-test/src/test.sol",
         "lib/forge-std/src/Common.sol",
         "lib/forge-std/src/Components.sol",
@@ -3359,8 +3549,8 @@
       ],
       "versionRequirement": "<0.9.0",
       "artifacts": {
-        "BorrowerOperationsTest": {
-          "0.8.17+commit.8df45f5f.Darwin.appleclang": "UserInteractions.t.sol/BorrowerOperationsTest.json"
+        "UserInteractionsTest": {
+          "0.8.17+commit.8df45f5f.Darwin.appleclang": "UserInteractions.t.sol/UserInteractionsTest.json"
         }
       }
     }

@@ -424,7 +424,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _riskConstants The new risk constants ratio of the pool.
 	 */
 	function updateRiskConstants(address _pool, uint256 _riskConstants) public onlyOwner {
-		require(_riskConstants > FixedPoint96.Q96, "The minimum collateral ratio must be greater than 1.");
+		require(_riskConstants > 1e18, "The minimum collateral ratio must be greater than 1.");
 		riskConstantsFromPool[_pool].minCR = _riskConstants;
 	}
 

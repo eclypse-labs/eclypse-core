@@ -49,9 +49,13 @@ abstract contract UniswapTest is Test {
 	address public constant daiAddr = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
 	address public uniPoolUsdcETHAddr = 0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640;
 	address public constant swapRouterAddr = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
+	address public uniPoolWBTCETHAddr = 0xCBCdF9626bC03E24f779434178A73a0B4bad62eD;
+	address public WBTCAddr = 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
+	address constant feedRegisteryAddr = 0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf;
 
 	IERC20 WETH = IERC20(wethAddr);
 	IERC20 USDC = IERC20(usdcAddr);
+	IERC20 WBTC = IERC20(WBTCAddr);
 
 	EclypseVault eclypseVault;
 	UserInteractions userInteractions;
@@ -109,7 +113,6 @@ abstract contract UniswapTest is Test {
 			address(eclypseVault),
 			address(priceFeed)
 		);
-		
 
 		eclypseVault.initialize(uniswapPositionsNFTAddr, address(positionsManager), address(userInteractions));
 
@@ -121,7 +124,7 @@ abstract contract UniswapTest is Test {
 
 		vm.startPrank(deployer);
 
-		uint256 _minCR = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
+		uint256 _minCR = FullMath.mulDiv(15, 1e18, 10);
 		positionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
 		// protocol values are initialized here
 		IPositionsManager.AssetsValues memory assetValues;
@@ -130,7 +133,7 @@ abstract contract UniswapTest is Test {
 		assetValues.interestFactor = 1 << 96;
 		assetValues.lastFactorUpdate = block.timestamp;
 		assetValues.twapLength = 60;
-
+		priceFeed.initialize(feedRegisteryAddr);
 		positionsManager.addAssetsValuesToProtocol(address(ghoToken), assetValues);
 
 		vm.stopPrank();

@@ -1,65 +1,19 @@
 {
   "abi": [
     {
-      "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_lastGoodPrice",
-          "type": "uint256"
-        }
-      ],
-      "name": "LastGoodPriceUpdated",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "enum IPriceFeed.OracleStatus",
-          "name": "newStatus",
-          "type": "uint8"
-        }
-      ],
-      "name": "PriceFeedStatusChanged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
           "internalType": "address",
-          "name": "_token",
+          "name": "_tokenAddress",
           "type": "address"
         },
         {
-          "indexed": false,
           "internalType": "address",
-          "name": "_pool",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "_time",
-          "type": "uint256"
-        }
-      ],
-      "name": "TokenAddedToPool",
-      "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
+          "name": "_quote",
           "type": "address"
         }
       ],
-      "name": "fetchDollarPrice",
+      "name": "getPrice",
       "outputs": [
         {
           "internalType": "uint256",
@@ -67,25 +21,19 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [
         {
           "internalType": "address",
-          "name": "_tokenAddress",
+          "name": "_feedRegistryAddr",
           "type": "address"
         }
       ],
-      "name": "fetchPrice",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "name": "initialize",
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     }
@@ -101,10 +49,10 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {
-    "fetchDollarPrice(address)": "f5784deb",
-    "fetchPrice(address)": "ace1798e"
+    "getPrice(address,address)": "ac41865a",
+    "initialize(address)": "c4d66de8"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_lastGoodPrice\",\"type\":\"uint256\"}],\"name\":\"LastGoodPriceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"enum IPriceFeed.OracleStatus\",\"name\":\"newStatus\",\"type\":\"uint8\"}],\"name\":\"PriceFeedStatusChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"_pool\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_time\",\"type\":\"uint256\"}],\"name\":\"TokenAddedToPool\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"fetchDollarPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"}],\"name\":\"fetchPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IPriceFeed.sol\":\"IPriceFeed\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/interfaces/IPriceFeed.sol\":{\"keccak256\":\"0x1f4d68d3d474bea2d90a2d0f4029200ebbd30ac1c2a8f6ccd8795cbee1cab11c\",\"urls\":[\"bzz-raw://94ce24ea178e58036b5658404e3bda7b2b231b5fbd9558086796f850728c3f32\",\"dweb:/ipfs/QmZVMT3uUwXBeLY3GLNadhNXmDzpqrmq96YBQ3MbEL9C5c\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_quote\",\"type\":\"address\"}],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_feedRegistryAddr\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IPriceFeed.sol\":\"IPriceFeed\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@aave/core-v3/=lib/aave-v3-core/\",\":@chainlink/=lib/chainlink/contracts/src/v0.8/\",\":@openzeppelin/=lib/openzeppelin-contracts/\",\":@uniswap-core/=lib/v3-core/contracts/\",\":@uniswap-periphery/=lib/v3-periphery/contracts/\",\":aave-v3-core/=lib/aave-v3-core/\",\":chainlink/=lib/chainlink/\",\":ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/\",\":ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/\",\":ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/\",\":ds-token/=lib/dss/lib/ds-token/src/\",\":ds-value/=lib/dss/lib/ds-value/src/\",\":dss/=lib/dss/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":gho-core/=lib/gho-core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/\",\":v3-core/=lib/v3-core/contracts/\",\":v3-periphery/=lib/v3-periphery/contracts/\"]},\"sources\":{\"contracts/interfaces/IPriceFeed.sol\":{\"keccak256\":\"0x1cd633413238e5c595425b1b5a854c0668be22323c7f49975259c300a9b8aa2e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f4a17c6136e4a17e892cecbe9f21af742e093c59321eaf01791bdd05352dafb8\",\"dweb:/ipfs/QmcTnMneSGEdakjHrBxPNZiterS4mXCGm4frMgoBX6xw5z\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -115,84 +63,19 @@
         {
           "inputs": [
             {
-              "internalType": "uint256",
-              "name": "_lastGoodPrice",
-              "type": "uint256",
-              "indexed": false
-            }
-          ],
-          "type": "event",
-          "name": "LastGoodPriceUpdated",
-          "anonymous": false
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "enum IPriceFeed.OracleStatus",
-              "name": "newStatus",
-              "type": "uint8",
-              "indexed": false
-            }
-          ],
-          "type": "event",
-          "name": "PriceFeedStatusChanged",
-          "anonymous": false
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "_token",
-              "type": "address",
-              "indexed": false
-            },
-            {
-              "internalType": "address",
-              "name": "_pool",
-              "type": "address",
-              "indexed": false
-            },
-            {
-              "internalType": "uint256",
-              "name": "_time",
-              "type": "uint256",
-              "indexed": false
-            }
-          ],
-          "type": "event",
-          "name": "TokenAddedToPool",
-          "anonymous": false
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-          "name": "fetchDollarPrice",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ]
-        },
-        {
-          "inputs": [
-            {
               "internalType": "address",
               "name": "_tokenAddress",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_quote",
+              "type": "address"
             }
           ],
-          "stateMutability": "nonpayable",
+          "stateMutability": "view",
           "type": "function",
-          "name": "fetchPrice",
+          "name": "getPrice",
           "outputs": [
             {
               "internalType": "uint256",
@@ -200,6 +83,18 @@
               "type": "uint256"
             }
           ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_feedRegistryAddr",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "initialize"
         }
       ],
       "devdoc": {
@@ -216,7 +111,7 @@
     "settings": {
       "remappings": [
         ":@aave/core-v3/=lib/aave-v3-core/",
-        ":@chainlink/=lib/chainlink/contracts/",
+        ":@chainlink/=lib/chainlink/contracts/src/v0.8/",
         ":@openzeppelin/=lib/openzeppelin-contracts/",
         ":@uniswap-core/=lib/v3-core/contracts/",
         ":@uniswap-periphery/=lib/v3-periphery/contracts/",
@@ -251,31 +146,31 @@
     },
     "sources": {
       "contracts/interfaces/IPriceFeed.sol": {
-        "keccak256": "0x1f4d68d3d474bea2d90a2d0f4029200ebbd30ac1c2a8f6ccd8795cbee1cab11c",
+        "keccak256": "0x1cd633413238e5c595425b1b5a854c0668be22323c7f49975259c300a9b8aa2e",
         "urls": [
-          "bzz-raw://94ce24ea178e58036b5658404e3bda7b2b231b5fbd9558086796f850728c3f32",
-          "dweb:/ipfs/QmZVMT3uUwXBeLY3GLNadhNXmDzpqrmq96YBQ3MbEL9C5c"
+          "bzz-raw://f4a17c6136e4a17e892cecbe9f21af742e093c59321eaf01791bdd05352dafb8",
+          "dweb:/ipfs/QmcTnMneSGEdakjHrBxPNZiterS4mXCGm4frMgoBX6xw5z"
         ],
-        "license": null
+        "license": "MIT"
       }
     },
     "version": 1
   },
   "ast": {
     "absolutePath": "contracts/interfaces/IPriceFeed.sol",
-    "id": 3127,
+    "id": 2860,
     "exportedSymbols": {
       "IPriceFeed": [
-        3126
+        2859
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "0:674:6",
+    "src": "33:223:6",
     "nodes": [
       {
-        "id": 3085,
+        "id": 2844,
         "nodeType": "PragmaDirective",
-        "src": "0:25:6",
+        "src": "33:25:6",
         "nodes": [],
         "literals": [
           "solidity",
@@ -285,337 +180,34 @@
         ]
       },
       {
-        "id": 3126,
+        "id": 2859,
         "nodeType": "ContractDefinition",
-        "src": "27:646:6",
+        "src": "60:195:6",
         "nodes": [
           {
-            "id": 3093,
-            "nodeType": "EventDefinition",
-            "src": "76:69:6",
-            "nodes": [],
-            "anonymous": false,
-            "eventSelector": "866a0b76fc7c4df8ef3f01bc23d13f241d07b99e0ff1ed77149eb6c5e05fe6e8",
-            "name": "TokenAddedToPool",
-            "nameLocation": "82:16:6",
-            "parameters": {
-              "id": 3092,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 3087,
-                  "indexed": false,
-                  "mutability": "mutable",
-                  "name": "_token",
-                  "nameLocation": "107:6:6",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 3093,
-                  "src": "99:14:6",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 3086,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "99:7:6",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 3089,
-                  "indexed": false,
-                  "mutability": "mutable",
-                  "name": "_pool",
-                  "nameLocation": "123:5:6",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 3093,
-                  "src": "115:13:6",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 3088,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "115:7:6",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 3091,
-                  "indexed": false,
-                  "mutability": "mutable",
-                  "name": "_time",
-                  "nameLocation": "138:5:6",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 3093,
-                  "src": "130:13:6",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 3090,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "130:7:6",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "98:46:6"
-            }
-          },
-          {
-            "id": 3097,
-            "nodeType": "EventDefinition",
-            "src": "150:51:6",
-            "nodes": [],
-            "anonymous": false,
-            "eventSelector": "4d29de21de555af78a62fc82dd4bc05e9ae5b0660a37f04729527e0f22780cd3",
-            "name": "LastGoodPriceUpdated",
-            "nameLocation": "156:20:6",
-            "parameters": {
-              "id": 3096,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 3095,
-                  "indexed": false,
-                  "mutability": "mutable",
-                  "name": "_lastGoodPrice",
-                  "nameLocation": "185:14:6",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 3097,
-                  "src": "177:22:6",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 3094,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "177:7:6",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "176:24:6"
-            }
-          },
-          {
-            "id": 3102,
-            "nodeType": "EventDefinition",
-            "src": "206:53:6",
-            "nodes": [],
-            "anonymous": false,
-            "eventSelector": "5c57579a8214fe4f710c1c56fa829f045b9fa6d225a744225a30c32188064d4e",
-            "name": "PriceFeedStatusChanged",
-            "nameLocation": "212:22:6",
-            "parameters": {
-              "id": 3101,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 3100,
-                  "indexed": false,
-                  "mutability": "mutable",
-                  "name": "newStatus",
-                  "nameLocation": "248:9:6",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 3102,
-                  "src": "235:22:6",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_enum$_OracleStatus_$3111",
-                    "typeString": "enum IPriceFeed.OracleStatus"
-                  },
-                  "typeName": {
-                    "id": 3099,
-                    "nodeType": "UserDefinedTypeName",
-                    "pathNode": {
-                      "id": 3098,
-                      "name": "OracleStatus",
-                      "nameLocations": [
-                        "235:12:6"
-                      ],
-                      "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 3111,
-                      "src": "235:12:6"
-                    },
-                    "referencedDeclaration": 3111,
-                    "src": "235:12:6",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_enum$_OracleStatus_$3111",
-                      "typeString": "enum IPriceFeed.OracleStatus"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "234:24:6"
-            }
-          },
-          {
-            "id": 3107,
-            "nodeType": "StructDefinition",
-            "src": "265:128:6",
-            "nodes": [],
-            "canonicalName": "IPriceFeed.PoolPricingInfo",
-            "members": [
-              {
-                "constant": false,
-                "id": 3104,
-                "mutability": "mutable",
-                "name": "poolAddress",
-                "nameLocation": "306:11:6",
-                "nodeType": "VariableDeclaration",
-                "scope": 3107,
-                "src": "298:19:6",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_address",
-                  "typeString": "address"
-                },
-                "typeName": {
-                  "id": 3103,
-                  "name": "address",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "298:7:6",
-                  "stateMutability": "nonpayable",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 3106,
-                "mutability": "mutable",
-                "name": "inv",
-                "nameLocation": "332:3:6",
-                "nodeType": "VariableDeclaration",
-                "scope": 3107,
-                "src": "327:8:6",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_bool",
-                  "typeString": "bool"
-                },
-                "typeName": {
-                  "id": 3105,
-                  "name": "bool",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "327:4:6",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_bool",
-                    "typeString": "bool"
-                  }
-                },
-                "visibility": "internal"
-              }
-            ],
-            "name": "PoolPricingInfo",
-            "nameLocation": "272:15:6",
-            "scope": 3126,
-            "visibility": "public"
-          },
-          {
-            "id": 3111,
-            "nodeType": "EnumDefinition",
-            "src": "399:101:6",
-            "nodes": [],
-            "canonicalName": "IPriceFeed.OracleStatus",
-            "members": [
-              {
-                "id": 3108,
-                "name": "UniV3TWAPworking",
-                "nameLocation": "427:16:6",
-                "nodeType": "EnumValue",
-                "src": "427:16:6"
-              },
-              {
-                "id": 3109,
-                "name": "chainlinkWorking",
-                "nameLocation": "453:16:6",
-                "nodeType": "EnumValue",
-                "src": "453:16:6"
-              },
-              {
-                "id": 3110,
-                "name": "bothOraclesDown",
-                "nameLocation": "479:15:6",
-                "nodeType": "EnumValue",
-                "src": "479:15:6"
-              }
-            ],
-            "name": "OracleStatus",
-            "nameLocation": "404:12:6"
-          },
-          {
-            "id": 3118,
+            "id": 2849,
             "nodeType": "FunctionDefinition",
-            "src": "530:70:6",
+            "src": "105:56:6",
             "nodes": [],
-            "functionSelector": "ace1798e",
+            "functionSelector": "c4d66de8",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
-            "name": "fetchPrice",
-            "nameLocation": "539:10:6",
+            "name": "initialize",
+            "nameLocation": "114:10:6",
             "parameters": {
-              "id": 3114,
+              "id": 2847,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3113,
+                  "id": 2846,
                   "mutability": "mutable",
-                  "name": "_tokenAddress",
-                  "nameLocation": "558:13:6",
+                  "name": "_feedRegistryAddr",
+                  "nameLocation": "133:17:6",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3118,
-                  "src": "550:21:6",
+                  "scope": 2849,
+                  "src": "125:25:6",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -623,10 +215,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 3112,
+                    "id": 2845,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "550:7:6",
+                    "src": "125:7:6",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -636,71 +228,43 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "549:23:6"
+              "src": "124:27:6"
             },
             "returnParameters": {
-              "id": 3117,
+              "id": 2848,
               "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 3116,
-                  "mutability": "mutable",
-                  "name": "",
-                  "nameLocation": "-1:-1:-1",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 3118,
-                  "src": "591:7:6",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 3115,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "591:7:6",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "visibility": "internal"
-                }
-              ],
-              "src": "590:9:6"
+              "parameters": [],
+              "src": "160:0:6"
             },
-            "scope": 3126,
+            "scope": 2859,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 3125,
+            "id": 2858,
             "nodeType": "FunctionDefinition",
-            "src": "605:65:6",
+            "src": "164:89:6",
             "nodes": [],
-            "functionSelector": "f5784deb",
+            "functionSelector": "ac41865a",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
-            "name": "fetchDollarPrice",
-            "nameLocation": "614:16:6",
+            "name": "getPrice",
+            "nameLocation": "173:8:6",
             "parameters": {
-              "id": 3121,
+              "id": 2854,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3120,
+                  "id": 2851,
                   "mutability": "mutable",
-                  "name": "token",
-                  "nameLocation": "639:5:6",
+                  "name": "_tokenAddress",
+                  "nameLocation": "190:13:6",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3125,
-                  "src": "631:13:6",
+                  "scope": 2858,
+                  "src": "182:21:6",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -708,10 +272,38 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 3119,
+                    "id": 2850,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "631:7:6",
+                    "src": "182:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2853,
+                  "mutability": "mutable",
+                  "name": "_quote",
+                  "nameLocation": "213:6:6",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2858,
+                  "src": "205:14:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2852,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "205:7:6",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -721,21 +313,21 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "630:15:6"
+              "src": "181:39:6"
             },
             "returnParameters": {
-              "id": 3124,
+              "id": 2857,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3123,
+                  "id": 2856,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3125,
-                  "src": "664:4:6",
+                  "scope": 2858,
+                  "src": "244:7:6",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -743,10 +335,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 3122,
-                    "name": "uint",
+                    "id": 2855,
+                    "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "664:4:6",
+                    "src": "244:7:6",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -755,10 +347,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "663:6:6"
+              "src": "243:9:6"
             },
-            "scope": 3126,
-            "stateMutability": "nonpayable",
+            "scope": 2859,
+            "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           }
@@ -770,14 +362,15 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          3126
+          2859
         ],
         "name": "IPriceFeed",
-        "nameLocation": "37:10:6",
-        "scope": 3127,
+        "nameLocation": "70:10:6",
+        "scope": 2860,
         "usedErrors": []
       }
-    ]
+    ],
+    "license": "MIT"
   },
   "id": 6
 }

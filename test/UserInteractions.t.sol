@@ -11,7 +11,7 @@ import "@uniswap-periphery/interfaces/IQuoterV2.sol";
 
 import { Errors } from "../contracts/utils/Errors.sol";
 
-contract BorrowerOperationsTest is UniswapTest {
+contract UserInteractionsTest is UniswapTest {
 	uint256 public fee;
 
 	function setUp() public {
@@ -266,14 +266,14 @@ contract BorrowerOperationsTest is UniswapTest {
 
 	function testBorrowGHO_repayMultipleTimesExactAmounts() public {
 		vm.startPrank(address(facticeUser1));
-		userInteractions.borrow(10 * TOKEN18, facticeUser1_tokenId);
-		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18);
-		userInteractions.borrow(10 * TOKEN18, facticeUser1_tokenId);
-		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 20 * TOKEN18);
-		userInteractions.repay(10 * TOKEN18, facticeUser1_tokenId);
+		userInteractions.borrow(10, facticeUser1_tokenId);
+		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 10);
+		userInteractions.borrow(10, facticeUser1_tokenId);
+		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 20);
+		userInteractions.repay(10, facticeUser1_tokenId);
 
-		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18);
-		userInteractions.repay(10 * TOKEN18, facticeUser1_tokenId);
+		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 10);
+		userInteractions.repay(10, facticeUser1_tokenId);
 		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 0);
 		vm.stopPrank();
 	}
