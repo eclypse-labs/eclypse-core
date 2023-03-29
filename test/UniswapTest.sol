@@ -8,21 +8,35 @@ import "@uniswap-core/libraries/FixedPoint96.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/interfaces/ISwapRouter.sol";
 import "@uniswap-periphery/interfaces/IQuoterV2.sol";
+import "@uniswap-core/libraries/FullMath.sol";
 
-import "../contracts/ActivePool.sol";
-import "../contracts/BorrowerOperations.sol";
-import "../contracts/interfaces/IEclypse.sol";
-import "../contracts/LPPositionsManager.sol";
+////////////////////////////////////////////////////
+// OLD IMPORTS BELOW
+
+// import "../contracts/ActivePool.sol";
+// import "../contracts/BorrowerOperations.sol";
+// import "../contracts/interfaces/IEclypse.sol";
+// import "../contracts/LPPositionsManager.sol";
+
+////////////////////////////////////////////////////
+// NEW IMPORTS BELOW
+
+import "../contracts/New Architecture/EclypseVault.sol";
+import "../contracts/New Architecture/UserInteractions.sol";
+import "../contracts/New Architecture/interfaces/IEclypseVault.sol";
+import "../contracts/New Architecture/PositionsManager.sol";
+import "../contracts/New Architecture/UniswapPriceFeed.sol";
+import "gho-core/src/contracts/gho/GhoToken.sol";
 
 abstract contract UniswapTest is Test {
 	GhoToken ghoToken;
 
-	uint256 constant TOKEN18 = 10**18;
-	uint256 constant TOKEN6 = 10**6;
+	uint256 constant TOKEN18 = 10 ** 18;
+	uint256 constant TOKEN6 = 10 ** 6;
 
 	address deployer = makeAddr("deployer");
 	address oracleLiquidityDepositor = makeAddr("oracleLiquidityDepositor");
-	address user1 = 0x7C28C02aF52c1Ddf7Ae6f3892cCC8451a17f2842; //	tokenID = 549666
+	address user1 = 0x7C28C02aF52c1Ddf7Ae6f3892cCC8451a17f2842; // tokenID = 549666
 	address user2 = 0x95BF9205341e9b3bC7aD426C44e80f5455DAC1cE; // tokenID = 549638
 
 	address facticeUser1 = makeAddr("facticeUser1");
@@ -39,9 +53,10 @@ abstract contract UniswapTest is Test {
 	IERC20 WETH = IERC20(wethAddr);
 	IERC20 USDC = IERC20(usdcAddr);
 
-	ActivePool activePool;
-	BorrowerOperations borrowerOperation;
-	LPPositionsManager lpPositionsManager;
+	EclypseVault eclypseVault;
+	UserInteractions userInteractions;
+	PositionsManager positionsManager;
+	UniswapPriceFeed priceFeed;
 	INonfungiblePositionManager uniswapPositionsNFT;
 	ISwapRouter swapRouter;
 	IUniswapV3Pool uniV3PoolWeth_Usdc;
@@ -53,15 +68,15 @@ abstract contract UniswapTest is Test {
 	IUniswapV3Factory uniswapFactory = IUniswapV3Factory(uniswapFactoryAddr);
 
 	function convertQ96(uint256 x) public pure returns (uint256) {
-		return FullMath.mulDiv(x, 1, 2**96);
+		return FullMath.mulDiv(x, 1, 2 ** 96);
 	}
 
 	function convertDecimals18(uint256 x) public pure returns (uint256) {
-		return FullMath.mulDiv(x, 1, 10**18);
+		return FullMath.mulDiv(x, 1, 10 ** 18);
 	}
 
 	function convertDecimals6(uint256 x) public pure returns (uint256) {
-		return FullMath.mulDiv(x, 1, 10**6);
+		return FullMath.mulDiv(x, 1, 10 ** 6);
 	}
 
 	function uniswapTest() public {
@@ -78,36 +93,45 @@ abstract contract UniswapTest is Test {
 
 		uniV3PoolWeth_Usdc = IUniswapV3Pool(uniPoolUsdcETHAddr);
 
-		activePool = new ActivePool();
-		borrowerOperation = new BorrowerOperations();
-		lpPositionsManager = new LPPositionsManager();
+		eclypseVault = new EclypseVault();
+		userInteractions = new UserInteractions();
+		positionsManager = new PositionsManager();
+		priceFeed = new UniswapPriceFeed();
 
 		ghoToken = new GhoToken();
-		ghoToken.addFacilitator(address(activePool), IGhoToken.Facilitator(1_000_000 * 10**18, 0, "Eclypse (ActivePool)"));
+		ghoToken.addFacilitator(address(eclypseVault), IGhoToken.Facilitator(1_000_000 * 10 ** 18, 0, "Eclypse (EclypseVault)"));
 
-		borrowerOperation.setAddresses(address(lpPositionsManager));
-		lpPositionsManager.setAddresses(uniswapFactoryAddr, uniswapPositionsNFTAddr, address(ghoToken), address(borrowerOperation), address(activePool));
-		activePool.setAddresses(address(lpPositionsManager));
+		userInteractions.initialize(uniswapPositionsNFTAddr, address(positionsManager));
+		positionsManager.initialize(
+			uniswapFactoryAddr,
+			uniswapPositionsNFTAddr,
+			address(userInteractions),
+			address(eclypseVault),
+			address(priceFeed)
+		);
+		
+
+		eclypseVault.initialize(uniswapPositionsNFTAddr, address(positionsManager), address(userInteractions));
 
 		// whitelist la pool: updateRiskConstants
 		// pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
-		lpPositionsManager.addPoolToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
+		positionsManager.addPoolToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
 
 		vm.stopPrank();
 
 		vm.startPrank(deployer);
 
-		uint256 _minCR = Math.mulDiv(15, FixedPoint96.Q96, 10);
-		lpPositionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
-
+		uint256 _minCR = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
+		positionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
 		// protocol values are initialized here
-		ILPPositionsManager.ProtocolValues memory protocolValues;
-		protocolValues.interestRate = 79228162564014647528974148095;
-		protocolValues.totalBorrowedStableCoin = 0;
-		protocolValues.interestFactor = 1 << 96;
-		protocolValues.lastFactorUpdate = block.timestamp;
-		protocolValues.twapLength = 60;
-		lpPositionsManager.setProtocolValues(protocolValues);
+		IPositionsManager.AssetsValues memory assetValues;
+		assetValues.interestRate = 79228162564014647528974148095;
+		assetValues.totalBorrowedStableCoin = 0;
+		assetValues.interestFactor = 1 << 96;
+		assetValues.lastFactorUpdate = block.timestamp;
+		assetValues.twapLength = 60;
+
+		positionsManager.addAssetsValuesToProtocol(address(ghoToken), assetValues);
 
 		vm.stopPrank();
 		createEthGhoPool();
@@ -117,15 +141,13 @@ abstract contract UniswapTest is Test {
 		vm.label(address(usdcAddr), "USDC");
 		vm.label(address(uniPoolUsdcETHAddr), "USDC/ETH pool");
 		vm.label(address(ghoToken), "GHO");
-		vm.label(address(borrowerOperation), "BorrowerOperation");
-		vm.label(address(lpPositionsManager), "LPPositionsManager");
-		vm.label(address(activePool), "ActivePool");
-		//vm.label(address(eclypse), "Eclypse");
+		vm.label(address(userInteractions), "UserInteractions");
+		vm.label(address(positionsManager), "PositionsManager");
+		vm.label(address(eclypseVault), "EclypseVault");
 		vm.label(address(uniswapPositionsNFT), "UniswapPositionsNFT");
 		vm.label(address(swapRouter), "SwapRouter");
 		vm.label(uniswapPositionsNFTAddr, "UniswapPositionsNFT");
 	}
-
 
 	function addFacticeUser() private {
 		vm.startPrank(facticeUser1);
@@ -134,7 +156,7 @@ abstract contract UniswapTest is Test {
 
 		USDC.approve(address(uniswapPositionsNFT), 100_000_000_000_000_000 * TOKEN6);
 		WETH.approve(address(uniswapPositionsNFT), 100 ether);
-		ghoToken.approve(address(lpPositionsManager), 1000 * TOKEN18);
+		ghoToken.approve(address(positionsManager), 1000 * TOKEN18);
 
 		// uniswapPositionsNFT::mint((0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174,
 		// 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619, 500, 204920, 204930, 0,
@@ -163,21 +185,21 @@ abstract contract UniswapTest is Test {
 		(facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
 		(facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
 
-		uniswapPositionsNFT.approve(address(lpPositionsManager), facticeUser1_tokenId);
-		uniswapPositionsNFT.approve(address(lpPositionsManager), facticeUser1_tokenId2);
+		uniswapPositionsNFT.approve(address(positionsManager), facticeUser1_tokenId);
+		uniswapPositionsNFT.approve(address(positionsManager), facticeUser1_tokenId2);
 
-		borrowerOperation.openPosition(facticeUser1_tokenId);
-		borrowerOperation.openPosition(facticeUser1_tokenId2);
+		userInteractions.openPosition(facticeUser1_tokenId, address(ghoToken));
+		userInteractions.openPosition(facticeUser1_tokenId2, address(ghoToken));
 		vm.stopPrank();
 
-		vm.startPrank(address(activePool));
+		vm.startPrank(address(eclypseVault));
 		ghoToken.mint(facticeUser1, 1000 * TOKEN18);
 		ghoToken.mint(facticeUser2, 1000 * TOKEN18);
 
 		vm.stopPrank();
 
 		vm.startPrank(facticeUser2);
-		ghoToken.approve(address(lpPositionsManager), 100 * TOKEN18);
+		ghoToken.approve(address(positionsManager), 100 * TOKEN18);
 		vm.stopPrank();
 	}
 
@@ -228,7 +250,7 @@ abstract contract UniswapTest is Test {
 		}
 		uniswapPositionsNFT.mint{ value: 1000 ether }(mintParams);
 
-		lpPositionsManager.addPoolToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, false);
+		positionsManager.addPoolToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, false);
 
 		ghoToken.approve(swapRouterAddr, 25 * 2 * TOKEN18);
 
