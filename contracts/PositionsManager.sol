@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity <0.9.0;
 
+import "forge-std/Test.sol";
+
 import "./interfaces/IPositionsManager.sol";
 import "./interfaces/IEclypseVault.sol";
 import "./interfaces/IPriceFeed.sol";
@@ -290,7 +292,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		// From here, the interestFactor is up-to-date.
 		(uint256 totalDebt, uint256 debtPrincipal, ) = allDebtComponentsOf(_tokenId);
 		Position storage position = positionFromTokenId[_tokenId];
-		AssetsValues memory assetValues = assetsValues[position.assetAddress];
+		AssetsValues storage assetValues = assetsValues[position.assetAddress];
 
 		protocolContracts.eclypseVault.mint(position.assetAddress, sender, _amount);
 		assetValues.totalBorrowedStableCoin += _amount;
@@ -311,7 +313,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 */
 	function repay(address sender, uint256 _tokenId, uint256 _amount) public override onlyBorrower {
 		require(_amount > 0, "A debt cannot be decreased by 0.");
+
 		refreshDebtTracking(positionFromTokenId[_tokenId].assetAddress);
+
 		// From here, the interestFactor is up-to-date.
 		(uint256 currentDebt, uint256 debtPrincipal, uint256 accumulatedInterest) = allDebtComponentsOf(_tokenId);
 
@@ -332,7 +336,6 @@ contract PositionsManager is Ownable, IPositionsManager {
 
 		uint256 newDebt = currentDebt - _amount;
 		uint256 newDebtPrincipal = debtPrincipal - principalRepayment;
-
 		if (newDebt > 0) {
 			position.interestConstant = FullMath.mulDivRoundingUp(assetValues.interestFactor, newDebtPrincipal, newDebt);
 		} else {

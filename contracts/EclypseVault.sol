@@ -51,24 +51,25 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
     }
 
     /**
-     * @notice Performs a delegateCall on the borrowable asset contract's mint function.
+     * @notice Performs a call on the borrowable asset contract's mint function.
      * @param _asset The address of the contract to call.
      * @param _sender The address which will receive the minted tokens.
      * @param _amount The amount of token to mint.
      */
-    function mint(address _asset, address _sender, uint256 _amount) public override onlyManager {
-        (bool _ok, ) = _asset.delegatecall(abi.encodeWithSignature("mint(address,uint256)", _sender, _amount));
+    function mint(address _asset, address _sender, uint256 _amount) public override onlyManager returns (bool _ok){
+        (bool _ok, ) = _asset.call(abi.encodeWithSignature("mint(address,uint256)", _sender, _amount));
     }
 
     /**
-     * @notice Performs a delegateCall on the borrowable asset contract's burn function.
+     * @notice Performs a call on the borrowable asset contract's burn function.
      * @param _asset The address of the contract to call.
      * @param _amount The amount of token to burn.
      */
 
-    function burn(address _asset, uint256 _amount) public override onlyManager {
-        (bool _ok, ) = _asset.delegatecall(abi.encodeWithSignature("burn(uint256)", _amount));
+    function burn(address _asset, uint256 _amount) public override onlyManager returns (bool _ok){
+        (bool _ok, ) = _asset.call(abi.encodeWithSignature("burn(uint256)", _amount));
     }
+
 
     /**
      * @notice Increases the liquidity of an LP position.
