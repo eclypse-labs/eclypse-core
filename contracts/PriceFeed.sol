@@ -61,8 +61,8 @@ contract PriceFeed is IPriceFeed, Ownable {
 			return 1e18;
 		}
 		ChainlinkResponse memory chainlinkResponse = _getChainlinkResponse(_tokenAddress, _quote);
-		uint8 decimals = chainlinkResponse.decimals;
 		//muldiv ou muldivRoundingUp a voir
+		//uint8 decimals = chainlinkResponse.decimals;
 		//return FullMath.mulDiv(uint256(chainlinkResponse.answer), 1, 10 ** (decimals));
 		return uint256(chainlinkResponse.answer);
 	}

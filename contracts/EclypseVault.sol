@@ -57,7 +57,7 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
      * @param _amount The amount of token to mint.
      */
     function mint(address _asset, address _sender, uint256 _amount) public override onlyManager returns (bool _ok){
-        (bool _ok, ) = _asset.call(abi.encodeWithSignature("mint(address,uint256)", _sender, _amount));
+        (_ok, ) = _asset.call(abi.encodeWithSignature("mint(address,uint256)", _sender, _amount));
     }
 
     /**
@@ -67,7 +67,7 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
      */
 
     function burn(address _asset, uint256 _amount) public override onlyManager returns (bool _ok){
-        (bool _ok, ) = _asset.call(abi.encodeWithSignature("burn(uint256)", _amount));
+        (_ok, ) = _asset.call(abi.encodeWithSignature("burn(uint256)", _amount));
     }
 
 

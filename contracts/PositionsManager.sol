@@ -205,7 +205,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		(uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
 		address token0 = positionFromTokenId[_tokenId].token0;
 		address token1 = positionFromTokenId[_tokenId].token1;
-		uint256 value = FullMath.mulDiv(amount0, protocolContracts.priceFeed.getPrice(token0, Denominations.ETH), 1) +
+		value = FullMath.mulDiv(amount0, protocolContracts.priceFeed.getPrice(token0, Denominations.ETH), 1) +
 			FullMath.mulDiv(amount1, protocolContracts.priceFeed.getPrice(token1, Denominations.ETH), 1);
 		return value;
 	}
@@ -216,7 +216,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _user The address of the user to get the total value of.
 	 * @return totalValue The total value of all active positions of the user in ETH.
 	 */
-	function totalPositionsValueInETH(address _user) public override returns (uint256 totalValue) {
+	function totalPositionsValueInETH(address _user) public override view returns (uint256 totalValue) {
 		UserPositions storage userPositions = positionsFromAddress[_user];
 		for (uint32 i = 0; i < userPositions.counter; i++) {
 			if (userPositions.positions[i].status == Status.active) {
@@ -273,7 +273,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 */
 	function debtOfInETH(uint256 _tokenId) public view override returns (uint256) {
 		uint256 usdcETHPrice = protocolContracts.priceFeed.getPrice(usdcAddr, Denominations.ETH);
-		uint256 tokenDebt = FullMath.mulDivRoundingUp(debtOf(_tokenId), protocolContracts.priceFeed.getPrice(usdcAddr, Denominations.ETH), 1e18);
+		uint256 tokenDebt = FullMath.mulDivRoundingUp(debtOf(_tokenId), usdcETHPrice, 1e18);
 		return tokenDebt;
 	}
 
