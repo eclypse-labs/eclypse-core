@@ -205,7 +205,8 @@ contract PositionsManager is Ownable, IPositionsManager {
 		(uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
 		address token0 = positionFromTokenId[_tokenId].token0;
 		address token1 = positionFromTokenId[_tokenId].token1;
-		value = FullMath.mulDiv(amount0, protocolContracts.priceFeed.getPrice(token0, Denominations.ETH), 1) +
+		value =
+			FullMath.mulDiv(amount0, protocolContracts.priceFeed.getPrice(token0, Denominations.ETH), 1) +
 			FullMath.mulDiv(amount1, protocolContracts.priceFeed.getPrice(token1, Denominations.ETH), 1);
 		return value;
 	}
@@ -216,7 +217,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _user The address of the user to get the total value of.
 	 * @return totalValue The total value of all active positions of the user in ETH.
 	 */
-	function totalPositionsValueInETH(address _user) public override view returns (uint256 totalValue) {
+	function totalPositionsValueInETH(address _user) public view override returns (uint256 totalValue) {
 		UserPositions storage userPositions = positionsFromAddress[_user];
 		for (uint32 i = 0; i < userPositions.counter; i++) {
 			if (userPositions.positions[i].status == Status.active) {
@@ -437,7 +438,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the position to check.
 	 * @return isLiquidatable, true if the position is liquidatable and false otherwise.
 	 */
-	function liquidatable(uint256 _tokenId) public override returns (bool) {
+	function liquidatable(uint256 _tokenId) public view override returns (bool) {
 		Position memory position = positionFromTokenId[_tokenId];
 		return collRatioOf(_tokenId) < riskConstantsFromPool[position.poolAddress].minCR;
 	}
@@ -471,7 +472,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _amountRepay The amount of GHO to repay to reimburse the debt of the position.
 	 */
 	//TODO: Implement liquidateUnderlyings.
-	function liquidateUnderlyings(uint256 _tokenId, uint256 _amountRepay) public override {
+	function liquidateUnderlyings(uint256 _tokenId, uint256 _amountRepay) public view override {
 		require(liquidatable(_tokenId), "Position is not liquidatable");
 		require(debtOf(_tokenId) <= _amountRepay, "Not enough GHO to repay debt");
 

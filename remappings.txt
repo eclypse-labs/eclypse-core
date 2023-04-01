@@ -1,16 +1,6 @@
 aave-v3-core/=lib/aave-v3-core/
-ds-auth/=lib/dss/lib/ds-token/lib/ds-auth/src/
-ds-math/=lib/dss/lib/ds-token/lib/ds-math/src/
-ds-note/=lib/dss/lib/ds-value/lib/ds-thing/lib/ds-note/src/
-ds-test/=lib/forge-std/lib/ds-test/src/
-ds-thing/=lib/dss/lib/ds-value/lib/ds-thing/src/
-ds-token/=lib/dss/lib/ds-token/src/
-ds-value/=lib/dss/lib/ds-value/src/
-dss/=lib/dss/src/
 gho-core/=lib/gho-core/
-erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/
 forge-std/=lib/forge-std/src/
-openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 @uniswap-core/=lib/v3-core/contracts/
 @uniswap-periphery/=lib/v3-periphery/contracts/
 @openzeppelin/=lib/openzeppelin-contracts/
