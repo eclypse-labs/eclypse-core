@@ -5,8 +5,10 @@ import "./interfaces/IPositionsManager.sol";
 import "./PositionsManager.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+
 import {Errors} from "./utils/Errors.sol";
 
 /**
@@ -17,9 +19,7 @@ import {Errors} from "./utils/Errors.sol";
 contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
 
     INonfungiblePositionManager internal uniswapV3NFPositionsManager;
-
     PositionsManager internal manager;
-
 
     /**
      * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.

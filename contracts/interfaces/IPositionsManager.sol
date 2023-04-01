@@ -2,9 +2,10 @@
 pragma solidity <0.9.0;
 
 import "./IEclypseVault.sol";
+import "./IPriceFeed.sol";
+
 import "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
-import "./IPriceFeed.sol";
 
 interface IPositionsManager {
 

@@ -115,7 +115,7 @@ abstract contract UniswapTest is Test {
 			address(priceFeed)
 		);
 
-		eclypseVault.initialize(uniswapPositionsNFTAddr, address(positionsManager), address(userInteractions));
+		eclypseVault.initialize(uniswapPositionsNFTAddr, address(positionsManager));
 
 		// whitelist la pool: updateRiskConstants
 		// pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress

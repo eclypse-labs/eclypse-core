@@ -4,14 +4,12 @@ pragma solidity <0.9.0;
 import "./interfaces/IEclypseVault.sol";
 
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "@uniswap-periphery/libraries/TransferHelper.sol";
 import "@uniswap-core/libraries/FullMath.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-
 contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
-
     uint256 internal LIQUIDATION_FEES;
 
     string public constant NAME = "Eclypse Vault";
@@ -21,14 +19,8 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
     address public positionsManagerAddress;
     address public borrowerAddress;
 
-
     modifier onlyManager() {
         require(msg.sender == positionsManagerAddress);
-        _;
-    }
-
-    modifier onlyBorrower() {
-        require(msg.sender == borrowerAddress);
         _;
     }
 
@@ -36,17 +28,11 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
      * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
      * @param _uniPosNFT The address of the Uniswap V3 NonfungiblePositionManager contract.
      * @param _positionsManagerAddress The address of the PositionsManager contract.
-     * @param _borrowerAddress The address of the userInteractions contract.
      * @dev This function can only be called by the contract owner.
      */
-    function initialize(
-        address _uniPosNFT,
-        address _positionsManagerAddress,
-        address _borrowerAddress
-    ) external override onlyOwner {
+    function initialize(address _uniPosNFT, address _positionsManagerAddress) external override onlyOwner {
         uniswapV3NFPositionsManager = INonfungiblePositionManager(_uniPosNFT);
         positionsManagerAddress = _positionsManagerAddress;
-        borrowerAddress = _borrowerAddress;
         //renounceOwnership();
     }
 
@@ -56,8 +42,8 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
      * @param _sender The address which will receive the minted tokens.
      * @param _amount The amount of token to mint.
      */
-    function mint(address _asset, address _sender, uint256 _amount) public override onlyManager returns (bool _ok){
-        (_ok, ) = _asset.call(abi.encodeWithSignature("mint(address,uint256)", _sender, _amount));
+    function mint(address _asset, address _sender, uint256 _amount) public override onlyManager returns (bool _ok) {
+        (_ok,) = _asset.call(abi.encodeWithSignature("mint(address,uint256)", _sender, _amount));
     }
 
     /**
@@ -66,10 +52,9 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
      * @param _amount The amount of token to burn.
      */
 
-    function burn(address _asset, uint256 _amount) public override onlyManager returns (bool _ok){
-        (_ok, ) = _asset.call(abi.encodeWithSignature("burn(uint256)", _amount));
+    function burn(address _asset, uint256 _amount) public override onlyManager returns (bool _ok) {
+        (_ok,) = _asset.call(abi.encodeWithSignature("burn(uint256)", _amount));
     }
-
 
     /**
      * @notice Increases the liquidity of an LP position.
@@ -115,7 +100,6 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
         if (amount1 < _amountAdd1) {
             TransferHelper.safeTransfer(_token1, _sender, _amountAdd1 - amount1);
         }
-
     }
 
     /**
@@ -163,12 +147,11 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
         uniswapV3NFPositionsManager.transferFrom(address(this), _to, _tokenId);
     }
 
-   /**
+    /**
      * @notice Returns the address of the contract that implements the IERC721Receiver interface.
      * @return selector The Selector of the IERC721Receiver interface.
      */
     function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
-
 }

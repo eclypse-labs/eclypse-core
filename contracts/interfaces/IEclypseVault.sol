@@ -7,8 +7,7 @@ interface IEclypseVault {
 
     function initialize(
         address _uniPosNFT,
-        address _positionsManagerAddress,
-        address _borrowerAddress
+        address _positionsManagerAddress
     ) external;
 
     //function addChildren(address _children) external;
