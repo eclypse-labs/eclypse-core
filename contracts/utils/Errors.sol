@@ -16,7 +16,7 @@ library Errors {
 
 
     error AmountShouldBePositive();
-    error PositionILiquidatable();
+    error PositionIsLiquidatable();
 
     //borrowGHO
     error SupplyNotAvailable();
