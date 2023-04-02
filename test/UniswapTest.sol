@@ -184,10 +184,8 @@ abstract contract UniswapTest is Test {
 			recipient: facticeUser1,
 			deadline: block.timestamp
 		});
-		
-		uint a0;
-		uint a1;
-		(facticeUser1_tokenId, , a0, a1) = uniswapPositionsNFT.mint(mintParams);
+	
+		(facticeUser1_tokenId, , ,) = uniswapPositionsNFT.mint(mintParams);
 		(facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
 
 		uniswapPositionsNFT.approve(address(positionsManager), facticeUser1_tokenId);
