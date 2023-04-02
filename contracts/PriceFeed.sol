@@ -64,7 +64,7 @@ contract PriceFeed is IPriceFeed, Ownable {
      */
     function getPrice(address _tokenAddress, address _quote) external view returns (uint256) {
         if (_tokenAddress == WETHAddress && _quote == Denominations.ETH) {
-            return 1e18;
+            return FixedPoint96.Q96;
         }
         ChainlinkResponse memory chainlinkResponse = _getChainlinkResponse(_tokenAddress, _quote);
         //muldiv ou muldivRoundingUp a voir

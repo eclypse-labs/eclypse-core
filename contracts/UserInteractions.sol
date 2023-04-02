@@ -122,7 +122,7 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
 
     }
 
-        /**
+    /**
      * @notice Check if the position is active.
      * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
      */

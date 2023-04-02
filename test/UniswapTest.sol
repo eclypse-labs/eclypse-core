@@ -125,7 +125,7 @@ abstract contract UniswapTest is Test {
 
 		vm.startPrank(deployer);
 
-		uint256 _minCR = FullMath.mulDiv(15, 1e18, 10);
+		uint256 _minCR = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
 		positionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
 		// protocol values are initialized here
 		IPositionsManager.AssetsValues memory assetValues;
@@ -175,18 +175,19 @@ abstract contract UniswapTest is Test {
 			token0: usdcAddr,
 			token1: wethAddr,
 			fee: 500,
-			tickLower: int24(104920),
+			tickLower: int24(204860), 
 			tickUpper: int24(204930),
-			amount0Desired: 1000 * TOKEN6,
-			amount1Desired: TOKEN18,
+			amount0Desired: 1250 * TOKEN6,
+			amount1Desired: 1 * TOKEN18,
 			amount0Min: 0,
 			amount1Min: 0,
 			recipient: facticeUser1,
 			deadline: block.timestamp
 		});
-		// Position is worth approximately 1227 GHO
-
-		(facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
+		
+		uint a0;
+		uint a1;
+		(facticeUser1_tokenId, , a0, a1) = uniswapPositionsNFT.mint(mintParams);
 		(facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
 
 		uniswapPositionsNFT.approve(address(positionsManager), facticeUser1_tokenId);

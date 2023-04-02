@@ -92,6 +92,6 @@ contract EclypseVaultTest is UniswapTest {
 		vm.startPrank(facticeUser1);
         userInteractions.withdraw(positionsManager.getPosition(facticeUser1_tokenId).liquidity / 2, facticeUser1_tokenId);
 		vm.stopPrank();
-		assertEq(positionsManager.getPosition(facticeUser1_tokenId).liquidity, previousLiquidity / 2, "Position should have half liquidity.");
+		assertEq(positionsManager.getPosition(facticeUser1_tokenId).liquidity, previousLiquidity - previousLiquidity / 2, "Position should have half liquidity.");
 	}
 }

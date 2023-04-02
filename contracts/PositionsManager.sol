@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import "./interfaces/IPositionsManager.sol";
 import "./interfaces/IEclypseVault.sol";
 import "./interfaces/IPriceFeed.sol";
+import {Errors} from "./utils/Errors.sol";
 
 import {Denominations} from "@chainlink/Denominations.sol";
 
@@ -206,8 +207,10 @@ contract PositionsManager is Ownable, IPositionsManager {
         (uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
         address token0 = positionFromTokenId[_tokenId].token0;
         address token1 = positionFromTokenId[_tokenId].token1;
-        value = FullMath.mulDiv(amount0, protocolContracts.priceFeed.getPrice(token0, Denominations.ETH), FixedPoint96.Q96)
-              + FullMath.mulDiv(amount1, protocolContracts.priceFeed.getPrice(token1, Denominations.ETH), FixedPoint96.Q96);
+        IERC20Metadata token0Metadata = IERC20Metadata(token0);
+        IERC20Metadata token1Metadata = IERC20Metadata(token1);
+        value = FullMath.mulDiv(amount0, protocolContracts.priceFeed.getPrice(token0, Denominations.ETH) * 10**18, FixedPoint96.Q96 * 10**token0Metadata.decimals())
+              + FullMath.mulDiv(amount1, protocolContracts.priceFeed.getPrice(token1, Denominations.ETH) * 10**18, FixedPoint96.Q96 * 10**token1Metadata.decimals());
         return value;
     }
 
@@ -273,7 +276,7 @@ contract PositionsManager is Ownable, IPositionsManager {
      * @return debtInETH The debt of the position in ETH. - 18 decimals
      */
     function debtOfInETH(uint256 _tokenId) public view override returns (uint256) {
-        uint256 ethUsdPrice = protocolContracts.priceFeed.getPrice(WETHAddress, Denominations.USD);
+        uint256 ethUsdPrice = protocolContracts.priceFeed.getPrice(Denominations.ETH, Denominations.USD);
 		IERC20Metadata asset = IERC20Metadata(positionFromTokenId[_tokenId].assetAddress);
 		// FixedPoint96.Q96 from the PriceFeed, 18 decimals for ETH, asset decimals for <asset> (the stablecoin)
 		uint factorNumerator = FixedPoint96.Q96 * 10**18 > asset.decimals() ? FixedPoint96.Q96 * 10**(18 - asset.decimals()) : 1;
@@ -411,7 +414,7 @@ contract PositionsManager is Ownable, IPositionsManager {
             		 + FullMath.mulDiv(fee1, protocolContracts.priceFeed.getPrice(positionFromTokenId[_tokenId].token1, Denominations.ETH), FixedPoint96.Q96);
         uint256 debt = debtOfInETH(_tokenId);
         uint256 collValue = positionValueInETH(_tokenId) + fees;
-        return debt > 0 ? FullMath.mulDiv(collValue, 1, debt) : MAX_UINT256;
+        return debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256;
     }
 
     /**
