@@ -116,7 +116,8 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
         uint256 _tokenId,
         uint128 _liquidityToRemove
     ) public override onlyManager returns (uint256 amount0, uint256 amount1){
-
+		
+        // amount0Min and amount1Min are price slippage checks
         uniswapV3NFPositionsManager.decreaseLiquidity(
             INonfungiblePositionManager.DecreaseLiquidityParams({
                 tokenId: _tokenId,
