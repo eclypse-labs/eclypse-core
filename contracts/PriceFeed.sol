@@ -25,7 +25,7 @@ contract PriceFeed is IPriceFeed, Ownable {
 	// -- Addresses --
 	address userInteractionAddress;
 	address positionManagerAddress;
-	address constant WETHAddressPolygon = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+	address constant WETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
 	// -- State --
 	AggregatorV3Interface private priceFeedChainLink;
@@ -63,7 +63,7 @@ contract PriceFeed is IPriceFeed, Ownable {
 	 * @return The price of the token in _quote, as a Q96 fixed point number.
 	 */
 	function getPrice(address _tokenAddress, address _quote) external view returns (uint256) {
-		if (_tokenAddress == WETHAddressPolygon && _quote == Denominations.ETH) {
+		if (_tokenAddress == WETHAddress && _quote == Denominations.ETH) {
 			return FixedPoint96.Q96;
 		}
 		ChainlinkResponse memory chainlinkResponse = _getChainlinkResponse(_tokenAddress, _quote);

@@ -24,7 +24,7 @@ import "@uniswap-periphery/libraries/OracleLibrary.sol";
 
 contract PositionsManager is Ownable, IPositionsManager {
 	uint256 constant MAX_UINT256 = 2 ** 256 - 1;
-	address constant WETHAddressPolygon = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+	address constant WETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
 	ProtocolContracts public protocolContracts;
 
@@ -97,10 +97,10 @@ contract PositionsManager is Ownable, IPositionsManager {
 		bool _inv1
 	) external override onlyOwner {
 		whiteListedPools[_poolAddress] = true;
-		if (_token0 != WETHAddressPolygon) {
+		if (_token0 != WETHAddress) {
 			tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
 		}
-		if (_token1 != WETHAddressPolygon) {
+		if (_token1 != WETHAddress) {
 			tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
 		}
 	}

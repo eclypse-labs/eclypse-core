@@ -315,4 +315,15 @@ contract UserInteractionsTest is UniswapTest {
 		assertEq(positionsManager.debtOf(facticeUser1_tokenId2), 0);
 		vm.stopPrank();
 	}
+
+	function testLiquidatePosition() public {
+		vm.startPrank(address(facticeUser1));
+		userInteractions.borrow(10 * TOKEN18, facticeUser1_tokenId);
+		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18);
+		// assertEq(positionsManager.debtOf(facticeUser1_tokenId2), 10 * TOKEN18);
+		// userInteractions.liquidatePosition(facticeUser1_tokenId2, );
+		// assertEq(positionsManager.debtOf(facticeUser1_tokenId), 0);
+		// assertEq(positionsManager.debtOf(facticeUser1_tokenId2), 0);
+		vm.stopPrank();
+	}
 }
