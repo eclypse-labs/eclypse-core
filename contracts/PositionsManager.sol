@@ -475,7 +475,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _maxPayment The largest amount of stablecoin to repay to reimburse the debt of the position.
 	 */
 	function liquidatePosition(uint256 _tokenId, uint256 _maxPayment) public {
-		//Calling _liquidatable is for gas optimization
+		require(_tokenId > 0, "Invalid tokenId");
+		require(_maxPayment > 0, "Invalid maxPayment");
+
 		Position storage position = positionFromTokenId[_tokenId];
 		uint256 collateralValueInETH = positionValueInETH(_tokenId);
 		uint256 debt = debtOf(_tokenId);
@@ -483,7 +485,6 @@ contract PositionsManager is Ownable, IPositionsManager {
 		uint256 minCR = riskConstantsFromPool[position.poolAddress].minCR;
 		require(_liquidatable(collateralValueInETH, debtInETH, minCR), "The position is not liquidatable.");
 
-		
 		// half of (minCR-1) is bonus for the liquidator [THIS IS ARBITRARY, TO BE DISCUSSED]
 		uint liquidationBonusRatio = ((minCR - FixedPoint96.Q96) / 2 + FixedPoint96.Q96);
 		uint128 liquidityToRepay;
@@ -500,18 +501,22 @@ contract PositionsManager is Ownable, IPositionsManager {
 			uint256 liquidityOfDebt = FullMath.mulDiv(position.liquidity, debtInETH, collateralValueInETH);
 			// liquidator gets his share of the position's liquidity (at most 50% of the "scaled" liquidity, i.e. the liquidity that represents the debt)
 			// and additionally gets the bonus for liquidating the position (scaled liquidity * (liquidationBonusRatio - 1))
-			liquidityToRepay = uint128(FullMath.mulDiv(liquidityOfDebt, _maxPayment, debt) + FullMath.mulDiv(liquidityOfDebt, liquidationBonusRatio - FixedPoint96.Q96, FixedPoint96.Q96));
+			liquidityToRepay = uint128(
+				FullMath.mulDiv(liquidityOfDebt, _maxPayment, debt) +
+					FullMath.mulDiv(liquidityOfDebt, liquidationBonusRatio - FixedPoint96.Q96, FixedPoint96.Q96)
+			);
 		}
+
+		if (liquidityToRepay == position.liquidity) {
+			position.status = Status.closedByLiquidation;
+		}
+
+		position.liquidity -= liquidityToRepay;
 
 		//IERC20(position.assetAddress).transferFrom(msg.sender, address(protocolContracts.eclypseVault), _maxPayment);
 		repay(msg.sender, _tokenId, _maxPayment);
 		protocolContracts.eclypseVault.burn(position.assetAddress, _maxPayment);
 		protocolContracts.eclypseVault.decreaseLiquidity(msg.sender, _tokenId, liquidityToRepay);
-		
-		if (liquidityToRepay == position.liquidity) {
-			position.status = Status.closedByLiquidation;
-		}
-		position.liquidity -= liquidityToRepay;
 	}
 
 	/**
