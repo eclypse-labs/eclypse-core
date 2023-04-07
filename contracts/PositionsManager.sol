@@ -540,7 +540,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenIds The IDs of the positions to liquidate, using calldata to save gas.
 	 * @param _amountRepays The amounts of stablecoin to repay to reimburse the debt of the positions, using calldata to save gas.
 	 */
-	function batchliquidate(uint256[] calldata _tokenIds, uint256[] calldata _amountRepays) public override nonReentrant {
+	function batchliquidate(uint256[] calldata _tokenIds, uint256[] calldata _amountRepays) public override {
 		require(_tokenIds.length == _amountRepays.length, "Input arrays must have the same length");
 		for (uint256 i = 0; i < _tokenIds.length; i++) {
 			liquidatePosition(_tokenIds[i], _amountRepays[i]);
