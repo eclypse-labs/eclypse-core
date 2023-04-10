@@ -335,13 +335,17 @@ contract PositionsManager is Ownable, IPositionsManager {
 	function repay(address sender, uint256 _tokenId, uint256 _amount) public override onlyBorrowerOrSelf {
 		require(_amount > 0, "A debt cannot be decreased by 0.");
 
-		refreshDebtTracking(positionFromTokenId[_tokenId].assetAddress);
+		Position storage position = positionFromTokenId[_tokenId];
+
+		_repay(sender, _tokenId, _amount, position);
+	}
+
+	function _repay(address sender, uint256 _tokenId, uint256 _amount, Position storage position) internal {
+		AssetsValues storage assetValues = assetsValues[position.assetAddress];
+		refreshDebtTracking(position.assetAddress);
 
 		// From here, the interestFactor is up-to-date.
 		(uint256 currentDebt, uint256 debtPrincipal, uint256 accumulatedInterest) = allDebtComponentsOf(_tokenId);
-
-		Position storage position = positionFromTokenId[_tokenId];
-		AssetsValues storage assetValues = assetsValues[position.assetAddress];
 
 		_amount = _amount < currentDebt ? _amount : currentDebt;
 
@@ -516,24 +520,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 		position.liquidity -= liquidityToRepay;
 
 		//IERC20(position.assetAddress).transferFrom(msg.sender, address(protocolContracts.eclypseVault), _maxPayment);
-		repay(msg.sender, _tokenId, _maxPayment);
+		_repay(msg.sender, _tokenId, _maxPayment, position);
 		protocolContracts.eclypseVault.burn(position.assetAddress, _maxPayment - eclypseLiquidationBonus); // Eclypse keeps 20% of the liquidation bonus.
 		protocolContracts.eclypseVault.decreaseLiquidity(msg.sender, _tokenId, liquidityToRepay);
-	}
-
-	/**
-	 * @notice Liquidates a position and its underlyings.
-	 * @dev Given that the caller has enough GHO to reimburse the position's debt, the position is liquidated, the GHO is burned and the NFT is transfered to the caller.
-	 * @param _tokenId The ID of the position to liquidate.
-	 * @param _amountRepay The amount of GHO to repay to reimburse the debt of the position.
-	 */
-	//TODO: Implement liquidateUnderlyings.
-	function liquidateUnderlyings(uint256 _tokenId, uint256 _amountRepay) public view override {
-		require(liquidatable(_tokenId), "Position is not liquidatable");
-		require(debtOf(_tokenId) <= _amountRepay, "Not enough GHO to repay debt");
-
-		//uint256 repayAmount = _amountRepay;
-		//uint256 GHOfees = 0;
 	}
 
 	/**

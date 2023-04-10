@@ -111,6 +111,5 @@ interface IPositionsManager {
     // Liquidation functions
     function liquidatable(uint256 _tokenId) external view returns (bool);
     function liquidatePosition(uint256 _tokenId, uint256 _StableCoinToRepay) external;
-    function liquidateUnderlyings(uint256 _tokenId, uint256 _amountRepay) external view;
     function batchliquidate(uint256[] memory _tokenIds, uint256[] memory _StableCoinToRepay) external;
 }

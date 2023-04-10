@@ -9,7 +9,7 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "./UniswapTest.sol";
 import "@uniswap-periphery/interfaces/IQuoterV2.sol";
 
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "./FakePriceFeed.sol";
 
 import { Errors } from "../contracts/utils/Errors.sol";
 
@@ -318,15 +318,111 @@ contract UserInteractionsTest is UniswapTest {
 		vm.stopPrank();
 	}
 
-	function testLiquidatePosition() public {
+	function testLiquidatePositionUnderThreshold() public {
+		vm.startPrank(address(deployer));
+		fakePriceFeed.setEthUsdPrice(1200 * FixedPoint96.Q96);
+		positionsManager.initialize(
+			uniswapFactoryAddr,
+			uniswapPositionsNFTAddr,
+			address(userInteractions),
+			address(eclypseVault),
+			address(fakePriceFeed) // for testing purposes
+		);
+		vm.stopPrank();
+
 		vm.startPrank(address(facticeUser1));
-		userInteractions.borrow(10 * TOKEN18, facticeUser1_tokenId);
-		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18);
-		AggregatorV3Interface ethUsdPriceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419); // eth/usd
-		// assertEq(positionsManager.debtOf(facticeUser1_tokenId2), 10 * TOKEN18);
-		// userInteractions.liquidatePosition(facticeUser1_tokenId2, );
-		// assertEq(positionsManager.debtOf(facticeUser1_tokenId), 0);
-		// assertEq(positionsManager.debtOf(facticeUser1_tokenId2), 0);
+		uint256 positionValueInEth = positionsManager.positionValueInETH(facticeUser1_tokenId);
+		userInteractions.borrow(750*positionValueInEth, facticeUser1_tokenId);
+		uint256 collRatio = positionsManager.collRatioOf(facticeUser1_tokenId)*100/FixedPoint96.Q96;
+		console.log("collRatio*100 : ", collRatio);
+		vm.stopPrank();
+		
+		uint256 debt = positionsManager.debtOf(facticeUser1_tokenId);
+		deal(address(ghoToken), address(facticeUser2), debt);
+
+
+		vm.startPrank(address(facticeUser2));
+		ghoToken.approve(address(positionsManager), debt);
+		fakePriceFeed.setEthUsdPrice(300 * FixedPoint96.Q96); // set eth's price to 1$
+		uint256 newCollRatio = positionsManager.collRatioOf(facticeUser1_tokenId)*100/FixedPoint96.Q96;
+		console.log("collRatioOf*100 after price change : ", newCollRatio);
+
+		uint256 wethBal = WETH.balanceOf(address(facticeUser2));
+		uint256 usdcBal = USDC.balanceOf(address(facticeUser2));
+		uint256 ghoBal = ghoToken.balanceOf(address(facticeUser2));
+
+		positionsManager.liquidatePosition(facticeUser1_tokenId, debt);
+		// print balance of weth and gho
+		
+		uint256 newWethBal = WETH.balanceOf(address(facticeUser2));
+		uint256 newUsdcBal = USDC.balanceOf(address(facticeUser2));
+		uint256 newGhoBal = ghoToken.balanceOf(address(facticeUser2));
+
+		assertGt(newWethBal, wethBal, "WETH balance should be greater than before.");
+		assertGt(newUsdcBal, usdcBal, "USDC balance should be greater than before.");
+		assertLt(newGhoBal, ghoBal, "GHO balance should be less than before.");
+
+		if (newCollRatio >= 125) { // meaning we could only liquidate at most half of the position's debt.
+			assertEq(positionsManager.debtOf(facticeUser1_tokenId), debt-debt/2, "Debt should be half of the original debt.");
+		} else { // meaning we could liquidate any amount of the position's debt, so the position should be closed.
+			assertEq(positionsManager.debtOf(facticeUser1_tokenId), 0, "Debt should be 0.");
+			assertEq(uint(positionsManager.getPosition(facticeUser1_tokenId).status), uint(IPositionsManager.Status.closedByLiquidation), "Position should be closed.");
+
+		}
+		vm.stopPrank();
+	}
+
+	function testLiquidatePositionAboveThreshold() public {
+		vm.startPrank(address(deployer));
+		fakePriceFeed.setEthUsdPrice(1200 * FixedPoint96.Q96);
+		positionsManager.initialize(
+			uniswapFactoryAddr,
+			uniswapPositionsNFTAddr,
+			address(userInteractions),
+			address(eclypseVault),
+			address(fakePriceFeed) // for testing purposes
+		);
+		vm.stopPrank();
+
+		vm.startPrank(address(facticeUser1));
+		uint256 positionValueInEth = positionsManager.positionValueInETH(facticeUser1_tokenId);
+		userInteractions.borrow(750*positionValueInEth, facticeUser1_tokenId);
+		uint256 collRatio = positionsManager.collRatioOf(facticeUser1_tokenId)*100/FixedPoint96.Q96;
+		console.log("collRatio*100 : ", collRatio);
+		vm.stopPrank();
+		
+		uint256 debt = positionsManager.debtOf(facticeUser1_tokenId);
+		deal(address(ghoToken), address(facticeUser2), debt);
+
+
+		vm.startPrank(address(facticeUser2));
+		ghoToken.approve(address(positionsManager), debt);
+		fakePriceFeed.setEthUsdPrice(800 * FixedPoint96.Q96); // set eth's price to 1$
+		uint256 newCollRatio = positionsManager.collRatioOf(facticeUser1_tokenId)*100/FixedPoint96.Q96;
+		console.log("collRatioOf*100 after price change : ", newCollRatio);
+
+		uint256 wethBal = WETH.balanceOf(address(facticeUser2));
+		uint256 usdcBal = USDC.balanceOf(address(facticeUser2));
+		uint256 ghoBal = ghoToken.balanceOf(address(facticeUser2));
+
+		positionsManager.liquidatePosition(facticeUser1_tokenId, debt);
+		// print balance of weth and gho
+		
+		uint256 newWethBal = WETH.balanceOf(address(facticeUser2));
+		uint256 newUsdcBal = USDC.balanceOf(address(facticeUser2));
+		uint256 newGhoBal = ghoToken.balanceOf(address(facticeUser2));
+
+		assertGt(newWethBal, wethBal, "WETH balance should be greater than before.");
+		assertGt(newUsdcBal, usdcBal, "USDC balance should be greater than before.");
+		assertLt(newGhoBal, ghoBal, "GHO balance should be less than before.");
+
+		if (newCollRatio >= 125) { // meaning we could only liquidate at most half of the position's debt.
+			assertEq(positionsManager.debtOf(facticeUser1_tokenId), debt-debt/2, "Debt should be half of the original debt.");
+		} else { // meaning we could liquidate any amount of the position's debt, so the position should be closed.
+			assertEq(positionsManager.debtOf(facticeUser1_tokenId), 0, "Debt should be 0.");
+			assertEq(uint(positionsManager.getPosition(facticeUser1_tokenId).status), uint(IPositionsManager.Status.closedByLiquidation), "Position should be closed.");
+
+		}
 		vm.stopPrank();
 	}
 }

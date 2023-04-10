@@ -9,6 +9,7 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "@uniswap-periphery/interfaces/ISwapRouter.sol";
 import "@uniswap-periphery/interfaces/IQuoterV2.sol";
 import "@uniswap-core/libraries/FullMath.sol";
+import "./FakePriceFeed.sol";
 
 ////////////////////////////////////////////////////
 // OLD IMPORTS BELOW
@@ -53,6 +54,7 @@ abstract contract UniswapTest is Test {
 	address public uniPoolWBTCETHAddr = 0xCBCdF9626bC03E24f779434178A73a0B4bad62eD;
 	address public WBTCAddr = 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
 	address constant feedRegisteryAddr = 0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf;
+	address uniswapPositionsNFTAddr = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
 
 	IERC20 WETH = IERC20(wethAddr);
 	IERC20 USDC = IERC20(usdcAddr);
@@ -68,6 +70,7 @@ abstract contract UniswapTest is Test {
 	IUniswapV3Pool uniPoolGhoEth;
 	IQuoterV2 quoter;
 	uint256 tokenId;
+	FakePriceFeed fakePriceFeed;
 
 	address public constant uniswapFactoryAddr = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 	IUniswapV3Factory uniswapFactory = IUniswapV3Factory(uniswapFactoryAddr);
@@ -90,7 +93,8 @@ abstract contract UniswapTest is Test {
 
 		vm.startPrank(deployer);
 
-		address uniswapPositionsNFTAddr = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
+		fakePriceFeed = new FakePriceFeed();
+
 		uniswapPositionsNFT = INonfungiblePositionManager(uniswapPositionsNFTAddr);
 
 		quoter = IQuoterV2(0x61fFE014bA17989E743c5F6cB21bF9697530B21e);
@@ -121,10 +125,6 @@ abstract contract UniswapTest is Test {
 		// whitelist la pool: updateRiskConstants
 		// pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
 		positionsManager.addPoolToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
-
-		vm.stopPrank();
-
-		vm.startPrank(deployer);
 
 		uint256 _minCR = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
 		positionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
