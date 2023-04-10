@@ -488,6 +488,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		// half of (minCR-1) is bonus for the liquidator [THIS IS ARBITRARY, TO BE DISCUSSED]
 		uint liquidationBonusRatio = ((minCR - FixedPoint96.Q96) / 2 + FixedPoint96.Q96);
 		uint128 liquidityToRepay;
+		uint256 eclypseLiquidationBonus = 0;
 
 		// if the positionValue is less than or equal to the debt * liquidationBonusRatio, the liquidator will no longer have the 50% restriction
 		// because it's impossible to improve the collateral ratio of the position back to "healthy" levels, so we just want to get rid of it.
@@ -505,6 +506,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 				FullMath.mulDiv(liquidityOfDebt, _maxPayment, debt) +
 					FullMath.mulDiv(liquidityOfDebt, liquidationBonusRatio - FixedPoint96.Q96, FixedPoint96.Q96)
 			);
+			eclypseLiquidationBonus = FullMath.mulDiv(liquidityOfDebt, liquidationBonusRatio - FixedPoint96.Q96, FixedPoint96.Q96) / 5; // Eclypse gets 20% of the liquidation bonus.
 		}
 
 		if (liquidityToRepay == position.liquidity) {
@@ -515,7 +517,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 
 		//IERC20(position.assetAddress).transferFrom(msg.sender, address(protocolContracts.eclypseVault), _maxPayment);
 		repay(msg.sender, _tokenId, _maxPayment);
-		protocolContracts.eclypseVault.burn(position.assetAddress, _maxPayment);
+		protocolContracts.eclypseVault.burn(position.assetAddress, _maxPayment - eclypseLiquidationBonus); // Eclypse keeps 20% of the liquidation bonus.
 		protocolContracts.eclypseVault.decreaseLiquidity(msg.sender, _tokenId, liquidityToRepay);
 	}
 

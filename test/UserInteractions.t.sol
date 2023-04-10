@@ -9,6 +9,8 @@ import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 import "./UniswapTest.sol";
 import "@uniswap-periphery/interfaces/IQuoterV2.sol";
 
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
 import { Errors } from "../contracts/utils/Errors.sol";
 
 contract UserInteractionsTest is UniswapTest {
@@ -320,6 +322,7 @@ contract UserInteractionsTest is UniswapTest {
 		vm.startPrank(address(facticeUser1));
 		userInteractions.borrow(10 * TOKEN18, facticeUser1_tokenId);
 		assertEq(positionsManager.debtOf(facticeUser1_tokenId), 10 * TOKEN18);
+		AggregatorV3Interface ethUsdPriceFeed = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419); // eth/usd
 		// assertEq(positionsManager.debtOf(facticeUser1_tokenId2), 10 * TOKEN18);
 		// userInteractions.liquidatePosition(facticeUser1_tokenId2, );
 		// assertEq(positionsManager.debtOf(facticeUser1_tokenId), 0);
