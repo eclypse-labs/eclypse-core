@@ -193,6 +193,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 		uint160 sqrtRatio0X96 = TickMath.getSqrtRatioAtTick(_position.tickLower);
 		uint160 sqrtRatio1X96 = TickMath.getSqrtRatioAtTick(_position.tickUpper);
 		(amountToken0, amountToken1) = LiquidityAmounts.getAmountsForLiquidity(sqrtRatioX96, sqrtRatio0X96, sqrtRatio1X96, _position.liquidity);
+		(, , , , , , , , , , uint128 fee0, uint128 fee1) = protocolContracts.uniswapPositionsManager.positions(_tokenId);
+		return (amountToken0 + fee0, amountToken1 + fee1);
+
 	}
 
 	function refreshDebtTracking(address assetAddress) public {
