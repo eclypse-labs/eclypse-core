@@ -425,17 +425,8 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @return collRatio The collateral ratio of the position.
 	 */
 	function collRatioOf(uint256 _tokenId) public view returns (uint256) {
-		/*(uint256 fee0, uint256 fee1) = activePool.feesOwed(
-            INonfungiblePositionManager.CollectParams(_tokenId, address(this), type(uint128).max, type(uint128).max)
-        );*/
-		(, , , , , , , , , , uint128 fee0, uint128 fee1) = protocolContracts.uniswapPositionsManager.positions(_tokenId);
-		uint256 fees = FullMath.mulDiv(
-			fee0,
-			protocolContracts.priceFeed.getPrice(positionFromTokenId[_tokenId].token0, Denominations.ETH),
-			FixedPoint96.Q96
-		) + FullMath.mulDiv(fee1, protocolContracts.priceFeed.getPrice(positionFromTokenId[_tokenId].token1, Denominations.ETH), FixedPoint96.Q96);
 		uint256 debt = debtOfInETH(_tokenId);
-		uint256 collValue = positionValueInETH(_tokenId) + fees;
+		uint256 collValue = positionValueInETH(_tokenId);
 		return debt > 0 ? FullMath.mulDiv(collValue, FixedPoint96.Q96, debt) : MAX_UINT256;
 	}
 
