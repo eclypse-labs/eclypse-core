@@ -1,16 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-/**
- * @title PositionManager contract
- * @author Eclypse Labs
- * @notice Stores all the mappings needed to keep track of the user and their position, containes the logic for
- * oppening a borrower position and borrowing a stablecoin, contains the logic for the collateral valiue of the position
- * and the liquidations.
- * Backend intermediate between the User interactions contract and the Vault and PriceFeed contracts.
- * Transfers all the NFT logic to the Vault contract and the fetching of the price to PriceFeed.
- */
-
 import { IPositionsManager } from "./interfaces/IPositionsManager.sol";
 import { IEclypseVault } from "./interfaces/IEclypseVault.sol";
 import { IPriceFeed } from "./interfaces/IPriceFeed.sol";
@@ -31,6 +21,16 @@ import { LiquidityAmounts } from "@uniswap-periphery/libraries/LiquidityAmounts.
 import { OracleLibrary } from "@uniswap-periphery/libraries/OracleLibrary.sol";
 import { IUniswapV3Factory } from "@uniswap-core/interfaces/IUniswapV3Factory.sol";
 import { INonfungiblePositionManager } from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+
+/**
+ * @title PositionManager contract
+ * @author Eclypse Labs
+ * @notice Stores all the mappings needed to keep track of the user and their position, containes the logic for
+ * oppening a borrower position and borrowing a stablecoin, contains the logic for the collateral valiue of the position
+ * and the liquidations.
+ * Backend intermediate between the User interactions contract and the Vault and PriceFeed contracts.
+ * Transfers all the NFT logic to the Vault contract and the fetching of the price to PriceFeed.
+ */
 
 contract PositionsManager is Ownable, IPositionsManager {
 	uint256 constant MAX_UINT256 = 2 ** 256 - 1;

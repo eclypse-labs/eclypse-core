@@ -7,12 +7,12 @@ import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Rec
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { TransferHelper } from "@uniswap-periphery/libraries/TransferHelper.sol";
 import { FullMath } from "@uniswap-core/libraries/FullMath.sol";
-import {INonfungiblePositionManager} from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+import { INonfungiblePositionManager } from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
 /**
  * @title EclypseVault contract
  * @author Eclypse Labs
- * @notice This contract has the ownership of the nfts deposited as collateral and can thus increase the liquiddty of a position 
+ * @notice This contract has the ownership of the nfts deposited as collateral and can thus increase the liquidity of a position
  * as well as decrease it (with the known uniswap functions). Recieves instructions from the PositionManager contract.
  */
 

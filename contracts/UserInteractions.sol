@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+import { IUserInteractions } from "./interfaces/IUserInteractions.sol";
+import { IPositionsManager } from "./interfaces/IPositionsManager.sol";
+import { PositionsManager } from "./PositionsManager.sol";
+import { Errors } from "./utils/Errors.sol";
+
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { INonfungiblePositionManager } from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+
 /**
  * @title UserInteractions contract
  * @author Eclypse Labs
@@ -8,14 +17,6 @@ pragma solidity 0.8.17;
  * closing it, adding collateral, removing it.
  * @dev The contract is owned by the Eclypse system, and serves as a link between the Frontend and the Backend.
  */
-import {IUserInteractions} from "./interfaces/IUserInteractions.sol";
-import {IPositionsManager} from "./interfaces/IPositionsManager.sol";
-import {PositionsManager} from "./PositionsManager.sol";
-import { Errors } from "./utils/Errors.sol";
-
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { INonfungiblePositionManager } from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
 contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
 	INonfungiblePositionManager internal uniswapV3NFPositionsManager;
@@ -56,10 +57,7 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
 	 * @param _amount The amount of stablecoin to withdraw.
 	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
 	 */
-	function borrow(
-		uint256 _amount,
-		uint256 _tokenId
-	) public nonReentrant onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender) {
+	function borrow(uint256 _amount, uint256 _tokenId) public nonReentrant onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender) {
 		if (!(_amount > 0)) {
 			revert Errors.AmountShouldBePositive();
 		}
@@ -72,10 +70,7 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
 	 * @param _amount The amount of stablecoin to repay.
 	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
 	 */
-	function repay(
-		uint256 _amount,
-		uint256 _tokenId
-	) public nonReentrant onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender) {
+	function repay(uint256 _amount, uint256 _tokenId) public nonReentrant onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender) {
 		if (_amount <= 0) {
 			revert Errors.AmountShouldBePositive();
 		}

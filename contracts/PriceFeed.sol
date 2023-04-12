@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-/**
- * @title PriceFeed contract
- * @author Eclypse Labs
- * @notice Contains the Chainlink PriceFeed aggregator.The feedRegistry contract is used to fetch the prices
- */
-
 import { IPriceFeed } from "./interfaces/IPriceFeed.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
@@ -15,6 +9,12 @@ import {FullMath} from "@uniswap-core/libraries/FullMath.sol";
 import { AggregatorV3Interface } from "@chainlink/interfaces/AggregatorV3Interface.sol";
 import { FeedRegistryInterface } from "@chainlink/interfaces/FeedRegistryInterface.sol";
 import { Denominations } from "@chainlink/Denominations.sol";
+
+/**
+ * @title PriceFeed contract
+ * @author Eclypse Labs
+ * @notice Contains the Chainlink PriceFeed aggregator.The feedRegistry contract is used to fetch the prices
+ */
 
 contract PriceFeed is IPriceFeed, Ownable {
 	// -- Addresses --
