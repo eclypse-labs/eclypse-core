@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-/**
- * @title EclypseVault contract
- * @author Eclypse Labs
- * @notice 
- */
-
 import { IEclypseVault } from "./interfaces/IEclypseVault.sol";
 
 import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
@@ -15,6 +9,12 @@ import { TransferHelper } from "@uniswap-periphery/libraries/TransferHelper.sol"
 import { FullMath } from "@uniswap-core/libraries/FullMath.sol";
 import {INonfungiblePositionManager} from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
+/**
+ * @title EclypseVault contract
+ * @author Eclypse Labs
+ * @notice This contract has the ownership of the nfts deposited as collateral and can thus increase the liquiddty of a position 
+ * as well as decrease it (with the known uniswap functions). Recieves instructions from the PositionManager contract.
+ */
 
 contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
 	uint256 internal LIQUIDATION_FEES;

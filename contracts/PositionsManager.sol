@@ -4,12 +4,16 @@ pragma solidity 0.8.17;
 /**
  * @title PositionManager contract
  * @author Eclypse Labs
- * @notice Contains
+ * @notice Stores all the mappings needed to keep track of the user and their position, containes the logic for
+ * oppening a borrower position and borrowing a stablecoin, contains the logic for the collateral valiue of the position
+ * and the liquidations.
+ * Backend intermediate between the User interactions contract and the Vault and PriceFeed contracts.
+ * Transfers all the NFT logic to the Vault contract and the fetching of the price to PriceFeed.
  */
 
-import "./interfaces/IPositionsManager.sol";
-import "./interfaces/IEclypseVault.sol";
-import "./interfaces/IPriceFeed.sol";
+import { IPositionsManager } from "./interfaces/IPositionsManager.sol";
+import { IEclypseVault } from "./interfaces/IEclypseVault.sol";
+import { IPriceFeed } from "./interfaces/IPriceFeed.sol";
 import { Errors } from "./utils/Errors.sol";
 
 import { Denominations } from "@chainlink/Denominations.sol";
@@ -25,6 +29,8 @@ import { TickMath } from "@uniswap-core/libraries/TickMath.sol";
 import { TransferHelper } from "@uniswap-periphery/libraries/TransferHelper.sol";
 import { LiquidityAmounts } from "@uniswap-periphery/libraries/LiquidityAmounts.sol";
 import { OracleLibrary } from "@uniswap-periphery/libraries/OracleLibrary.sol";
+import { IUniswapV3Factory } from "@uniswap-core/interfaces/IUniswapV3Factory.sol";
+import { INonfungiblePositionManager } from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
 contract PositionsManager is Ownable, IPositionsManager {
 	uint256 constant MAX_UINT256 = 2 ** 256 - 1;
@@ -52,6 +58,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		_;
 	}
 
+	//TODO not needed
 	modifier onlyVault() {
 		require(msg.sender == address(protocolContracts.eclypseVault));
 		_;
@@ -72,7 +79,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		address _userInteractionsAddress,
 		address _eclypseVaultAddress,
 		address _priceFeedAddress
-	) external override onlyOwner {
+	) external onlyOwner {
 		protocolContracts.userInteractions = _userInteractionsAddress;
 		protocolContracts.eclypseVault = IEclypseVault(_eclypseVaultAddress);
 		protocolContracts.uniswapFactory = IUniswapV3Factory(_uniFactory);
@@ -201,7 +208,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		return (amountToken0 + fee0, amountToken1 + fee1);
 	}
 
-	//TODO comment function
+	//TODO add comment of function
 	function refreshDebtTracking(address assetAddress) public {
 		AssetsValues storage assetValues = assetsValues[assetAddress];
 		uint256 newInterestFactor = power(assetValues.interestRate, block.timestamp - assetValues.lastFactorUpdate);
