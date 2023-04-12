@@ -1,37 +1,28 @@
 // SPDX-License-Identifier: MIT
+/**
+ * @title PriceFeed contract
+ * @author Eclypse Labs
+ * @notice Contains the Chainlink PriceFeed aggregator.The feedRegistry contract is used to fetch the prices
+ */
 
-pragma solidity <0.9.0;
+pragma solidity 0.8.17;
 
 import { IPriceFeed } from "./interfaces/IPriceFeed.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-//import {Math} from "@oppenzeppelin/contracts/utils/math/Math.sol";
-
 import { FixedPoint96 } from "@uniswap-core/libraries/FixedPoint96.sol";
-import "@uniswap-core/libraries/FullMath.sol";
-import "@uniswap-core/libraries/FixedPoint96.sol";
-
+import {FullMath} from "@uniswap-core/libraries/FullMath.sol";
 import { AggregatorV3Interface } from "@chainlink/interfaces/AggregatorV3Interface.sol";
 import { FeedRegistryInterface } from "@chainlink/interfaces/FeedRegistryInterface.sol";
 import { Denominations } from "@chainlink/Denominations.sol";
 
-import "forge-std/Test.sol";
-
-/*
- * The PriceFeed uses UniswaTWAP as primary oracle, and Chainlink as fallback. It changes when the
- * difference in price of the two oracles is more than 5%
- */
 contract PriceFeed is IPriceFeed, Ownable {
 	// -- Addresses --
 	address userInteractionAddress;
 	address positionManagerAddress;
 	address constant WETHAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-	// -- State --
-	AggregatorV3Interface private priceFeedChainLink;
 	FeedRegistryInterface private feedRegistry;
-
-	uint256 public lastGoodPrice;
 
 	struct ChainlinkResponse {
 		uint80 roundId;
@@ -67,9 +58,6 @@ contract PriceFeed is IPriceFeed, Ownable {
 			return FixedPoint96.Q96;
 		}
 		ChainlinkResponse memory chainlinkResponse = _getChainlinkResponse(_tokenAddress, _quote);
-		//muldiv ou muldivRoundingUp a voir
-		//uint8 decimals = chainlinkResponse.decimals;
-		//return FullMath.mulDiv(uint256(chainlinkResponse.answer), 1, 10 ** (decimals));
 		return FullMath.mulDiv(uint256(chainlinkResponse.answer), FixedPoint96.Q96, 10 ** (chainlinkResponse.decimals));
 	}
 
