@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity <0.9.0;
+pragma solidity 0.8.17;
 
-import "forge-std/Test.sol";
+/**
+ * @title PositionManager contract
+ * @author Eclypse Labs
+ * @notice Contains
+ */
 
 import "./interfaces/IPositionsManager.sol";
 import "./interfaces/IEclypseVault.sol";
@@ -10,17 +14,17 @@ import { Errors } from "./utils/Errors.sol";
 
 import { Denominations } from "@chainlink/Denominations.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "@openzeppelin/contracts/utils/math/Math.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
-import "@uniswap-core/libraries/FixedPoint96.sol";
-import "@uniswap-core/libraries/FullMath.sol";
-import "@uniswap-core/libraries/TickMath.sol";
-import "@uniswap-periphery/libraries/TransferHelper.sol";
-import "@uniswap-periphery/libraries/LiquidityAmounts.sol";
-import "@uniswap-periphery/libraries/OracleLibrary.sol";
+import { FixedPoint96 } from "@uniswap-core/libraries/FixedPoint96.sol";
+import { FullMath } from "@uniswap-core/libraries/FullMath.sol";
+import { TickMath } from "@uniswap-core/libraries/TickMath.sol";
+import { TransferHelper } from "@uniswap-periphery/libraries/TransferHelper.sol";
+import { LiquidityAmounts } from "@uniswap-periphery/libraries/LiquidityAmounts.sol";
+import { OracleLibrary } from "@uniswap-periphery/libraries/OracleLibrary.sol";
 
 contract PositionsManager is Ownable, IPositionsManager {
 	uint256 constant MAX_UINT256 = 2 ** 256 - 1;
@@ -95,7 +99,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		address _ETHpoolToken1,
 		bool _inv0,
 		bool _inv1
-	) external override onlyOwner {
+	) external onlyOwner {
 		whiteListedPools[_poolAddress] = true;
 		if (_token0 != WETHAddress) {
 			tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
@@ -121,7 +125,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the Uniswap NFT representing the position.
 	 * @param _assetAddress The address of the borrowable asset.
 	 */
-	function openPosition(address _owner, uint256 _tokenId, address _assetAddress) external override onlyBorrower {
+	function openPosition(address _owner, uint256 _tokenId, address _assetAddress) external onlyBorrower {
 		protocolContracts.uniswapPositionsManager.safeTransferFrom(_owner, address(protocolContracts.eclypseVault), _tokenId);
 
 		(, , address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, , , , ) = protocolContracts
@@ -159,7 +163,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
 	 * @dev The caller must have approved the transfer of the Uniswap V3 NFT from the BorrowerOperations contract to their wallet.
 	 */
-	function closePosition(address _owner, uint256 _tokenId) external override onlyBorrower {
+	function closePosition(address _owner, uint256 _tokenId) external onlyBorrower {
 		uint256 debt = debtOf(_tokenId);
 		if (debt > 0) {
 			repay(_owner, _tokenId, debt);
@@ -185,7 +189,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @return amountToken0 The amount of tokens 0.
 	 * @return amountToken1 The amount of tokens 1.
 	 */
-	function positionAmounts(uint256 _tokenId) public view override returns (uint256 amountToken0, uint256 amountToken1) {
+	function positionAmounts(uint256 _tokenId) public view returns (uint256 amountToken0, uint256 amountToken1) {
 		Position memory _position = positionFromTokenId[_tokenId];
 		(int24 twappedTick, ) = OracleLibrary.consult(_position.poolAddress, assetsValues[_position.assetAddress].twapLength);
 
@@ -195,9 +199,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 		(amountToken0, amountToken1) = LiquidityAmounts.getAmountsForLiquidity(sqrtRatioX96, sqrtRatio0X96, sqrtRatio1X96, _position.liquidity);
 		(, , , , , , , , , , uint128 fee0, uint128 fee1) = protocolContracts.uniswapPositionsManager.positions(_tokenId);
 		return (amountToken0 + fee0, amountToken1 + fee1);
-
 	}
 
+	//TODO comment function
 	function refreshDebtTracking(address assetAddress) public {
 		AssetsValues storage assetValues = assetsValues[assetAddress];
 		uint256 newInterestFactor = power(assetValues.interestRate, block.timestamp - assetValues.lastFactorUpdate);
@@ -211,7 +215,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the position to get the value of.
 	 * @return value The value of the position in ETH.
 	 */
-	function positionValueInETH(uint256 _tokenId) public view override returns (uint256 value) {
+	function positionValueInETH(uint256 _tokenId) public view returns (uint256 value) {
 		(uint256 amount0, uint256 amount1) = positionAmounts(_tokenId);
 		address token0 = positionFromTokenId[_tokenId].token0;
 		address token1 = positionFromTokenId[_tokenId].token1;
@@ -237,7 +241,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _user The address of the user to get the total value of.
 	 * @return totalValue The total value of all active positions of the user in ETH.
 	 */
-	function totalPositionsValueInETH(address _user) public view override returns (uint256 totalValue) {
+	function totalPositionsValueInETH(address _user) public view returns (uint256 totalValue) {
 		UserPositions storage userPositions = positionsFromAddress[_user];
 		for (uint32 i = 0; i < userPositions.counter; i++) {
 			if (userPositions.positions[i].status == Status.active) {
@@ -252,7 +256,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the position to get the debt of.
 	 * @return currentDebt The total debt of the position, including interest.
 	 */
-	function debtOf(uint256 _tokenId) public view override returns (uint256 currentDebt) {
+	function debtOf(uint256 _tokenId) public view returns (uint256 currentDebt) {
 		Position memory position = positionFromTokenId[_tokenId];
 		AssetsValues memory assetValues = assetsValues[position.assetAddress];
 		uint256 debtPrincipal = position.debtPrincipal;
@@ -292,7 +296,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the position to get the debt of.
 	 * @return debtInETH The debt of the position in ETH. - 18 decimals
 	 */
-	function debtOfInETH(uint256 _tokenId) public view override returns (uint256) {
+	function debtOfInETH(uint256 _tokenId) public view returns (uint256) {
 		uint256 ethUsdPrice = protocolContracts.priceFeed.getPrice(Denominations.ETH, Denominations.USD);
 		IERC20Metadata asset = IERC20Metadata(positionFromTokenId[_tokenId].assetAddress);
 		// FixedPoint96.Q96 from the PriceFeed, 18 decimals for ETH, asset decimals for <asset> (the stablecoin)
@@ -308,7 +312,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the position to increase the debt of.
 	 * @param _amount The amount to increase the debt of the position by.
 	 */
-	function borrow(address sender, uint256 _tokenId, uint256 _amount) external override onlyBorrower {
+	function borrow(address sender, uint256 _tokenId, uint256 _amount) external onlyBorrower {
 		require(_amount > 0, "A debt cannot be increased by 0.");
 
 		refreshDebtTracking(positionFromTokenId[_tokenId].assetAddress);
@@ -335,7 +339,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the position to decrease the debt of.
 	 * @param _amount The amount to decrease the debt of the position by.
 	 */
-	function repay(address sender, uint256 _tokenId, uint256 _amount) public override onlyBorrowerOrSelf {
+	function repay(address sender, uint256 _tokenId, uint256 _amount) public onlyBorrowerOrSelf {
 		require(_amount > 0, "A debt cannot be decreased by 0.");
 
 		Position storage position = positionFromTokenId[_tokenId];
@@ -388,7 +392,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 		uint256 tokenId,
 		uint256 amountAdd0,
 		uint256 amountAdd1
-	) external override onlyBorrower returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
+	) external onlyBorrower returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
 		Position storage position = positionFromTokenId[tokenId];
 		address token0 = position.token0;
 		address token1 = position.token1;
@@ -406,11 +410,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @return amount1 The amount of token1 removed from the LP position.
 	 * @dev Only the Borrower Operations contract can call this function.
 	 */
-	function withdraw(
-		address sender,
-		uint256 tokenId,
-		uint128 liquidityToRemove
-	) external override onlyBorrower returns (uint256 amount0, uint256 amount1) {
+	function withdraw(address sender, uint256 tokenId, uint128 liquidityToRemove) external onlyBorrower returns (uint256 amount0, uint256 amount1) {
 		Position storage position = positionFromTokenId[tokenId];
 		liquidityToRemove = liquidityToRemove > position.liquidity ? position.liquidity : liquidityToRemove;
 
@@ -447,7 +447,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _riskConstants The new risk constants ratio of the pool.
 	 */
 	function updateRiskConstants(address _pool, uint256 _riskConstants) public onlyOwner {
-		require(_riskConstants > 1e18, "The minimum collateral ratio must be greater than 1.");
+		require(_riskConstants > FixedPoint96.Q96, "The minimum collateral ratio must be greater than 1.");
 		riskConstantsFromPool[_pool].minCR = _riskConstants;
 	}
 
@@ -457,7 +457,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenId The ID of the position to check.
 	 * @return isLiquidatable, true if the position is liquidatable and false otherwise.
 	 */
-	function liquidatable(uint256 _tokenId) public view override returns (bool) {
+	function liquidatable(uint256 _tokenId) public view returns (bool) {
 		Position memory position = positionFromTokenId[_tokenId];
 		return _liquidatable(positionValueInETH(_tokenId), debtOfInETH(_tokenId), riskConstantsFromPool[position.poolAddress].minCR);
 	}
@@ -525,7 +525,7 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @param _tokenIds The IDs of the positions to liquidate, using calldata to save gas.
 	 * @param _amountRepays The amounts of stablecoin to repay to reimburse the debt of the positions, using calldata to save gas.
 	 */
-	function batchliquidate(uint256[] calldata _tokenIds, uint256[] calldata _amountRepays) public override {
+	function batchliquidate(uint256[] calldata _tokenIds, uint256[] calldata _amountRepays) public {
 		require(_tokenIds.length == _amountRepays.length, "Input arrays must have the same length");
 		for (uint256 i = 0; i < _tokenIds.length; i++) {
 			liquidatePosition(_tokenIds[i], _amountRepays[i]);
