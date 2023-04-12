@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
+pragma solidity 0.8.17;
+
 /**
  * @title PriceFeed contract
  * @author Eclypse Labs
  * @notice Contains the Chainlink PriceFeed aggregator.The feedRegistry contract is used to fetch the prices
  */
-
-pragma solidity 0.8.17;
 
 import { IPriceFeed } from "./interfaces/IPriceFeed.sol";
 
