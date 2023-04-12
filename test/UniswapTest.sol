@@ -29,7 +29,6 @@ import "../contracts/PositionsManager.sol";
 import "../contracts/PriceFeed.sol";
 import "gho-core/src/contracts/gho/GhoToken.sol";
 
-
 abstract contract UniswapTest is Test {
 	GhoToken ghoToken;
 
@@ -43,6 +42,7 @@ abstract contract UniswapTest is Test {
 
 	address facticeUser1 = makeAddr("facticeUser1");
 	address facticeUser2 = makeAddr("facticeUser2");
+	address facticeUser3 = makeAddr("facticeUser3");
 	uint256 facticeUser1_tokenId;
 	uint256 facticeUser1_tokenId2;
 
@@ -176,7 +176,7 @@ abstract contract UniswapTest is Test {
 			token0: usdcAddr,
 			token1: wethAddr,
 			fee: 500,
-			tickLower: int24(204860), 
+			tickLower: int24(204860),
 			tickUpper: int24(204930),
 			amount0Desired: 1250 * TOKEN6,
 			amount1Desired: 1 * TOKEN18,
@@ -185,8 +185,8 @@ abstract contract UniswapTest is Test {
 			recipient: facticeUser1,
 			deadline: block.timestamp
 		});
-	
-		(facticeUser1_tokenId, , ,) = uniswapPositionsNFT.mint(mintParams);
+
+		(facticeUser1_tokenId, , , ) = uniswapPositionsNFT.mint(mintParams);
 		(facticeUser1_tokenId2, , , ) = uniswapPositionsNFT.mint(mintParams);
 
 		uniswapPositionsNFT.approve(address(positionsManager), facticeUser1_tokenId);
@@ -199,10 +199,14 @@ abstract contract UniswapTest is Test {
 		vm.startPrank(address(eclypseVault));
 		ghoToken.mint(facticeUser1, 1000 * TOKEN18);
 		ghoToken.mint(facticeUser2, 1000 * TOKEN18);
-
+		ghoToken.mint(facticeUser3, 1000 * TOKEN18);
 		vm.stopPrank();
 
 		vm.startPrank(facticeUser2);
+		ghoToken.approve(address(positionsManager), 100 * TOKEN18);
+		vm.stopPrank();
+
+		vm.startPrank(facticeUser3);
 		ghoToken.approve(address(positionsManager), 100 * TOKEN18);
 		vm.stopPrank();
 	}
