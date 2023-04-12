@@ -479,36 +479,33 @@ contract UserInteractionsTest is UniswapTest {
 
 		(uint256 usdcAfterLiquidation1, uint256 wethAfterLiquidation1) = positionsManager.positionAmounts(facticeUser1_tokenId);
 
-		uint256 newWethBalOfFacticeUser2 = WETH.balanceOf(address(facticeUser2));
-		uint256 newUsdcBalOfFacticeUser2 = USDC.balanceOf(address(facticeUser2));
-		uint256 newGhoBalOfFacticeUser2 = ghoToken.balanceOf(address(facticeUser2));
-
-		console.log("usdc before the first liquidation : ", usdcBeforeLiquidation1);
-		console.log("weth before the first liquidation : ", wethBeforeLiquidation1);
-
-		console.log("usdc after the first liquidation : ", usdcAfterLiquidation1);
-		console.log("weth after the first liquidation : ", wethAfterLiquidation1);
 		vm.stopPrank();
 
 		//Verifying that FacticeUser2 got some WETH and USDC and lost some GHO
-		assertGt(newWethBalOfFacticeUser2, wethBalOfFacticeUser2, "WETH balance of FacticeUser2 should be greater than before.");
-		assertGt(newUsdcBalOfFacticeUser2, usdcBalOfFacticeUser2, "USDC balance of FacticeUser2 should be greater than before.");
-		assertLt(newGhoBalOfFacticeUser2, ghoBalOfFacticeUser2, "GHO balance of FacticeUser2 should be less than before.");
+		assertGt(WETH.balanceOf(address(facticeUser2)), wethBalOfFacticeUser2, "WETH balance of FacticeUser2 should be greater than before.");
+		assertGt(USDC.balanceOf(address(facticeUser2)), usdcBalOfFacticeUser2, "USDC balance of FacticeUser2 should be greater than before.");
+		assertLt(ghoToken.balanceOf(address(facticeUser2)), ghoBalOfFacticeUser2, "GHO balance of FacticeUser2 should be less than before.");
 
 		// Verifying that the position's debt is half of the original debt
 		assertEq(positionsManager.debtOf(facticeUser1_tokenId), debt - debt / 2, "Debt should be half of the original debt.");
 
 		// Verifying that the difference between its amount of USDC before the liquidation and its amount of USDC after the liquidation is < 0.1% as
 		// expected. Meaning he lost half of the USDC he had in the position. The formula for a price difference < 0.1% is: Math.abs(a - b) * 1000 / a < 1
-		uint256 priceDifferenceUsdc = SignedMath.abs(SafeCast.toInt256(usdcBeforeLiquidation1 / 2) - SafeCast.toInt256(usdcAfterLiquidation1)) /
-			(usdcBeforeLiquidation1 / 2);
-		assertTrue(priceDifferenceUsdc * 1000 < 1);
+		assertTrue(
+			(SignedMath.abs(SafeCast.toInt256(usdcBeforeLiquidation1 / 2) - SafeCast.toInt256(usdcAfterLiquidation1)) /
+				(usdcBeforeLiquidation1 / 2)) *
+				1000 <
+				1
+		);
 
 		// Verifying that the difference between its amount of WETH before the liquidation and its amount of WETH after the liquidation is < 0.1% as
 		// expected. Meaning he lost half of the WETH he had in the position. The formula for a price difference < 0.1% is: Math.abs(a - b) * 1000 / a < 1
-		uint256 priceDifferenceWeth = SignedMath.abs(SafeCast.toInt256(wethBeforeLiquidation1 / 2) - SafeCast.toInt256(wethAfterLiquidation1)) /
-			(wethBeforeLiquidation1 / 2);
-		assertTrue(priceDifferenceWeth * 1000 < 1);
+		assertTrue(
+			(SignedMath.abs(SafeCast.toInt256(wethBeforeLiquidation1 / 2) - SafeCast.toInt256(wethAfterLiquidation1)) /
+				(wethBeforeLiquidation1 / 2)) *
+				1000 <
+				1
+		);
 
 		// 4 - FacticeUser3 starts liquidating the orther half of the debt
 
@@ -519,26 +516,12 @@ contract UserInteractionsTest is UniswapTest {
 		uint256 usdcBalOfFacticeUser3 = USDC.balanceOf(address(facticeUser3));
 		uint256 ghoBalOfFacticeUser3 = ghoToken.balanceOf(address(facticeUser3));
 
-		(uint256 usdcBeforeLiquidation2, uint256 wethBeforeLiquidation2) = positionsManager.positionAmounts(facticeUser1_tokenId);
-
 		positionsManager.liquidatePosition(facticeUser1_tokenId, debt / 2);
 
-		(uint256 usdcAfterLiquidation2, uint256 wethAfterLiquidation2) = positionsManager.positionAmounts(facticeUser1_tokenId);
-
-		uint256 newWethBalOfFacticeUser3 = WETH.balanceOf(address(facticeUser3));
-		uint256 newUsdcBalOfFacticeUser3 = USDC.balanceOf(address(facticeUser3));
-		uint256 newGhoBalOfFacticeUser3 = ghoToken.balanceOf(address(facticeUser3));
-
 		//Verifying that FacticeUser3 got some WETH and USDC and lost some GHO
-		assertGt(newWethBalOfFacticeUser3, wethBalOfFacticeUser3, "WETH balance of FacticeUser3 should be greater than before.");
-		assertGt(newUsdcBalOfFacticeUser3, usdcBalOfFacticeUser3, "USDC balance of FacticeUser3 should be greater than before.");
-		assertLt(newGhoBalOfFacticeUser3, ghoBalOfFacticeUser3, "GHO balance of FacticeUser3 should be less than before.");
-
-		console.log("usdc before the second liquidation : ", usdcBeforeLiquidation2);
-		console.log("weth before the second liquidation : ", wethBeforeLiquidation2);
-
-		console.log("usdc after the second liquidation : ", usdcAfterLiquidation2);
-		console.log("weth after the second liquidation : ", wethAfterLiquidation2);
+		assertGt(WETH.balanceOf(address(facticeUser3)), wethBalOfFacticeUser3, "WETH balance of FacticeUser3 should be greater than before.");
+		assertGt(USDC.balanceOf(address(facticeUser3)), usdcBalOfFacticeUser3, "USDC balance of FacticeUser3 should be greater than before.");
+		assertLt(ghoToken.balanceOf(address(facticeUser3)), ghoBalOfFacticeUser3, "GHO balance of FacticeUser3 should be less than before.");
 
 		vm.stopPrank();
 
