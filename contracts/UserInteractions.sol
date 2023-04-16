@@ -122,6 +122,20 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
 	}
 
 	/**
+	 * @notice Update the ticks of the position.
+	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
+	 * @param _newLowerTick The new lower tick.
+	 * @param _newUpperTick The new upper tick.
+	 */
+	function updateTicks(
+		uint256 _tokenId,
+		int24 _newLowerTick,
+		int24 _newUpperTick
+	) public onlyActivePosition(_tokenId) onlyPositionOwner(_tokenId, msg.sender) returns(uint256 _newTokenId) {
+		_newTokenId = manager.updateTicks(msg.sender, _tokenId, _newLowerTick, _newUpperTick);
+	}
+
+	/**
 	 * @notice Check if the position is active.
 	 * @param _tokenId The ID of the Uniswap V3 NFT representing the position.
 	 */

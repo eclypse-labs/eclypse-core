@@ -2,12 +2,18 @@
 pragma solidity 0.8.17;
 
 import { IEclypseVault } from "./interfaces/IEclypseVault.sol";
+import { IPositionsManager } from "./interfaces/IPositionsManager.sol";
 
 import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { TransferHelper } from "@uniswap-periphery/libraries/TransferHelper.sol";
 import { FullMath } from "@uniswap-core/libraries/FullMath.sol";
 import { INonfungiblePositionManager } from "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
+import { IUniswapV3Pool } from "@uniswap-core/interfaces/IUniswapV3Pool.sol";
+import { TickMath } from "@uniswap-core/libraries/TickMath.sol";
+import { LiquidityAmounts } from "@uniswap-periphery/libraries/LiquidityAmounts.sol";
+
+
 
 /**
  * @title EclypseVault contract
@@ -152,6 +158,68 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
 	 */
 	function transferPosition(address _to, uint256 _tokenId) public onlyManager {
 		uniswapV3NFPositionsManager.transferFrom(address(this), _to, _tokenId);
+	}
+
+	function updateTicks(
+		address _sender,
+		uint256 _tokenId,
+		int24 _newTickLower,
+		int24 _newTickUpper,
+		IPositionsManager.Position memory _position
+	) public onlyManager returns(uint256 newTokenId, uint128 newLiquidity) {
+		
+		// Remove all the liquidity from the position by decreasing the liquidity to 0
+		// This will return the tokens to the Eclypse contract
+		uniswapV3NFPositionsManager.decreaseLiquidity(
+			INonfungiblePositionManager.DecreaseLiquidityParams({
+				tokenId: _tokenId,
+				liquidity: _position.liquidity,
+				amount0Min: 0,
+				amount1Min: 0,
+				deadline: block.timestamp
+			})
+		);
+
+		(uint256 amount0, uint256 amount1) = uniswapV3NFPositionsManager.collect(
+			INonfungiblePositionManager.CollectParams({
+				tokenId: _tokenId,
+				recipient: address(this),
+				amount0Max: type(uint128).max,
+				amount1Max: type(uint128).max
+			})
+		);
+
+		// Approve the uniswap v3 positions manager to spend the tokens
+		TransferHelper.safeApprove(_position.token0, address(uniswapV3NFPositionsManager), amount0);
+		TransferHelper.safeApprove(_position.token1, address(uniswapV3NFPositionsManager), amount1);
+
+		// Mint a new position with the same liquidity but with the new ticks
+		uint256 actualAmount0;
+		uint256 actualAmount1;
+		(newTokenId, newLiquidity, actualAmount0, actualAmount1) = uniswapV3NFPositionsManager.mint(
+			INonfungiblePositionManager.MintParams({
+				token0: _position.token0,
+				token1: _position.token1,
+				fee: _position.fee,
+				tickLower: _newTickLower,
+				tickUpper: _newTickUpper,
+				amount0Desired: amount0,
+				amount1Desired: amount1,
+				amount0Min: 0,
+				amount1Min: 0,
+				recipient: address(this),
+				deadline: block.timestamp
+			})
+		);
+
+		if (actualAmount0 < amount0) {
+			TransferHelper.safeTransfer(_position.token0, address(_sender), amount0 - actualAmount0);
+		}
+		if (actualAmount1 < amount1) {
+			TransferHelper.safeTransfer(_position.token1, address(_sender), amount1 - actualAmount1);
+		}
+
+		return (newTokenId, newLiquidity);
 	}
 
 	/**

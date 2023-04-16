@@ -426,6 +426,31 @@ contract PositionsManager is Ownable, IPositionsManager {
 		position.liquidity -= liquidityToRemove;
 	}
 
+	function updateTicks(
+		address _sender,
+		uint256 _tokenId,
+		int24 _newTickLower,
+		int24 _newTickUpper
+	) external onlyBorrower returns (uint256 newTokenId) {
+		Position memory position = positionFromTokenId[_tokenId];
+		uint128 newLiquidity;
+		(newTokenId, newLiquidity) = protocolContracts.eclypseVault.updateTicks(_sender, _tokenId, _newTickLower, _newTickUpper, position);
+		position.tokenId = newTokenId;
+		position.tickLower = _newTickLower;
+		position.tickUpper = _newTickUpper;
+		position.liquidity = newLiquidity;
+
+		positionFromTokenId[newTokenId] = position;
+		positionFromTokenId[_tokenId].status = Status.nonExistent;
+
+
+		if (liquidatable(newTokenId)) {
+			revert("The position can't be liquidatable!");
+		}
+
+		return newTokenId;
+	}
+
 	/**
 	 * @notice Returns the collateral ratio of a position.
 	 * @param _tokenId The ID of the position to get the collateral ratio of.

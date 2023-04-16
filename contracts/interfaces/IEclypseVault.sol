@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+import "./IPositionsManager.sol";
+
 import "@uniswap-periphery/interfaces/INonfungiblePositionManager.sol";
 
 interface IEclypseVault {
@@ -31,4 +33,12 @@ interface IEclypseVault {
     ) external returns (uint256 amount0, uint256 amount1);
 
     function transferPosition(address _to, uint256 _tokenId) external;
+
+    function updateTicks(
+        address _sender,
+        uint256 _tokenId,
+        int24 _newLowerTick,
+        int24 _newUpperTick,
+        IPositionsManager.Position memory _position
+    ) external returns (uint256 newTokenId, uint128 newLiquidity);
 }

@@ -534,4 +534,23 @@ contract UserInteractionsTest is UniswapTest {
 			"Position should be closed."
 		);
 	}
+
+	function testUpdateTicks() public {
+		// test the updateTicks function
+		
+		// 1 - FacticeUser1 creates a position and borrows GHO
+
+		vm.startPrank(address(facticeUser1));
+		uint256 positionValueInEth = positionsManager.positionValueInETH(facticeUser1_tokenId);
+		userInteractions.borrow(100 * positionValueInEth, facticeUser1_tokenId);
+
+		// 2 - FacticeUser1 updates the ticks of their position
+		// get the position
+		IPositionsManager.Position memory position = positionsManager.getPosition(facticeUser1_tokenId);
+		// get the current ticks
+		int24 lowerTick = position.tickLower;
+		int24 upperTick = position.tickUpper;
+		// update the ticks
+		userInteractions.updateTicks(facticeUser1_tokenId, lowerTick-10, upperTick+100);
+	}
 }

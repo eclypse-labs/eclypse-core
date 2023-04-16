@@ -113,6 +113,13 @@ interface IPositionsManager {
 
 	function withdraw(address _sender, uint256 _tokenId, uint128 _liquidityToRemove) external returns (uint256 amount0, uint256 amount1);
 
+	function updateTicks(
+		address _sender,
+		uint256 _tokenId,
+		int24 _newTickLower,
+		int24 _newTickUpper
+	) external returns (uint256 newTokenId);
+
 	// Liquidation functions
 	function liquidatable(uint256 _tokenId) external view returns (bool);
 

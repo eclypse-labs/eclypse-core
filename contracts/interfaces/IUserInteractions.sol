@@ -32,4 +32,6 @@ interface IUserInteractions {
         external
         returns (uint256 amount0, uint256 amount1);
 
+    function updateTicks(uint256 _tokenId, int24 _newLowerTick, int24 _newUpperTick) external returns (uint256 newTokenId);
+
 }
