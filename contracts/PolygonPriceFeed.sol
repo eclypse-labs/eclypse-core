@@ -16,13 +16,13 @@ import { Denominations } from "@chainlink/Denominations.sol";
  * @notice Contains the Chainlink PriceFeed aggregator.The feedRegistry contract is used to fetch the prices
  */
 
-contract PriceFeed is IPriceFeed, Ownable {
+contract PolygonPriceFeed is IPriceFeed, Ownable {
 	// -- Addresses --
 	address userInteractionAddress;
 	address positionManagerAddress;
 	address constant WETHAddress = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
 
-	mapping(address => mapping => AggregatorV3Interface) tokenToQuoteFeed;
+	mapping(address => mapping(address => AggregatorV3Interface)) tokenToQuoteFeed;
 
 	struct ChainlinkResponse {
 		uint80 roundId;
@@ -32,6 +32,11 @@ contract PriceFeed is IPriceFeed, Ownable {
 		uint8 decimals;
 	}
 
+	function initialize(address _feedRegistryAddr) external {
+		// ignore
+	}
+
+
 	/**
 	 * @notice Set the addresses of various contracts and emit events to indicate that these addresses have been modified.
 	 * @param _initialFeeds The address of the borrower operations contract.
@@ -39,9 +44,9 @@ contract PriceFeed is IPriceFeed, Ownable {
 	 * @param _initialQuote The address of the borrower operations contract.
 	 * @dev This function can only be called by the contract owner.
 	 */
-	function initialize(address[] _initialFeeds, address[] _initialToken, address[] _initialQuote) external onlyOwner {
-		for (int i = 0; i < _initialFeeds.length; i++) {
-			tokenToQuoteFeed[initialToken[i]][initialQuote[i]] = AggregatorV3Interface(_initialFeeds[i]);
+	function initialize(address[] calldata _initialFeeds, address[] calldata _initialToken, address[] calldata _initialQuote) external onlyOwner {
+		for (uint256 i = 0; i < _initialFeeds.length; i++) {
+			tokenToQuoteFeed[_initialToken[i]][_initialQuote[i]] = AggregatorV3Interface(_initialFeeds[i]);
 		}
 
 		// renounceOwnership();
@@ -60,6 +65,12 @@ contract PriceFeed is IPriceFeed, Ownable {
 	function getPrice(address _tokenAddress, address _quote) external view returns (uint256) {
 		if (_tokenAddress == WETHAddress && _quote == Denominations.ETH) {
 			return FixedPoint96.Q96;
+		}
+		if (_tokenAddress == WETHAddress) {
+			_tokenAddress = Denominations.ETH;
+		}
+		if (_quote == WETHAddress) {
+			_quote = Denominations.ETH;
 		}
 		
 		AggregatorV3Interface feed = tokenToQuoteFeed[_tokenAddress][_quote];

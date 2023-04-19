@@ -53,8 +53,9 @@ abstract contract UniswapTest is Test {
 	address public constant swapRouterAddr = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
 	address public uniPoolWBTCETHAddr = 0xCBCdF9626bC03E24f779434178A73a0B4bad62eD;
 	address public WBTCAddr = 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
-	address constant feedRegisteryAddr = 0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf;
-	address uniswapPositionsNFTAddr = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
+	address public constant feedRegisteryAddr = 0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf;
+	address public constant uniswapFactoryAddr = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+	address public constant uniswapPositionsNFTAddr = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
 
 	IERC20 WETH = IERC20(wethAddr);
 	IERC20 USDC = IERC20(usdcAddr);
@@ -72,7 +73,6 @@ abstract contract UniswapTest is Test {
 	uint256 tokenId;
 	FakePriceFeed fakePriceFeed;
 
-	address public constant uniswapFactoryAddr = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 	IUniswapV3Factory uniswapFactory = IUniswapV3Factory(uniswapFactoryAddr);
 
 	function convertQ96(uint256 x) public pure returns (uint256) {

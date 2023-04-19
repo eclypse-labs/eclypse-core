@@ -14,7 +14,7 @@ interface IUserInteractions {
     event WithdrawnCollateral(uint256 _amount0, uint256 _amount1, uint256 _tokenId);
 
 
-    function initialize(address _uniPosNFT, address _PositionManagerAddress) external;
+    function initialize(address _uniPosNFT, address _positionManagerAddress) external;
 
     function openPosition(uint256 _tokenId, address _asset) external;
 

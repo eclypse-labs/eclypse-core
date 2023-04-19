@@ -3,3 +3,5 @@ bin/
 cache/
 .prettierrc
 .vscode/
+broadcast/
+.env
