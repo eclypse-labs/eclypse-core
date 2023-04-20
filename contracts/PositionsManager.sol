@@ -39,7 +39,6 @@ contract PositionsManager is Ownable, IPositionsManager {
 	ProtocolContracts public protocolContracts;
 
 	mapping(address => bool) private whiteListedPools;
-	mapping(address => PoolPricingInfo) private tokenToWETHPoolInfo;
 	mapping(address => RiskConstants) private riskConstantsFromPool;
 
 	mapping(address => UserPositions) private positionsFromAddress;
@@ -100,20 +99,14 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 */
 	function addPoolToProtocol(
 		address _poolAddress,
-		address _token0,
-		address _token1,
-		address _ETHpoolToken0,
-		address _ETHpoolToken1,
-		bool _inv0,
-		bool _inv1
+		address _token0, // can be removed now, but would need to change the interface first
+		address _token1, // can be removed now, but would need to change the interface first
+		address _ETHpoolToken0, // can be removed now, but would need to change the interface first
+		address _ETHpoolToken1, // can be removed now, but would need to change the interface first
+		bool _inv0, // can be removed now, but would need to change the interface first
+		bool _inv1 // can be removed now, but would need to change the interface first
 	) external onlyOwner {
 		whiteListedPools[_poolAddress] = true;
-		if (_token0 != WETHAddress) {
-			tokenToWETHPoolInfo[_token0] = PoolPricingInfo(_ETHpoolToken0, _inv0);
-		}
-		if (_token1 != WETHAddress) {
-			tokenToWETHPoolInfo[_token1] = PoolPricingInfo(_ETHpoolToken1, _inv1);
-		}
 	}
 
 	/**

@@ -47,11 +47,6 @@ interface IPositionsManager {
 		uint32 twapLength;
 	}
 
-	struct PoolPricingInfo {
-		address poolAddress;
-		bool inv; // True iff WETH is token0 of the pool.
-	}
-
 	struct RiskConstants {
 		uint256 minCR; // Minimum collateral ratio
 	}
