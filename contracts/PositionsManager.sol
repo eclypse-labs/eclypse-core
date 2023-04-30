@@ -170,6 +170,17 @@ contract PositionsManager is Ownable, IPositionsManager {
 		return positionFromTokenId[_tokenId];
 	}
 
+	function getUserActivePositions(address _owner) public view returns (uint256 count, Position[] memory) {
+		count = positionsFromAddress[_owner].counter;
+		Position[] memory positions = new Position[](count);
+		for (uint256 i = 0; i < count; i++) {
+			if (positionsFromAddress[_owner].positions[i].status == Status.active) {
+				positions[i] = positionsFromAddress[_owner].positions[i];
+			}
+		}
+		return (count, positions);
+	}
+
 	/**
 	 * @notice Returns the amount of tokens 0 and 1 of a position.
 	 * @dev The amounts of tokens are calculated using the UniswapV3 TWAP Oracle mechanism.
