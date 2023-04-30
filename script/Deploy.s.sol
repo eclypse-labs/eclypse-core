@@ -6,8 +6,14 @@ import { EclypseVault } from "contracts/EclypseVault.sol";
 import { PositionsManager } from "contracts/PositionsManager.sol";
 import { UserInteractions } from "contracts/UserInteractions.sol";
 import { PolygonPriceFeed } from "contracts/PolygonPriceFeed.sol";
+import { IPositionsManager } from "contracts/interfaces/IPositionsManager.sol";
+import { EclypseUSD } from "contracts/EclypseUSD.sol";
 
 import { Denominations } from "@chainlink/Denominations.sol";
+
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+import { FixedPoint96 } from "@uniswap-core/libraries/FixedPoint96.sol";
 
 contract Deploy is Script {
     
@@ -73,13 +79,21 @@ contract Deploy is Script {
         */
          // USDC/ETH on polygon
         positionsManager.addPoolToProtocol(
-            uniPoolUsdcETHPolygonAddr,
-            usdcPolygonAddr,
-            wethPolygonAddr,
-            usdcPolygonAddr,
-            wethAddr,
-            false,
-            true
+            uniPoolUsdcETHPolygonAddr
         );
+
+        // Create ERC20 token
+        EclypseUSD stablecoin = new EclypseUSD(address(eclypseVault));
+
+        IPositionsManager.AssetsValues memory assetsValues = IPositionsManager.AssetsValues(
+            79228162564014647528974148095, // 1.02 ; 2% annual interest rate
+            0,
+            FixedPoint96.Q96,
+            block.timestamp,
+            60
+        );
+
+        positionsManager.addAssetsValuesToProtocol(address(stablecoin), assetsValues);
+
     }
 }

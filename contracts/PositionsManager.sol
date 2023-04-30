@@ -90,21 +90,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 	 * @notice Adds a pair of tokens to the protocol.
 	 * @dev Adds the pool address to the accepted pool addresses, maps the token addresses to their corresponding WETH pool information, and emits events for each added token.
 	 * @param _poolAddress The address of the pool to add to the protocol.
-	 * @param _token0 The address of the first token in the pair.
-	 * @param _token1 The address of the second token in the pair.
-	 * @param _ETHpoolToken0 The address of the WETH pool for the first token.
-	 * @param _ETHpoolToken1 The address of the WETH pool for the second token.
-	 * @param _inv0 Whether the first token's price is inversed in the WETH pool.
-	 * @param _inv1 Whether the second token's price is inversed in the WETH pool.
 	 */
 	function addPoolToProtocol(
-		address _poolAddress,
-		address _token0, // can be removed now, but would need to change the interface first
-		address _token1, // can be removed now, but would need to change the interface first
-		address _ETHpoolToken0, // can be removed now, but would need to change the interface first
-		address _ETHpoolToken1, // can be removed now, but would need to change the interface first
-		bool _inv0, // can be removed now, but would need to change the interface first
-		bool _inv1 // can be removed now, but would need to change the interface first
+		address _poolAddress
 	) external onlyOwner {
 		whiteListedPools[_poolAddress] = true;
 	}

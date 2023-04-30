@@ -65,13 +65,7 @@ interface IPositionsManager {
 	) external;
 
 	function addPoolToProtocol(
-		address _poolAddress,
-		address _token0,
-		address _token1,
-		address _ETHpoolToken0,
-		address _ETHpoolToken1,
-		bool _inv0,
-		bool _inv1
+		address _poolAddress
 	) external;
 
 	// Position functions

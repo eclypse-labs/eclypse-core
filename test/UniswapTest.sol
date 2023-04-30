@@ -124,7 +124,7 @@ abstract contract UniswapTest is Test {
 
 		// whitelist la pool: updateRiskConstants
 		// pour l'oracle ajouter la pool ETH/GHO: addTokenETHpoolAddress
-		positionsManager.addPoolToProtocol(uniPoolUsdcETHAddr, usdcAddr, wethAddr, uniPoolUsdcETHAddr, address(0), false, true);
+		positionsManager.addPoolToProtocol(uniPoolUsdcETHAddr);
 
 		uint256 _minCR = FullMath.mulDiv(15, FixedPoint96.Q96, 10);
 		positionsManager.updateRiskConstants(address(uniPoolUsdcETHAddr), _minCR);
@@ -258,7 +258,7 @@ abstract contract UniswapTest is Test {
 		}
 		uniswapPositionsNFT.mint{ value: 1000 ether }(mintParams);
 
-		positionsManager.addPoolToProtocol(address(uniPoolGhoEth), address(ghoToken), wethAddr, address(uniPoolGhoEth), address(0), false, false);
+		positionsManager.addPoolToProtocol(address(uniPoolGhoEth));
 
 		ghoToken.approve(swapRouterAddr, 25 * 2 * TOKEN18);
 
