@@ -16,7 +16,7 @@ interface IUserInteractions {
 
     function initialize(address _uniPosNFT, address _positionManagerAddress) external;
 
-    function openPosition(uint256 _tokenId, address _asset) external;
+    function openPosition(uint256 _tokenId, address _asset, uint256 _borrowAmount) external;
 
     function closePosition(uint256 _tokenId) external;
 

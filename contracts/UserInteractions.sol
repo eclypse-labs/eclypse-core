@@ -40,8 +40,12 @@ contract UserInteractions is Ownable, IUserInteractions, ReentrancyGuard {
 	 * @param _asset The address of the asset which will be borrowed with this position.
 	 * @dev The caller must have approved the transfer of the Uniswap V3 NFT from their wallet to the BorrowerOperations contract.
 	 */
-	function openPosition(uint256 _tokenId, address _asset) external positionNotInitiated(_tokenId) {
+	function openPosition(uint256 _tokenId, address _asset, uint256 _borrowAmount) external positionNotInitiated(_tokenId) {
 		manager.openPosition(msg.sender, _tokenId, _asset);
+
+		if (_borrowAmount > 0) {
+			manager.borrow(msg.sender, _tokenId, _borrowAmount);
+		}
 	}
 
 	/**

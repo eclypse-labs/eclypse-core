@@ -47,6 +47,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 
 	mapping(address => AssetsValues) private assetsValues;
 
+	// 0.5% fee
+	uint256 public BORROWING_FEE_BPS = 50;
+
 	modifier onlyBorrower() {
 		require(msg.sender == address(protocolContracts.userInteractions));
 		_;
@@ -321,7 +324,9 @@ contract PositionsManager is Ownable, IPositionsManager {
 		Position storage position = positionFromTokenId[_tokenId];
 		AssetsValues storage assetValues = assetsValues[position.assetAddress];
 
-		protocolContracts.eclypseVault.mint(position.assetAddress, sender, _amount);
+		uint256 netAmount = _amount * BORROWING_FEE_BPS / 10000;
+
+		protocolContracts.eclypseVault.mint(position.assetAddress, sender, netAmount);
 		assetValues.totalBorrowedStableCoin += _amount;
 
 		position.interestConstant = FullMath.mulDiv(assetValues.interestFactor, debtPrincipal + _amount, totalDebt + _amount);

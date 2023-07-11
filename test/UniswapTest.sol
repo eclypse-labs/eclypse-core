@@ -192,8 +192,8 @@ abstract contract UniswapTest is Test {
 		uniswapPositionsNFT.approve(address(positionsManager), facticeUser1_tokenId);
 		uniswapPositionsNFT.approve(address(positionsManager), facticeUser1_tokenId2);
 
-		userInteractions.openPosition(facticeUser1_tokenId, address(ghoToken));
-		userInteractions.openPosition(facticeUser1_tokenId2, address(ghoToken));
+		userInteractions.openPosition(facticeUser1_tokenId, address(ghoToken), 0);
+		userInteractions.openPosition(facticeUser1_tokenId2, address(ghoToken), 0);
 		vm.stopPrank();
 
 		vm.startPrank(address(eclypseVault));

@@ -64,7 +64,6 @@ contract EclypseVault is Ownable, IEclypseVault, IERC721Receiver {
 	 * @param _asset The address of the contract to call.
 	 * @param _amount The amount of token to burn.
 	 */
-
 	function burn(address _asset, uint256 _amount) public onlyManager returns (bool _ok) {
 		(_ok, ) = _asset.call(abi.encodeWithSignature("burn(uint256)", _amount));
 	}

@@ -14,6 +14,7 @@ import { Denominations } from "@chainlink/Denominations.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import { FixedPoint96 } from "@uniswap-core/libraries/FixedPoint96.sol";
+import { FullMath } from "@uniswap-core/libraries/FullMath.sol";
 
 contract Deploy is Script {
     
@@ -67,16 +68,6 @@ contract Deploy is Script {
         _initialQuote[1] = Denominations.ETH;
         polygonPriceFeed.initialize(_initialFeeds, _initialToken, _initialQuote);
 
-
-        /*
-        address _poolAddress,
-		address _token0,
-		address _token1,
-		address _ETHpoolToken0,
-		address _ETHpoolToken1,
-		bool _inv0,
-		bool _inv1
-        */
          // USDC/ETH on polygon
         positionsManager.addPoolToProtocol(
             uniPoolUsdcETHPolygonAddr
@@ -86,7 +77,7 @@ contract Deploy is Script {
         EclypseUSD stablecoin = new EclypseUSD(address(eclypseVault));
 
         IPositionsManager.AssetsValues memory assetsValues = IPositionsManager.AssetsValues(
-            79228162564014647528974148095, // 1.02 ; 2% annual interest rate
+            79228162514264337593543950336, // 0% interest rate // 79228162564014647528974148095, // 1.02 ; 2% annual interest rate
             0,
             FixedPoint96.Q96,
             block.timestamp,
@@ -94,6 +85,9 @@ contract Deploy is Script {
         );
 
         positionsManager.addAssetsValuesToProtocol(address(stablecoin), assetsValues);
+
+        uint256 maxCollateralRatio = FullMath.mulDiv(FixedPoint96.Q96, 11, 10); // 1.1
+        positionsManager.updateRiskConstants(uniPoolUsdcETHPolygonAddr, maxCollateralRatio);
 
     }
 }
